@@ -9,7 +9,7 @@
         :root {
             --bg: #0b0e11; --surface: #1e2329; --primary: #00b14f;
             --text-main: #eaecef; --text-dim: #848e9c; --border: #2b3139;
-            --accent: #fcd535; /* Gold for ratings/wallet */
+            --accent: #fcd535; --error: #ff4d4d;
         }
         [data-theme="light"] {
             --bg: #f4f6f8; --surface: #ffffff; --primary: #00b14f;
@@ -17,171 +17,268 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text-main); transition: 0.3s; padding-bottom: 80px; overflow-x: hidden; }
+        body { background: var(--bg); color: var(--text-main); transition: 0.3s; overflow-x: hidden; height: 100vh; }
 
-        /* SIDEBAR & SETTINGS */
+        /* SCREENS */
+        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
+        .screen.active { display: flex; }
+
+        /* SPLASH/LOADER */
+        #splash { position: fixed; inset: 0; background: var(--primary); z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; font-weight: 800; }
+
+        /* LOGIN & ONBOARDING */
+        #loginScreen { background: linear-gradient(160deg, #00b14f 0%, #005c28 100%); justify-content: center; align-items: center; padding: 25px; }
+        .card { background: var(--surface); border-radius: 24px; padding: 30px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center; }
+        input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: white; outline: none; }
+
+        /* HALF SHEET ITEM DETAIL */
+        #itemSheet {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%;
+            background: var(--surface); z-index: 1100; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+            border-radius: 24px 24px 0 0; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+        #itemSheet.half { bottom: -45%; } /* Peek view */
+        #itemSheet.open { bottom: 0; }
+        .sheet-handle { width: 40px; height: 4px; background: var(--border); margin: 0 auto 20px; border-radius: 10px; }
+
+        /* SIDEBAR */
         #sidebar {
-            position: fixed; left: -100%; top: 0; width: 85%; height: 100%;
-            background: var(--surface); z-index: 1000; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
-            padding: 25px; border-right: 1px solid var(--border);
+            position: fixed; left: -100%; top: 0; width: 80%; height: 100%;
+            background: var(--surface); z-index: 1200; transition: 0.3s; padding: 20px;
         }
         #sidebar.open { left: 0; }
-        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; z-index: 999; backdrop-filter: blur(4px); }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1150; display: none; backdrop-filter: blur(4px); }
 
-        /* ITEM CARD (BLINKIT STYLE) */
-        .item-card {
-            background: var(--surface); border-radius: 12px; padding: 10px;
-            position: relative; border: 1px solid var(--border);
-        }
-        .item-img-container {
-            width: 100%; aspect-ratio: 1/1; background: var(--bg);
-            border-radius: 8px; position: relative; overflow: hidden;
-        }
-        .rating-badge {
-            position: absolute; top: 5px; left: 5px; background: rgba(0,0,0,0.6);
-            color: var(--accent); font-size: 10px; padding: 2px 6px; border-radius: 4px;
-            font-weight: 800; backdrop-filter: blur(2px);
-        }
-        .add-btn {
-            position: absolute; bottom: -10px; right: 10px;
-            background: var(--primary); color: white; border: none;
-            width: 32px; height: 32px; border-radius: 8px; font-weight: 900;
-            box-shadow: 0 4px 10px rgba(0,177,79,0.3); cursor: pointer;
-        }
+        /* WALLET */
+        .wallet-box { background: linear-gradient(135deg, var(--primary), #006b2f); border-radius: 20px; padding: 20px; margin: 15px; color: white; }
 
-        /* WALLET CARD */
-        .wallet-card {
-            background: linear-gradient(135deg, var(--primary), #008f3e);
-            margin: 15px; padding: 20px; border-radius: 20px; color: white;
-            box-shadow: 0 10px 20px rgba(0,177,79,0.2);
-        }
+        /* BLINKIT STYLE ITEMS */
+        .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .item-card { background: var(--surface); border-radius: 15px; padding: 10px; position: relative; border: 1px solid var(--border); }
+        .rating { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: var(--accent); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
+        .add-btn { position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; border: none; width: 30px; height: 30px; border-radius: 8px; font-weight: 900; }
 
-        /* TOGGLE SWITCH (PREMIUM) */
-        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { 
-            position: absolute; cursor: pointer; inset: 0; background: #ccc; 
-            transition: .4s; border-radius: 24px; 
-        }
-        input:checked + .slider { background: var(--primary); }
-        .slider:before { 
-            position: absolute; content: ""; height: 18px; width: 18px; 
-            left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%;
-        }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        /* BOTTOM NAVIGATION */
+        /* BOTTOM NAV */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
-            background: var(--surface); display: flex; align-items: center;
-            justify-content: space-around; border-top: 1px solid var(--border); z-index: 100;
+            position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--surface);
+            display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 1000;
         }
-        .nav-link { color: var(--text-dim); text-decoration: none; font-size: 10px; font-weight: 700; text-align: center; }
-        .nav-link.active { color: var(--primary); }
+        .nav-btn { background: none; border: none; color: var(--text-dim); font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; }
+        .nav-btn.active { color: var(--primary); }
+
+        /* UTILS */
+        .badge { background: #1d9bf0; color: white; border-radius: 50%; padding: 2px; font-size: 10px; margin-left: 5px; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body data-theme="dark">
 
-    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <div id="splash">MULTILOOPS</div>
+    <div id="recaptcha-container"></div>
+    <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-    <div id="sidebar">
-        <h2 style="margin-bottom: 25px;">Settings</h2>
-        
-        <div style="background: var(--bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <span>Master Mute</span>
-                <label class="switch"><input type="checkbox" id="masterMute"><span class="slider"></span></label>
+    <div id="loginScreen" class="screen">
+        <div class="card">
+            <h2 id="welcomeText">Welcome</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">The Future of Trading</p>
+            <div id="phoneInputArea">
+                <input type="tel" id="phone" placeholder="+91 Phone Number">
+                <button class="btn-main" onclick="sendOTP()">Send OTP</button>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span>Dark Mode</span>
-                <label class="switch"><input type="checkbox" checked onchange="toggleTheme(this)"><span class="slider"></span></label>
+            <div id="otpInputArea" style="display:none">
+                <input type="number" id="otp" placeholder="6-digit OTP">
+                <button class="btn-main" onclick="verifyOTP()">Verify OTP</button>
             </div>
+            <p style="margin: 15px 0; color: var(--border);">OR</p>
+            <button class="btn-main" style="background: #4285F4;" onclick="googleLogin()">Login with Google</button>
         </div>
-
-        <p style="color: var(--text-dim); font-size: 12px; margin-bottom: 10px;">NOTIFICATIONS</p>
-        <div style="font-size: 14px; line-height: 2.5;">
-            <p>Transactional Alerts</p>
-            <p>Offers & Discounts</p>
-            <p>Order Updates</p>
-        </div>
-        
-        <button class="btn-primary" style="background: #ff4d4d; margin-top: 40px;" onclick="logout()">Log Out</button>
     </div>
 
-    <div id="homeScreen" class="screen active">
-        <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: var(--bg); position: sticky; top: 0; z-index: 90;">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:var(--text-main); font-size:24px;">≡</button>
+    <div id="onboardingScreen" class="screen" style="justify-content: center; padding: 25px;">
+        <div class="card">
+            <h2>One Last Step</h2>
+            <input type="text" id="userNameInput" placeholder="Full Name">
+            <input type="text" id="userAddressInput" placeholder="Delivery Address">
+            <button class="btn-main" onclick="saveProfile()">Start Exploring</button>
+            <p onclick="showScreen('homeScreen')" style="margin-top: 15px; color: var(--text-dim); font-size: 12px;">Skip for now</p>
+        </div>
+    </div>
+
+    <div id="homeScreen" class="screen">
+        <header style="padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 100;">
+            <button onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:24px;">≡</button>
             <div style="text-align: center;">
                 <p style="font-size: 10px; color: var(--text-dim);">DELIVERING TO</p>
-                <p style="font-size: 14px; font-weight: 800;">Home, Sector 29 ▼</p>
+                <p id="displayAddress" style="font-size: 12px; font-weight: 700;">Set Address ▼</p>
             </div>
-            <div style="width: 24px; height: 24px; background: var(--surface); border-radius: 50%; border: 1px solid var(--primary);"></div>
-        </div>
+            <div style="width:30px; height:30px; border-radius:50%; background:var(--surface); border:1px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:10px;">V</div>
+        </header>
 
         <div style="padding: 0 15px 15px;">
-            <input type="text" placeholder="Search 'Loopy Packs'..." style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:white;">
+            <input type="text" placeholder="Search Ventures..." style="width:100%; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:white;">
         </div>
 
-        <div class="wallet-card">
-            <p style="font-size: 12px; opacity: 0.8;">Loopy Wallet Balance</p>
-            <h1 style="margin: 5px 0;">₹1,450.00</h1>
-            <button style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;" onclick="showScreen('walletScreen')">Add Money via UPI +</button>
+        <div class="wallet-box">
+            <p style="font-size: 12px; opacity: 0.8;">Loopy Wallet</p>
+            <h2 id="walletBalance">₹0.00</h2>
+            <button onclick="showScreen('walletScreen')" style="background:rgba(255,255,255,0.2); border:none; padding:5px 10px; border-radius:5px; color:white; font-size:11px; margin-top:10px;">Add Money via UPI</button>
         </div>
 
-        <div style="display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px;" id="catBar">
-            <div style="flex: 0 0 45%; background: var(--surface); padding: 20px; border-radius: 12px; text-align: center;">Ventures</div>
-            <div style="flex: 0 0 45%; background: var(--surface); padding: 20px; border-radius: 12px; text-align: center;">Loops</div>
-            <button style="flex: 0 0 40%; background: var(--primary); border:none; color:white; border-radius:12px; font-weight:800;">Show All</button>
-        </div>
+        <div class="item-grid" id="mainGrid"></div>
+    </div>
 
-        <div style="padding: 15px;">
-            <h3 style="margin-bottom: 15px;">Recommended for You</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" id="itemGrid">
-                </div>
+    <div id="sidebar">
+        <div style="display: flex; align-items: center; margin-bottom: 30px;">
+            <h3 id="sidebarName">User</h3><span class="badge">V</span>
         </div>
+        <div style="color: var(--text-main); line-height: 3;">
+            <p onclick="showScreen('walletScreen')">Loopy Wallet</p>
+            <p>Notification Settings (Master Mute)</p>
+            <p>Accessibility</p>
+            <p>Share App Link</p>
+            <p style="color: var(--error);" onclick="logout()">Logout</p>
+        </div>
+    </div>
+
+    <div id="itemSheet">
+        <div class="sheet-handle" onclick="expandSheet()"></div>
+        <h2 id="sheetItemName">Item Detail</h2>
+        <p id="sheetItemPrice" style="color: var(--primary); font-weight: 800; margin-bottom: 20px;">₹0</p>
+        <div style="border-top: 1px solid var(--border); padding-top: 20px;">
+            <p style="margin-bottom: 10px;">Options:</p>
+            <div style="display:flex; gap:10px;">
+                <button style="padding:10px; border-radius:8px; border:1px solid var(--primary); background:none; color:white;">Model A</button>
+                <button style="padding:10px; border-radius:8px; border:1px solid var(--border); background:none; color:white;">Model B</button>
+            </div>
+            <p style="margin-top: 20px; color: var(--text-dim); font-size: 14px;">Delivery in 15-20 Mins</p>
+        </div>
+        <button class="btn-main" style="margin-top: 30px;">Add to Cart</button>
     </div>
 
     <nav class="bottom-nav">
-        <div class="nav-link active">HOME</div>
-        <div class="nav-link">CATEGORIES</div>
-        <div class="nav-link">WALLET</div>
-        <div class="nav-link">CART</div>
-        <div class="nav-link">PROFILE</div>
+        <button class="nav-btn active" onclick="showScreen('homeScreen')"><span>HOME</span></button>
+        <button class="nav-btn" onclick="showScreen('categoriesScreen')"><span>CATEGORIES</span></button>
+        <button class="nav-btn" onclick="showScreen('walletScreen')"><span>WALLET</span></button>
+        <button class="nav-btn" onclick="showScreen('cartScreen')"><span>CART</span></button>
     </nav>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
     <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
-            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
+            authDomain: "multiloops-ventures-a1d41.firebaseapp.com",
+            projectId: "multiloops-ventures-a1d41",
+            storageBucket: "multiloops-ventures-a1d41.firebasestorage.app",
+            messagingSenderId: "239033809088",
+            appId: "1:239033809088:web:05b978c6dcf42a8c175525"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // 1. AUTH LOGIC
+        auth.onAuthStateChanged((user) => {
+            document.getElementById('splash').style.display = 'none';
+            if (user) {
+                // Check if returning user
+                if (localStorage.getItem('mlv_name')) {
+                    setupHome(user);
+                    showScreen('homeScreen');
+                } else {
+                    showScreen('onboardingScreen');
+                }
+            } else {
+                showScreen('loginScreen');
+            }
+        });
+
+        function setupHome(user) {
+            document.getElementById('sidebarName').innerText = localStorage.getItem('mlv_name') || user.displayName || "Trader";
+            document.getElementById('displayAddress').innerText = (localStorage.getItem('mlv_address') || "Set Address").substring(0, 15) + "...";
+            document.getElementById('walletBalance').innerText = "₹" + (localStorage.getItem('mlv_wallet') || "0.00");
+            renderItems();
         }
 
-        function toggleTheme(cb) {
-            document.body.setAttribute('data-theme', cb.checked ? 'dark' : 'light');
+        function saveProfile() {
+            const n = document.getElementById('userNameInput').value;
+            const a = document.getElementById('userAddressInput').value;
+            if(!n || !a) return alert("Please fill details");
+            localStorage.setItem('mlv_name', n);
+            localStorage.setItem('mlv_address', a);
+            localStorage.setItem('mlv_wallet', '0.00'); // Start at 0
+            showScreen('homeScreen');
+            setupHome(auth.currentUser);
         }
 
+        // 2. ITEM LOGIC
         function renderItems() {
             const items = [
-                { name: "Fast Loop Pro", price: "₹299", rating: "4.8 ★" },
-                { name: "Venture Pack", price: "₹1,499", rating: "4.9 ★" },
-                { name: "Global Loop", price: "₹599", rating: "4.7 ★" },
-                { name: "Starter Kit", price: "₹149", rating: "4.5 ★" }
+                { name: "Pro Loop", price: "₹499", rating: "4.8" },
+                { name: "Global Venture", price: "₹2499", rating: "4.9" },
+                { name: "Starter Pack", price: "₹199", rating: "4.5" },
+                { name: "Elite Venture", price: "₹9999", rating: "5.0" }
             ];
-            const grid = document.getElementById('itemGrid');
-            grid.innerHTML = items.map(item => `
-                <div class="item-card">
-                    <div class="item-img-container">
-                        <div class="rating-badge">${item.rating}</div>
-                    </div>
-                    <p style="font-size:12px; font-weight:700; margin-top:10px;">${item.name}</p>
-                    <p style="color:var(--primary); font-weight:800;">${item.price}</p>
-                    <button class="add-btn">+</button>
+            document.getElementById('mainGrid').innerHTML = items.map(i => `
+                <div class="item-card" onclick="openItem('${i.name}', '${i.price}')">
+                    <div style="height:100px; background:var(--border); border-radius:10px;"></div>
+                    <div class="rating">${i.rating} ★</div>
+                    <p style="font-size:12px; margin-top:8px;">${i.name}</p>
+                    <p style="color:var(--primary); font-weight:800;">${i.price}</p>
+                    <button class="add-btn" onclick="event.stopPropagation();">+</button>
                 </div>
             `).join('');
         }
 
-        renderItems();
+        function openItem(name, price) {
+            document.getElementById('sheetItemName').innerText = name;
+            document.getElementById('sheetItemPrice').innerText = price;
+            document.getElementById('itemSheet').classList.add('open');
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function expandSheet() {
+            const s = document.getElementById('itemSheet');
+            s.classList.toggle('half'); // Toggle between peek and full
+        }
+
+        // 3. UI HELPERS
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                if(b.innerText.toLowerCase() === id.replace('Screen', '')) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            closeAll();
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function closeAll() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('itemSheet').classList.remove('open');
+            document.getElementById('overlay').style.display = 'none';
+        }
+
+        // 4. AUTH ACTIONS
+        function googleLogin() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
+        function sendOTP() {
+            const p = document.getElementById('phone').value;
+            const v = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size: 'invisible'});
+            auth.signInWithPhoneNumber(p, v).then(res => {
+                window.confirmResult = res;
+                document.getElementById('phoneInputArea').style.display = 'none';
+                document.getElementById('otpInputArea').style.display = 'block';
+            }).catch(e => alert(e.message));
+        }
+        function verifyOTP() {
+            window.confirmResult.confirm(document.getElementById('otp').value).catch(e => alert("Wrong OTP"));
+        }
+        function logout() { localStorage.clear(); auth.signOut().then(() => location.reload()); }
     </script>
 </body>
 </html>
