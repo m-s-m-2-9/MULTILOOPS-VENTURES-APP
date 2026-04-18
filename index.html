@@ -17,57 +17,48 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text-main); transition: 0.3s; overflow-x: hidden; height: 100vh; }
+        body { background: var(--bg); color: var(--text-main); transition: 0.3s; overflow: hidden; height: 100vh; width: 100vw; }
 
-        /* SCREENS */
-        .screen { display: none; height: 100vh; width: 100vw; flex-direction: column; overflow-y: auto; padding-bottom: 80px; }
+        /* SCREENS & NAVIGATION */
+        .screen { display: none; height: 100vh; width: 100%; flex-direction: column; overflow-y: auto; padding-bottom: 90px; position: absolute; top: 0; left: 0; }
         .screen.active { display: flex; }
 
-        /* SPLASH/LOADER */
-        #splash { position: fixed; inset: 0; background: var(--primary); z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; font-weight: 800; }
+        /* LOADING SPLASH */
+        #splash { position: fixed; inset: 0; background: var(--primary); z-index: 10000; display: flex; justify-content: center; align-items: center; color: white; font-weight: 800; font-size: 24px; }
 
-        /* LOGIN & ONBOARDING */
-        #loginScreen { background: linear-gradient(160deg, #00b14f 0%, #005c28 100%); justify-content: center; align-items: center; padding: 25px; }
-        .card { background: var(--surface); border-radius: 24px; padding: 30px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); text-align: center; }
+        /* LOGIN */
+        #loginScreen { background: linear-gradient(160deg, #00b14f 0%, #005c28 100%); z-index: 5000; justify-content: center; align-items: center; padding: 25px; }
+        .card { background: var(--surface); border-radius: 24px; padding: 30px; width: 100%; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: white; outline: none; }
 
-        /* HALF SHEET ITEM DETAIL */
-        #itemSheet {
-            position: fixed; bottom: -100%; left: 0; width: 100%; height: 85%;
-            background: var(--surface); z-index: 1100; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
-            border-radius: 24px 24px 0 0; padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        /* BOTTOM NAV (Hidden by default) */
+        #mainNav {
+            position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--surface);
+            display: none; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 4000;
         }
-        #itemSheet.half { bottom: -45%; } /* Peek view */
-        #itemSheet.open { bottom: 0; }
-        .sheet-handle { width: 40px; height: 4px; background: var(--border); margin: 0 auto 20px; border-radius: 10px; }
+        .nav-btn { background: none; border: none; color: var(--text-dim); font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn.active { color: var(--primary); }
 
-        /* SIDEBAR */
-        #sidebar {
-            position: fixed; left: -100%; top: 0; width: 80%; height: 100%;
-            background: var(--surface); z-index: 1200; transition: 0.3s; padding: 20px;
-        }
-        #sidebar.open { left: 0; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1150; display: none; backdrop-filter: blur(4px); }
-
-        /* WALLET */
-        .wallet-box { background: linear-gradient(135deg, var(--primary), #006b2f); border-radius: 20px; padding: 20px; margin: 15px; color: white; }
-
-        /* BLINKIT STYLE ITEMS */
+        /* COMPONENTS */
         .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
         .item-card { background: var(--surface); border-radius: 15px; padding: 10px; position: relative; border: 1px solid var(--border); }
         .rating { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: var(--accent); padding: 2px 6px; border-radius: 5px; font-size: 10px; font-weight: 800; }
         .add-btn { position: absolute; bottom: 8px; right: 8px; background: var(--primary); color: white; border: none; width: 30px; height: 30px; border-radius: 8px; font-weight: 900; }
+        .wallet-box { background: linear-gradient(135deg, var(--primary), #006b2f); border-radius: 20px; padding: 20px; margin: 15px; color: white; }
+        
+        /* SIDEBAR */
+        #sidebar { position: fixed; left: -100%; top: 0; width: 80%; height: 100%; background: var(--surface); z-index: 6000; transition: 0.3s; padding: 30px 20px; border-right: 1px solid var(--border); }
+        #sidebar.open { left: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5500; display: none; backdrop-filter: blur(4px); }
 
-        /* BOTTOM NAV */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--surface);
-            display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 1000;
+        /* HALF SHEET */
+        #itemSheet {
+            position: fixed; bottom: -100%; left: 0; width: 100%; height: 80%;
+            background: var(--surface); z-index: 7000; transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+            border-radius: 24px 24px 0 0; padding: 20px;
         }
-        .nav-btn { background: none; border: none; color: var(--text-dim); font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; }
-        .nav-btn.active { color: var(--primary); }
-
-        /* UTILS */
-        .badge { background: #1d9bf0; color: white; border-radius: 50%; padding: 2px; font-size: 10px; margin-left: 5px; }
+        #itemSheet.open { bottom: 0; }
+        
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; }
     </style>
 </head>
@@ -79,87 +70,113 @@
 
     <div id="loginScreen" class="screen">
         <div class="card">
-            <h2 id="welcomeText">Welcome</h2>
-            <p style="color: var(--text-dim); margin-bottom: 20px;">The Future of Trading</p>
-            <div id="phoneInputArea">
+            <h2 id="loginTitle">Welcome</h2>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Premium Ventures & Loops</p>
+            <div id="phoneArea">
                 <input type="tel" id="phone" placeholder="+91 Phone Number">
                 <button class="btn-main" onclick="sendOTP()">Send OTP</button>
             </div>
-            <div id="otpInputArea" style="display:none">
-                <input type="number" id="otp" placeholder="6-digit OTP">
+            <div id="otpArea" style="display:none">
+                <input type="number" id="otp" placeholder="Enter 6-digit OTP">
                 <button class="btn-main" onclick="verifyOTP()">Verify OTP</button>
             </div>
-            <p style="margin: 15px 0; color: var(--border);">OR</p>
+            <div style="margin: 20px 0; color: var(--border);">OR</div>
             <button class="btn-main" style="background: #4285F4;" onclick="googleLogin()">Login with Google</button>
         </div>
     </div>
 
-    <div id="onboardingScreen" class="screen" style="justify-content: center; padding: 25px;">
+    <div id="onboardingScreen" class="screen" style="justify-content: center; padding: 20px;">
         <div class="card">
-            <h2>One Last Step</h2>
-            <input type="text" id="userNameInput" placeholder="Full Name">
-            <input type="text" id="userAddressInput" placeholder="Delivery Address">
-            <button class="btn-main" onclick="saveProfile()">Start Exploring</button>
-            <p onclick="showScreen('homeScreen')" style="margin-top: 15px; color: var(--text-dim); font-size: 12px;">Skip for now</p>
+            <h2>Finish Profile</h2>
+            <input type="text" id="nameIn" placeholder="Enter Your Name">
+            <input type="text" id="addrIn" placeholder="Delivery Address">
+            <button class="btn-main" onclick="saveUser()">Complete Setup</button>
         </div>
     </div>
 
     <div id="homeScreen" class="screen">
         <header style="padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 100;">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:white; font-size:24px;">≡</button>
+            <button onclick="openSidebar()" style="background:none; border:none; color:white; font-size:24px;">≡</button>
             <div style="text-align: center;">
                 <p style="font-size: 10px; color: var(--text-dim);">DELIVERING TO</p>
-                <p id="displayAddress" style="font-size: 12px; font-weight: 700;">Set Address ▼</p>
+                <p id="addrDisplay" style="font-size: 12px; font-weight: 700;">Loading...</p>
             </div>
-            <div style="width:30px; height:30px; border-radius:50%; background:var(--surface); border:1px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:10px;">V</div>
+            <div style="width:32px; height:32px; border-radius:50%; background:var(--surface); border:1px solid var(--primary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold;">V</div>
         </header>
 
-        <div style="padding: 0 15px 15px;">
-            <input type="text" placeholder="Search Ventures..." style="width:100%; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:white;">
-        </div>
-
+        <div style="padding: 0 15px 15px;"><input type="text" placeholder="Search items..." style="width:100%; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:12px; color:white;"></div>
+        
         <div class="wallet-box">
-            <p style="font-size: 12px; opacity: 0.8;">Loopy Wallet</p>
-            <h2 id="walletBalance">₹0.00</h2>
-            <button onclick="showScreen('walletScreen')" style="background:rgba(255,255,255,0.2); border:none; padding:5px 10px; border-radius:5px; color:white; font-size:11px; margin-top:10px;">Add Money via UPI</button>
+            <p style="font-size: 12px; opacity: 0.9;">Wallet Balance</p>
+            <h2 id="wallBal">₹0.00</h2>
+            <button class="btn-main" style="margin-top:10px; padding:8px; font-size:12px; background:rgba(255,255,255,0.2);" onclick="showTab('walletScreen')">Add via UPI +</button>
         </div>
 
-        <div class="item-grid" id="mainGrid"></div>
+        <div class="item-grid" id="homeGrid"></div>
+    </div>
+
+    <div id="categoriesScreen" class="screen">
+        <h2 style="padding: 20px;">Categories</h2>
+        <div style="padding: 15px; display: grid; grid-template-columns: 1fr; gap: 10px;">
+            <div style="background: var(--surface); padding: 25px; border-radius: 15px; border: 1px solid var(--border);">Global Ventures</div>
+            <div style="background: var(--surface); padding: 25px; border-radius: 15px; border: 1px solid var(--border);">Fast Loops</div>
+            <div style="background: var(--surface); padding: 25px; border-radius: 15px; border: 1px solid var(--border);">Market Equity</div>
+        </div>
+    </div>
+
+    <div id="walletScreen" class="screen">
+        <h2 style="padding: 20px;">Loopy Wallet</h2>
+        <div class="wallet-box" style="margin-top: 0;">
+            <p>Current Balance</p>
+            <h1 id="wallBalLarge">₹0.00</h1>
+        </div>
+        <div style="padding: 20px;">
+            <p style="margin-bottom:15px;">Add Funds</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn-main" style="background:var(--surface); border:1px solid var(--border);">Generate QR</button>
+                <button class="btn-main" style="background:var(--surface); border:1px solid var(--border);">PhonePe/GPay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartScreen" class="screen">
+        <h2 style="padding: 20px;">My Cart</h2>
+        <div style="text-align: center; margin-top: 50px;">
+            <p style="color: var(--text-dim);">Your cart is feeling lonely.</p>
+            <button class="btn-main" style="width: 200px; margin-top: 20px;" onclick="showTab('homeScreen')">Shop Now</button>
+        </div>
     </div>
 
     <div id="sidebar">
-        <div style="display: flex; align-items: center; margin-bottom: 30px;">
-            <h3 id="sidebarName">User</h3><span class="badge">V</span>
+        <div style="display:flex; align-items:center; margin-bottom:40px;">
+            <h3 id="sideName">User</h3><span style="background:#1d9bf0; color:white; border-radius:50%; padding:2px 6px; font-size:10px; margin-left:8px;">V</span>
         </div>
-        <div style="color: var(--text-main); line-height: 3;">
-            <p onclick="showScreen('walletScreen')">Loopy Wallet</p>
-            <p>Notification Settings (Master Mute)</p>
+        <div style="line-height: 3.5; font-weight: 600;">
+            <p onclick="showTab('walletScreen')">Loopy Wallet</p>
+            <p>Notification Settings</p>
             <p>Accessibility</p>
-            <p>Share App Link</p>
-            <p style="color: var(--error);" onclick="logout()">Logout</p>
+            <p>Privacy Policy</p>
+            <p style="color:var(--error); margin-top:20px;" onclick="logout()">Sign Out</p>
         </div>
     </div>
 
     <div id="itemSheet">
-        <div class="sheet-handle" onclick="expandSheet()"></div>
-        <h2 id="sheetItemName">Item Detail</h2>
-        <p id="sheetItemPrice" style="color: var(--primary); font-weight: 800; margin-bottom: 20px;">₹0</p>
-        <div style="border-top: 1px solid var(--border); padding-top: 20px;">
-            <p style="margin-bottom: 10px;">Options:</p>
-            <div style="display:flex; gap:10px;">
-                <button style="padding:10px; border-radius:8px; border:1px solid var(--primary); background:none; color:white;">Model A</button>
-                <button style="padding:10px; border-radius:8px; border:1px solid var(--border); background:none; color:white;">Model B</button>
-            </div>
-            <p style="margin-top: 20px; color: var(--text-dim); font-size: 14px;">Delivery in 15-20 Mins</p>
+        <div style="width:40px; height:4px; background:var(--border); margin:0 auto 20px; border-radius:10px;" onclick="closeAll()"></div>
+        <h2 id="sheetName">Item Name</h2>
+        <h3 id="sheetPrice" style="color:var(--primary); margin:10px 0 20px;">₹0</h3>
+        <p style="color:var(--text-dim); margin-bottom:20px;">Select Variation:</p>
+        <div style="display:flex; gap:10px; margin-bottom:30px;">
+            <button style="padding:12px; border:1px solid var(--primary); background:none; color:white; border-radius:10px;">Standard</button>
+            <button style="padding:12px; border:1px solid var(--border); background:none; color:white; border-radius:10px;">Premium</button>
         </div>
-        <button class="btn-main" style="margin-top: 30px;">Add to Cart</button>
+        <button class="btn-main">Add to Cart</button>
     </div>
 
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="showScreen('homeScreen')"><span>HOME</span></button>
-        <button class="nav-btn" onclick="showScreen('categoriesScreen')"><span>CATEGORIES</span></button>
-        <button class="nav-btn" onclick="showScreen('walletScreen')"><span>WALLET</span></button>
-        <button class="nav-btn" onclick="showScreen('cartScreen')"><span>CART</span></button>
+    <nav id="mainNav">
+        <button class="nav-btn active" onclick="showTab('homeScreen')">HOME</button>
+        <button class="nav-btn" onclick="showTab('categoriesScreen')">CATEGORY</button>
+        <button class="nav-btn" onclick="showTab('walletScreen')">WALLET</button>
+        <button class="nav-btn" onclick="showTab('cartScreen')">CART</button>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -177,106 +194,106 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // 1. AUTH LOGIC
+        // 1. AUTH & ONBOARDING
         auth.onAuthStateChanged((user) => {
             document.getElementById('splash').style.display = 'none';
             if (user) {
-                // Check if returning user
-                if (localStorage.getItem('mlv_name')) {
-                    setupHome(user);
-                    showScreen('homeScreen');
+                if(localStorage.getItem('mlv_name')) {
+                    initApp(user);
+                    showTab('homeScreen');
                 } else {
-                    showScreen('onboardingScreen');
+                    showOnly('onboardingScreen');
                 }
             } else {
-                showScreen('loginScreen');
+                showOnly('loginScreen');
             }
         });
 
-        function setupHome(user) {
-            document.getElementById('sidebarName').innerText = localStorage.getItem('mlv_name') || user.displayName || "Trader";
-            document.getElementById('displayAddress').innerText = (localStorage.getItem('mlv_address') || "Set Address").substring(0, 15) + "...";
-            document.getElementById('walletBalance').innerText = "₹" + (localStorage.getItem('mlv_wallet') || "0.00");
+        function saveUser() {
+            const n = document.getElementById('nameIn').value;
+            const a = document.getElementById('addrIn').value;
+            if(!n || !a) return alert("Fill details!");
+            localStorage.setItem('mlv_name', n);
+            localStorage.setItem('mlv_address', a);
+            localStorage.setItem('mlv_wallet', '0.00');
+            initApp(auth.currentUser);
+            showTab('homeScreen');
+        }
+
+        // 2. DATA INJECTION
+        function initApp(user) {
+            document.getElementById('mainNav').style.display = 'flex';
+            document.getElementById('sideName').innerText = localStorage.getItem('mlv_name');
+            document.getElementById('addrDisplay').innerText = localStorage.getItem('mlv_address').substring(0,18) + "...";
+            const bal = localStorage.getItem('mlv_wallet');
+            document.getElementById('wallBal').innerText = "₹" + bal;
+            document.getElementById('wallBalLarge').innerText = "₹" + bal;
             renderItems();
         }
 
-        function saveProfile() {
-            const n = document.getElementById('userNameInput').value;
-            const a = document.getElementById('userAddressInput').value;
-            if(!n || !a) return alert("Please fill details");
-            localStorage.setItem('mlv_name', n);
-            localStorage.setItem('mlv_address', a);
-            localStorage.setItem('mlv_wallet', '0.00'); // Start at 0
-            showScreen('homeScreen');
-            setupHome(auth.currentUser);
-        }
-
-        // 2. ITEM LOGIC
         function renderItems() {
             const items = [
-                { name: "Pro Loop", price: "₹499", rating: "4.8" },
-                { name: "Global Venture", price: "₹2499", rating: "4.9" },
-                { name: "Starter Pack", price: "₹199", rating: "4.5" },
-                { name: "Elite Venture", price: "₹9999", rating: "5.0" }
+                {n:"Pro Loop A", p:"₹499", r:"4.8"}, {n:"Pro Loop B", p:"₹899", r:"4.9"},
+                {n:"Venture Pack", p:"₹1499", r:"4.7"}, {n:"Starter kit", p:"₹199", r:"4.5"}
             ];
-            document.getElementById('mainGrid').innerHTML = items.map(i => `
-                <div class="item-card" onclick="openItem('${i.name}', '${i.price}')">
+            document.getElementById('homeGrid').innerHTML = items.map(i => `
+                <div class="item-card" onclick="openItem('${i.n}','${i.p}')">
                     <div style="height:100px; background:var(--border); border-radius:10px;"></div>
-                    <div class="rating">${i.rating} ★</div>
-                    <p style="font-size:12px; margin-top:8px;">${i.name}</p>
-                    <p style="color:var(--primary); font-weight:800;">${i.price}</p>
-                    <button class="add-btn" onclick="event.stopPropagation();">+</button>
+                    <div class="rating">${i.r} ★</div>
+                    <p style="font-size:12px; font-weight:700; margin-top:10px;">${i.n}</p>
+                    <p style="color:var(--primary); font-weight:800;">${i.p}</p>
+                    <button class="add-btn" onclick="event.stopPropagation()">+</button>
                 </div>
             `).join('');
         }
 
-        function openItem(name, price) {
-            document.getElementById('sheetItemName').innerText = name;
-            document.getElementById('sheetItemPrice').innerText = price;
-            document.getElementById('itemSheet').classList.add('open');
-            document.getElementById('overlay').style.display = 'block';
-        }
-
-        function expandSheet() {
-            const s = document.getElementById('itemSheet');
-            s.classList.toggle('half'); // Toggle between peek and full
-        }
-
-        // 3. UI HELPERS
-        function showScreen(id) {
+        // 3. UI NAVIGATION
+        function showTab(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                if(b.innerText.toLowerCase() === id.replace('Screen', '')) b.classList.add('active');
-                else b.classList.remove('active');
+            document.getElementById('mainNav').style.display = 'flex';
+            
+            // Highlight active nav btn
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if(id.includes(btn.innerText.toLowerCase().replace('category','categories'))) btn.classList.add('active');
+                else btn.classList.remove('active');
             });
             closeAll();
         }
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.add('open');
+        function showOnly(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('mainNav').style.display = 'none';
+        }
+
+        function openItem(n, p) {
+            document.getElementById('sheetName').innerText = n;
+            document.getElementById('sheetPrice').innerText = p;
+            document.getElementById('itemSheet').classList.add('open');
             document.getElementById('overlay').style.display = 'block';
         }
 
+        function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').style.display = 'block'; }
         function closeAll() {
             document.getElementById('sidebar').classList.remove('open');
             document.getElementById('itemSheet').classList.remove('open');
             document.getElementById('overlay').style.display = 'none';
         }
 
-        // 4. AUTH ACTIONS
+        // 4. FIREBASE ACTIONS
         function googleLogin() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
         function sendOTP() {
             const p = document.getElementById('phone').value;
-            const v = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size: 'invisible'});
+            const v = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size:'invisible'});
             auth.signInWithPhoneNumber(p, v).then(res => {
-                window.confirmResult = res;
-                document.getElementById('phoneInputArea').style.display = 'none';
-                document.getElementById('otpInputArea').style.display = 'block';
+                window.confirmationResult = res;
+                document.getElementById('phoneArea').style.display = 'none';
+                document.getElementById('otpArea').style.display = 'block';
             }).catch(e => alert(e.message));
         }
         function verifyOTP() {
-            window.confirmResult.confirm(document.getElementById('otp').value).catch(e => alert("Wrong OTP"));
+            window.confirmationResult.confirm(document.getElementById('otp').value).catch(e => alert("Invalid OTP"));
         }
         function logout() { localStorage.clear(); auth.signOut().then(() => location.reload()); }
     </script>
