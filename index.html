@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Multiloops Ventures</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00b14f; --green-dark: #008f3e; --green-light: #e8f8ef;
+    --orange: #ff6b35; --bg: #f4f6f8; --white: #ffffff;
+    --text: #1a1a2e; --text-light: #6b7280; --border: #e5e7eb;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08); --radius: 16px;
+  }
+  [data-theme="dark"] {
+    --bg: #121212; --white: #1e1e1e; --text: #f4f6f8;
+    --text-light: #a0a0a0; --border: #333333; --green-light: #1a2e23;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; transition: 0.3s; }
+  .screen { display: none; min-height: 100vh; flex-direction: column; }
+  .screen.active { display: flex; }
+  #loginScreen { background: linear-gradient(160deg, #00b14f 0%, #008f3e 50%, #005c28 100%); justify-content: center; align-items: center; padding: 32px 24px; }
+  .login-card { background: var(--white); border-radius: 24px; padding: 32px 24px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .btn-primary { width: 100%; padding: 16px; background: var(--green); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; }
+  .theme-switch-container { padding: 10px; display: flex; justify-content: center; gap: 10px; }
+  .theme-btn { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); cursor: pointer; font-size: 12px; color: var(--text); }
+  .theme-btn.active { background: var(--green); color: white; border-color: var(--green); }
+  .topnav { background: var(--white); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
+  .topnav-logo { font-size: 18px; font-weight: 900; color: var(--green); }
+  .input-group { margin-bottom: 15px; width: 100%; }
+  .input-group input { width: 100%; padding: 14px 16px; border: 2px solid var(--border); border-radius: 12px; background: var(--white); color: var(--text); }
+</style>
+</head>
+<body data-theme="light">
+
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <h2 style="margin-bottom:10px;">Welcome Back</h2>
+    <div id="phoneSection">
+      <div class="input-group"><input type="tel" id="loginPhone" placeholder="+91 Your Phone"></div>
+      <button class="btn-primary" onclick="sendOTP()">Send OTP</button>
+    </div>
+    <div id="otpSection" style="display:none">
+      <div class="input-group"><input type="number" id="otpInput" placeholder="6-digit OTP"></div>
+      <button class="btn-primary" onclick="verifyOTP()">Verify OTP</button>
+    </div>
+    <div style="text-align:center; margin: 15px 0; color: var(--text-light);">or</div>
+    <button class="btn-primary" style="background:#4285F4" onclick="googleLogin()">Login with Google</button>
+  </div>
+</div>
+
+<div id="homeScreen" class="screen">
+  <div class="topnav">
+    <div class="topnav-logo">Multiloops</div>
+    <div class="theme-switch-container">
+      <button class="theme-btn active" id="btn-light" onclick="setTheme('light')">☀️</button>
+      <button class="theme-btn" id="btn-dark" onclick="setTheme('dark')">🌙</button>
+    </div>
+  </div>
+  <div style="padding: 20px; text-align:center;">
+    <h3>Welcome to Multiloops!</h3>
+    <button class="btn-primary" style="margin-top:20px; background: #ff6b35;" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div id="recaptcha-container"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
+  authDomain: "multiloops-ventures-a1d41.firebaseapp.com",
+  projectId: "multiloops-ventures-a1d41",
+  storageBucket: "multiloops-ventures-a1d41.firebasestorage.app",
+  messagingSenderId: "239033809088",
+  appId: "1:239033809088:web:05b978c6dcf42a8c175525"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// HANDLE GOOGLE REDIRECT RESULT
+auth.getRedirectResult().then((result) => {
+  if (result.user) { showScreen('homeScreen'); }
+}).catch((error) => {
+  if(error.code !== 'auth/internal-error') alert(error.message);
+});
+
+auth.onAuthStateChanged((user) => {
+  if (user) { showScreen('homeScreen'); }
+});
+
+function setTheme(mode) {
+  document.body.setAttribute('data-theme', mode);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + mode).classList.add('active');
+}
+
+function sendOTP() {
+  const phone = document.getElementById('loginPhone').value;
+  const verifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+  auth.signInWithPhoneNumber(phone, verifier).then(result => {
+    confirmationResult = result;
+    document.getElementById('phoneSection').style.display = 'none';
+    document.getElementById('otpSection').style.display = 'block';
+  }).catch(err => alert(err.message));
+}
+
+function verifyOTP() {
+  const otp = document.getElementById('otpInput').value;
+  confirmationResult.confirm(otp).then(() => { showScreen('homeScreen'); }).catch(err => alert("Wrong OTP"));
+}
+
+function googleLogin() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function logout() { auth.signOut().then(() => location.reload()); }
+</script>
+</body>
+</html>
