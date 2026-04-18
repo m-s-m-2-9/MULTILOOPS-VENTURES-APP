@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        /* CSS VARIABLES */
         :root {
             --green: #00b14f; --bg: #f4f6f8; --white: #ffffff;
             --text: #1a1a2e; --text-light: #6b7280; --border: #e5e7eb;
@@ -17,41 +16,44 @@
             --text-light: #a0a0a0; --border: #333333;
         }
 
-        /* BASE STYLES */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); max-width: 480px; margin: 0 auto; min-height: 100vh; }
 
-        /* SCREENS */
+        /* LOADING SPLASH SCREEN */
+        #splashScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--green); display: flex; justify-content: center;
+            align-items: center; z-index: 9999; color: white; font-weight: 900; font-size: 24px;
+        }
+
         .screen { display: none; min-height: 100vh; flex-direction: column; }
         .screen.active { display: flex; }
 
-        /* LOGIN */
         #loginScreen { background: linear-gradient(160deg, #00b14f 0%, #005c28 100%); justify-content: center; align-items: center; padding: 24px; }
         .login-card { background: var(--white); border-radius: 24px; padding: 32px 24px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }
 
-        /* BUTTONS */
         .btn-primary { width: 100%; padding: 16px; background: var(--green); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-top: 10px; }
         .btn-google { background: #4285F4; margin-top: 15px; }
 
-        /* HEADER */
         .topnav { background: var(--white); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .topnav-logo { font-size: 18px; font-weight: 900; color: var(--green); }
 
-        /* PRODUCTS */
         .product-grid { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .product-card { background: var(--white); border-radius: 16px; padding: 12px; border: 1px solid var(--border); }
-        .product-img { width: 100%; height: 100px; background: linear-gradient(45deg, #e8f8ef, #ffffff); border-radius: 10px; margin-bottom: 8px; }
+        .product-img { width: 100%; height: 100px; background: #eee; border-radius: 10px; margin-bottom: 8px; }
         .product-price { color: var(--green); font-weight: 800; }
     </style>
 </head>
 <body data-theme="light">
 
+    <div id="splashScreen">MULTILOOPS</div>
+
     <div id="recaptcha-container"></div>
 
-    <div id="loginScreen" class="screen active">
+    <div id="loginScreen" class="screen">
         <div class="login-card">
-            <h2>Welcome Back</h2>
-            <p style="margin-bottom: 20px; color: var(--text-light);">Login to start trading</p>
+            <h2 id="loginTitle">Welcome</h2>
+            <p style="margin-bottom: 20px; color: var(--text-light);">Start your journey with us</p>
             
             <div id="phoneSection">
                 <input type="tel" id="loginPhone" placeholder="+91 Phone Number" style="width:100%; padding:14px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px;">
@@ -76,14 +78,10 @@
                 <button onclick="setTheme('dark')" style="border:none; background:none; font-size:20px;">🌙</button>
             </div>
         </div>
-
         <div style="padding: 15px;">
-            <h3>Welcome, <span id="userName">User</span>!</h3>
-            <p style="color: var(--text-light); font-size: 14px;">Market Listings:</p>
+            <h3>Hello, <span id="userName">Trader</span>!</h3>
         </div>
-
         <div class="product-grid" id="productContainer"></div>
-
         <button class="btn-primary" style="background: #ff6b35; width: 90%; margin: 20px auto;" onclick="logout()">Logout</button>
     </div>
 
@@ -102,12 +100,25 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
+        // LOGIC: Check if user has been here before
+        if(localStorage.getItem('returningUser')) {
+            document.getElementById('loginTitle').innerText = "Welcome Back";
+        } else {
+            localStorage.setItem('returningUser', 'true');
+        }
+
+        // IMPROVED AUTH LISTENER
         auth.onAuthStateChanged((user) => {
+            const splash = document.getElementById('splashScreen');
             if (user) {
                 document.getElementById('userName').innerText = user.displayName || "Trader";
                 showScreen('homeScreen');
-                loadProducts(); 
+                loadProducts();
+            } else {
+                showScreen('loginScreen');
             }
+            // Hide splash screen after check is done
+            setTimeout(() => { splash.style.display = 'none'; }, 500);
         });
 
         function googleLogin() {
@@ -115,39 +126,25 @@
             auth.signInWithRedirect(provider);
         }
 
-        let confirmationResult;
-
         function sendOTP() {
             const phone = document.getElementById('loginPhone').value;
-            if(!phone.startsWith('+')) {
-                alert("Include country code! (e.g. +91)");
-                return;
-            }
-
-            // CLEANUP BEFORE RENDER
+            if(!phone.startsWith('+')) { alert("Include country code!"); return; }
             document.getElementById('recaptcha-container').innerHTML = '';
-
-            const verifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
-                size: 'invisible' 
-            });
-
+            const verifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
             auth.signInWithPhoneNumber(phone, verifier).then(res => {
                 confirmationResult = res;
                 document.getElementById('phoneSection').style.display = 'none';
                 document.getElementById('otpSection').style.display = 'block';
-                alert("OTP Sent!");
-            }).catch(err => {
-                alert("Error: " + err.message);
-                document.getElementById('recaptcha-container').innerHTML = '';
-            });
+            }).catch(err => alert(err.message));
         }
 
         function verifyOTP() {
             const otp = document.getElementById('otpInput').value;
-            confirmationResult.confirm(otp).then(() => showScreen('homeScreen')).catch(() => alert("Invalid OTP"));
+            confirmationResult.confirm(otp).catch(() => alert("Invalid OTP"));
         }
 
         function setTheme(mode) { document.body.setAttribute('data-theme', mode); }
+        
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -156,9 +153,7 @@
         function loadProducts() {
             const products = [
                 { name: "Global Loop A", price: "₹450" },
-                { name: "Venture Loop B", price: "₹1,200" },
-                { name: "Starter Loop", price: "₹200" },
-                { name: "Elite Loop", price: "₹5,000" }
+                { name: "Venture Loop B", price: "₹1,200" }
             ];
             const container = document.getElementById('productContainer');
             container.innerHTML = products.map(p => `
@@ -166,7 +161,6 @@
                     <div class="product-img"></div>
                     <strong>${p.name}</strong><br>
                     <span class="product-price">${p.price}</span>
-                    <button class="btn-primary" style="padding:8px; font-size:12px; margin-top:5px;">Buy Now</button>
                 </div>
             `).join('');
         }
