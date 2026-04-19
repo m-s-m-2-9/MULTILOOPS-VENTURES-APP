@@ -1,791 +1,1994 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Multiloops Ventures | Premium Super App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #00b14f;
-            --accent: #FFD700;
-        }
-        [data-theme="dark"] {
-            --bg: #000000;
-            --surface: #111111;
-            --surface-alt: #1a1a1a;
-            --text: #ffffff;
-            --text-dim: #9ca3af;
-            --border: #262626;
-        }
-        [data-theme="light"] {
-            --bg: #f9fafb;
-            --surface: #ffffff;
-            --surface-alt: #f3f4f6;
-            --text: #111827;
-            --text-dim: #6b7280;
-            --border: #e5e7eb;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Multiloops Ventures</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --g: #00c853; --g2: #00e676; --g-dim: rgba(0,200,83,.12); --g-glow: rgba(0,200,83,.25);
+  --amber: #ffab00; --red: #ff1744; --blue: #2979ff; --pink: #f50057;
+  --bg: #060a0e; --s1: #0d1318; --s2: #131b22; --s3: #1a2430;
+  --t1: #edf2f7; --t2: #8896a5; --t3: #4a5568;
+  --bd: #1e2d3d; --bd2: #243444;
+  --sh: 0 8px 32px rgba(0,0,0,.6); --sh2: 0 2px 12px rgba(0,0,0,.4);
+  --r: 20px; --r2: 14px; --r3: 10px;
+  --font-h: 'Syne', sans-serif;
+  --font-b: 'DM Sans', sans-serif;
+}
+[data-theme="light"] {
+  --bg: #f0f4f8; --s1: #ffffff; --s2: #f8fafc; --s3: #eef2f7;
+  --t1: #0d1b2a; --t2: #4a5568; --t3: #8896a5;
+  --bd: #dde4ed; --bd2: #c8d3e0;
+  --sh: 0 8px 32px rgba(0,0,0,.08); --sh2: 0 2px 12px rgba(0,0,0,.05);
+}
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--bg); 
-            color: var(--text); 
-            transition: background-color 0.3s, color 0.3s;
-            overflow: hidden;
-        }
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:var(--font-b);background:var(--bg);color:var(--t1);font-size:14px}
+body{max-width:480px;margin:0 auto;position:relative}
+input,button,select,textarea{font-family:var(--font-b);outline:none}
+button{cursor:pointer;border:none;background:none}
+a{text-decoration:none;color:inherit}
+img{display:block;object-fit:cover}
+::-webkit-scrollbar{display:none}
 
-        .mesh-gradient {
-            background: var(--bg);
-            background-image: radial-gradient(at 0% 0%, #222 0, transparent 50%), 
-                               radial-gradient(at 50% 0%, #333 0, transparent 50%);
-        }
+/* ═══════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════ */
+.screen{
+  position:absolute;inset:0;display:none;flex-direction:column;
+  overflow:hidden;z-index:1;background:var(--bg);
+  animation:fadeIn .25s ease;
+}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.scrollable{flex:1;overflow-y:auto;padding-bottom:88px}
 
-        .glass { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            backdrop-filter: blur(10px); 
-        }
+/* ═══════════════════════════════════════════
+   SPLASH
+═══════════════════════════════════════════ */
+#splash{
+  position:fixed;inset:0;z-index:99999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  transition:opacity .5s ease;
+}
+.splash-mark{
+  width:80px;height:80px;border-radius:26px;
+  background:linear-gradient(135deg,var(--g),#00695c);
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;
+  box-shadow:0 0 0 0 var(--g-glow);
+  animation:pulse 2s ease infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--g-glow)}50%{box-shadow:0 0 0 20px rgba(0,200,83,0)}}
+.splash-name{font-family:var(--font-h);font-size:22px;font-weight:800;letter-spacing:-.5px}
+.splash-bar{width:140px;height:3px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:24px}
+.splash-fill{height:100%;background:var(--g);border-radius:4px;animation:fill 2s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes fill{from{width:0}to{width:100%}}
 
-        .screen {
-            position: absolute;
-            inset: 0;
-            display: none;
-            flex-direction: column;
-            overflow-y: auto;
-            padding-bottom: 100px;
-        }
-        .screen.active { display: flex; }
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+#authScreen{
+  justify-content:flex-end;
+  background:radial-gradient(ellipse 120% 80% at 50% 0%,rgba(0,200,83,.06) 0%,transparent 60%),var(--bg);
+  z-index:200;
+}
+.auth-hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px 0}
+.auth-title{font-family:var(--font-h);font-size:38px;font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:10px}
+.auth-sub{font-size:14px;color:var(--t2);line-height:1.6}
+.auth-card{
+  background:var(--s1);border:1px solid var(--bd);border-radius:32px 32px 0 0;
+  padding:32px 28px 48px;margin-top:32px;
+  box-shadow:0 -8px 40px rgba(0,0,0,.3);
+}
+.field-wrap{margin-bottom:14px}
+.field-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px}
+.field{
+  width:100%;padding:15px 16px;background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:var(--r2);color:var(--t1);font-size:15px;transition:border-color .2s,background .2s;
+}
+.field:focus{border-color:var(--g);background:var(--s3)}
+.field::placeholder{color:var(--t3)}
+.btn-green{
+  width:100%;padding:16px;background:linear-gradient(135deg,var(--g),#00a040);
+  color:#000;font-weight:800;font-size:15px;border-radius:var(--r2);
+  letter-spacing:.3px;transition:transform .1s,opacity .2s;
+  box-shadow:0 4px 20px var(--g-glow);
+}
+.btn-green:active{transform:scale(.98);opacity:.9}
+.btn-outline{
+  width:100%;padding:14px;background:var(--s2);border:1.5px solid var(--bd);
+  color:var(--t1);font-size:14px;font-weight:600;border-radius:var(--r2);
+  display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s;
+}
+.btn-outline:hover{border-color:var(--g)}
+.or-divider{text-align:center;color:var(--t3);font-size:12px;font-weight:600;margin:14px 0;position:relative}
+.or-divider::before,.or-divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--bd)}
+.or-divider::before{left:0}.or-divider::after{right:0}
 
-        .stepper-active {
-            background: var(--primary) !important;
-            color: white !important;
-        }
+/* ═══════════════════════════════════════════
+   ONBOARDING
+═══════════════════════════════════════════ */
+#onboardScreen{z-index:190;overflow-y:auto}
+.onboard-wrap{padding:32px 24px 60px}
+.onboard-title{font-family:var(--font-h);font-size:28px;font-weight:800;margin-bottom:4px}
+.onboard-sub{font-size:13px;color:var(--t2);margin-bottom:28px}
+.section-label{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.avatar-row{display:flex;gap:10px;overflow-x:auto;margin-bottom:24px;padding-bottom:4px}
+.av-opt{
+  flex-shrink:0;width:60px;height:60px;border-radius:18px;background:var(--s2);
+  border:2px solid var(--bd);font-size:28px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;
+}
+.av-opt.sel{border-color:var(--g);background:var(--g-dim);transform:scale(1.08)}
+.pref-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.pref-pill{
+  padding:8px 14px;background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:30px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.pref-pill.sel{border-color:var(--g);background:var(--g-dim);color:var(--g)}
 
-        .bottom-sheet {
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
-        }
-        .bottom-sheet.open { transform: translateY(0); }
+/* ═══════════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════════ */
+.topbar{
+  padding:14px 18px;background:var(--s1);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-left{}
+.topbar-greet{font-size:11px;font-weight:600;color:var(--t2)}
+.topbar-name{font-family:var(--font-h);font-size:18px;font-weight:800;letter-spacing:-.3px}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.icon-btn{
+  width:40px;height:40px;border-radius:12px;background:var(--s2);border:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:16px;position:relative;
+  transition:background .15s;
+}
+.icon-btn:active{background:var(--s3)}
+.notif-dot{
+  position:absolute;top:-2px;right:-2px;width:18px;height:18px;
+  background:var(--g);color:#000;border-radius:50%;font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);
+}
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* 3D Avatars */
-        .avatar-ring {
-            border: 2px solid transparent;
-            padding: 2px;
-            transition: 0.2s;
-        }
-        .avatar-ring.selected { border-color: var(--primary); transform: scale(1.1); }
+/* ═══════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════ */
+.searchbar-wrap{padding:10px 16px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0}
+.searchbar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--r2);
+  padding:11px 14px;transition:border-color .2s;
+}
+.searchbar:focus-within{border-color:var(--g)}
+.searchbar i{color:var(--t3);font-size:14px;flex-shrink:0}
+.searchbar input{flex:1;background:none;border:none;color:var(--t1);font-size:14px}
+.searchbar input::placeholder{color:var(--t3)}
 
-        .loopy-surprise {
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { box-shadow: 0 0 5px var(--primary); }
-            to { box-shadow: 0 0 20px var(--primary); }
-        }
-    </style>
+/* ═══════════════════════════════════════════
+   HOME HERO
+═══════════════════════════════════════════ */
+.hero-banner{
+  margin:14px 16px 0;border-radius:24px;padding:20px 22px;
+  background:linear-gradient(135deg,#001a0a 0%,#002d18 60%,#001a0a 100%);
+  border:1px solid rgba(0,200,83,.18);position:relative;overflow:hidden;
+}
+.hero-banner::before{
+  content:'';position:absolute;top:-30px;right:-20px;width:140px;height:140px;
+  border-radius:50%;background:radial-gradient(circle,rgba(0,200,83,.12),transparent 70%);
+}
+.hero-tag{font-size:10px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.hero-h{font-family:var(--font-h);font-size:20px;font-weight:800;color:#fff;margin-bottom:4px;line-height:1.2}
+.hero-p{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:14px}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--g);color:#000;padding:7px 14px;border-radius:30px;font-size:12px;font-weight:800;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════ */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 10px}
+.sec-title{font-family:var(--font-h);font-size:17px;font-weight:700}
+.sec-link{font-size:12px;color:var(--g);font-weight:600}
+
+/* ═══════════════════════════════════════════
+   CATEGORY CHIPS
+═══════════════════════════════════════════ */
+.cat-scroll{display:flex;gap:10px;padding:4px 16px 14px;overflow-x:auto}
+.cat-chip{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 14px;border-radius:18px;cursor:pointer;flex-shrink:0;
+  background:var(--s2);border:1.5px solid var(--bd);min-width:72px;transition:all .2s;
+}
+.cat-chip.active,.cat-chip:active{border-color:var(--g);background:var(--g-dim)}
+.cat-chip.active .cat-lbl{color:var(--g)}
+.cat-em{font-size:24px}
+.cat-lbl{font-size:10px;font-weight:700;color:var(--t2);text-align:center;white-space:nowrap}
+.show-more-chip{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 14px;border-radius:18px;cursor:pointer;flex-shrink:0;
+  background:var(--g-dim);border:1.5px dashed rgba(0,200,83,.4);min-width:72px;transition:all .2s;
+}
+.show-more-chip:active{opacity:.8}
+.show-more-chip .cat-lbl{color:var(--g)}
+
+/* ═══════════════════════════════════════════
+   PRODUCT GRID
+═══════════════════════════════════════════ */
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 16px 16px}
+.prod-card{
+  background:var(--s1);border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;
+}
+.prod-card:active{transform:scale(.97)}
+.prod-thumb{
+  height:130px;display:flex;align-items:center;justify-content:center;
+  background:var(--s2);position:relative;overflow:hidden;
+}
+.prod-em{font-size:58px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));transition:transform .3s}
+.prod-card:active .prod-em{transform:scale(.9) rotate(-5deg)}
+.prod-rating{
+  position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);
+  color:var(--amber);padding:3px 7px;border-radius:8px;font-size:10px;font-weight:800;
+  display:flex;align-items:center;gap:3px;
+}
+.prod-cb-badge{
+  position:absolute;top:8px;right:8px;background:var(--g);color:#000;
+  padding:3px 8px;border-radius:8px;font-size:9px;font-weight:800;
+}
+.prod-body{padding:10px 10px 12px}
+.prod-name{font-size:12px;font-weight:700;margin-bottom:2px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prod-unit{font-size:10px;color:var(--t2);margin-bottom:8px}
+.prod-foot{display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-family:var(--font-h);font-size:14px;font-weight:700;color:var(--g)}
+.add-btn{
+  width:30px;height:30px;border-radius:9px;background:var(--g);color:#000;
+  font-size:20px;font-weight:800;display:flex;align-items:center;justify-content:center;transition:transform .1s;
+}
+.add-btn:active{transform:scale(.88)}
+.stepper{display:flex;align-items:center;gap:6px}
+.st-btn{
+  width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;transition:transform .1s;
+}
+.st-btn:active{transform:scale(.88)}
+.st-minus{background:var(--s3);border:1.5px solid var(--bd);color:var(--t1)}
+.st-plus{background:var(--g);color:#000}
+.st-num{font-size:13px;font-weight:800;min-width:18px;text-align:center}
+.oos-tag{font-size:10px;color:var(--red);font-weight:700;background:rgba(255,23,68,.1);padding:3px 8px;border-radius:6px}
+
+/* cat accent borders */
+.cat-Electronics{border-top:3px solid var(--amber)}
+.cat-Kitchen{border-top:3px solid #ff6d00}
+.cat-Fruits{border-top:3px solid #76ff03}
+.cat-Pharmacy{border-top:3px solid var(--blue)}
+.cat-Pets{border-top:3px solid #e040fb}
+.cat-Snacks{border-top:3px solid var(--amber)}
+.cat-Beverages{border-top:3px solid #7c4dff}
+.cat-School{border-top:3px solid #00e5ff}
+.cat-Toys{border-top:3px solid var(--pink)}
+.cat-Gifts{border-top:3px solid #c6ff00}
+.cat-Beauty{border-top:3px solid #ff80ab}
+.cat-Sports{border-top:3px solid #40c4ff}
+.cat-Clothing{border-top:3px solid var(--g)}
+
+/* ═══════════════════════════════════════════
+   BOTTOM NAV
+═══════════════════════════════════════════ */
+#bnav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;background:var(--s1);border-top:1px solid var(--bd);
+  display:none;z-index:100;padding:8px 0 env(safe-area-inset-bottom,8px);
+}
+#bnav.show{display:flex;justify-content:space-around}
+.bn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 4px;color:var(--t3);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;transition:color .2s;position:relative;
+}
+.bn.on{color:var(--g)}
+.bn i{font-size:20px}
+.bn-badge{
+  position:absolute;top:4px;right:calc(50% - 22px);
+  width:18px;height:18px;background:var(--red);color:#fff;border-radius:50%;
+  font-size:9px;font-weight:800;display:none;align-items:center;justify-content:center;
+  border:2px solid var(--s1);
+}
+.bn-badge.show{display:flex}
+
+/* ═══════════════════════════════════════════
+   PAGE HEADER
+═══════════════════════════════════════════ */
+.page-hdr{
+  padding:14px 18px;background:var(--s1);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.back-btn{
+  width:38px;height:38px;border-radius:12px;background:var(--s2);border:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:center;color:var(--t1);font-size:18px;
+}
+.page-title{font-family:var(--font-h);font-size:20px;font-weight:800}
+
+/* ═══════════════════════════════════════════
+   CART
+═══════════════════════════════════════════ */
+.cart-item{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px;margin:0 16px 10px;display:flex;align-items:center;gap:12px;
+  animation:slideIn .2s ease;
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+.cart-em{font-size:40px;width:54px;text-align:center;flex-shrink:0}
+.cart-info{flex:1;min-width:0}
+.cart-name{font-size:13px;font-weight:700;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-price{font-size:12px;color:var(--g);font-weight:800}
+.cart-empty-state{text-align:center;padding:60px 20px;color:var(--t2)}
+.cart-empty-state .cem-icon{font-size:64px;margin-bottom:16px}
+.bill-card{
+  margin:0 16px 14px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;
+}
+.bill-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;align-items:center}
+.bill-row.total{font-size:17px;font-weight:800;border-top:1px solid var(--bd);padding-top:12px;margin-top:4px;margin-bottom:0}
+.bill-disc{color:var(--g)}
+.bill-surp{color:var(--amber);font-weight:700}
+.coupon-row{display:flex;gap:8px}
+.coupon-inp{
+  flex:1;padding:12px 14px;background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:var(--r3);color:var(--t1);font-size:13px;transition:border-color .2s;
+}
+.coupon-inp:focus{border-color:var(--g)}
+.apply-btn{
+  padding:12px 16px;background:var(--g);color:#000;border-radius:var(--r3);font-weight:800;font-size:13px;
+  transition:opacity .2s;
+}
+.apply-btn:active{opacity:.8}
+.coupon-msg{font-size:12px;margin-top:8px;font-weight:700}
+.coupon-ok{color:var(--g)}.coupon-err{color:var(--red)}
+
+/* ═══════════════════════════════════════════
+   ORDER FORM (Delivery + Payment)
+═══════════════════════════════════════════ */
+.form-section{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin:0 16px 12px}
+.form-sec-title{font-family:var(--font-h);font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.slot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.slot-btn{
+  padding:12px 6px;background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:var(--r3);text-align:center;color:var(--t1);transition:all .2s;cursor:pointer;
+}
+.slot-btn.sel{border-color:var(--g);background:var(--g-dim);color:var(--g)}
+.slot-em{font-size:20px;display:block;margin-bottom:3px}
+.slot-time{font-size:10px;font-weight:700}
+.slot-label{font-size:9px;color:var(--t3)}
+.slot-btn.sel .slot-label{color:var(--g)}
+.sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sub-btn{
+  padding:12px;background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--r3);
+  text-align:center;font-size:12px;font-weight:700;color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.sub-btn.sel{border-color:var(--g);background:var(--g-dim);color:var(--g)}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pay-btn{
+  padding:14px;background:var(--s2);border:1.5px solid var(--bd);border-radius:var(--r3);
+  text-align:center;font-size:13px;font-weight:600;color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.pay-btn.sel{border-color:var(--g);background:var(--g-dim);color:var(--g)}
+.wallet-use-row{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r3);
+  padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;
+}
+.use-wallet-btn{
+  padding:8px 14px;background:var(--g);color:#000;border-radius:8px;font-weight:800;font-size:12px;
+}
+
+/* ═══════════════════════════════════════════
+   SUCCESS
+═══════════════════════════════════════════ */
+#successScreen{justify-content:center;align-items:center;padding:40px 24px;text-align:center}
+.success-ring{
+  width:110px;height:110px;border-radius:50%;background:var(--g-dim);border:3px solid var(--g);
+  display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 24px;
+  animation:successPop .6s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes successPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.success-h{font-family:var(--font-h);font-size:30px;font-weight:800;color:var(--g);margin-bottom:6px}
+.order-chip{
+  display:inline-block;background:var(--s2);border:1px solid var(--bd);
+  padding:8px 22px;border-radius:30px;font-weight:800;font-size:15px;margin:14px 0;
+}
+.surprise-box{
+  background:rgba(255,171,0,.08);border:1px solid rgba(255,171,0,.25);
+  border-radius:16px;padding:14px 18px;margin:14px 0;
+  color:var(--amber);font-weight:700;font-size:14px;
+  animation:glowPulse 2s ease infinite alternate;
+}
+@keyframes glowPulse{from{box-shadow:0 0 0 rgba(255,171,0,.2)}to{box-shadow:0 0 16px rgba(255,171,0,.15)}}
+
+/* ═══════════════════════════════════════════
+   WALLET SCREEN
+═══════════════════════════════════════════ */
+.wallet-hero{
+  margin:16px;background:linear-gradient(135deg,#001608,#002d18);
+  border:1px solid rgba(0,200,83,.25);border-radius:28px;padding:24px;
+}
+.wallet-label{font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px}
+.wallet-bal{font-family:var(--font-h);font-size:38px;font-weight:800;color:var(--g);margin:4px 0 6px}
+.wallet-sub{font-size:12px;color:rgba(255,255,255,.5)}
+.txn-list{}
+.txn-item{
+  padding:14px 16px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:12px;
+}
+.txn-icon{width:42px;height:42px;border-radius:14px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.txn-info{flex:1}
+.txn-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.txn-date{font-size:11px;color:var(--t2)}
+.txn-amt{font-size:14px;font-weight:800}
+.txn-cr{color:var(--g)}.txn-dr{color:var(--red)}
+
+/* ═══════════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════════ */
+.profile-hero{
+  background:linear-gradient(135deg,#001608,#002d18);
+  padding:28px 20px 24px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:16px;
+}
+.profile-av{
+  width:72px;height:72px;border-radius:22px;background:var(--s2);
+  display:flex;align-items:center;justify-content:center;font-size:36px;
+  border:2px solid var(--g);flex-shrink:0;
+}
+.profile-stats{display:flex;gap:0;margin:12px 16px;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.ps-item{flex:1;padding:16px 10px;text-align:center;border-right:1px solid var(--bd)}
+.ps-item:last-child{border-right:none}
+.ps-val{font-family:var(--font-h);font-size:18px;font-weight:700;color:var(--g)}
+.ps-label{font-size:10px;color:var(--t2);margin-top:2px}
+.settings-group{margin:0 16px 14px}
+.sg-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;padding:10px 0 8px}
+.sg-item{
+  background:var(--s1);border:1px solid var(--bd);padding:15px 16px;
+  display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.sg-item:first-of-type{border-radius:var(--r) var(--r) 0 0}
+.sg-item:last-of-type{border-radius:0 0 var(--r) var(--r)}
+.sg-item+.sg-item{border-top:none}
+.sg-item:active{background:var(--s3)}
+.toggle-sw{width:44px;height:24px;border-radius:12px;background:var(--bd2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-sw.on{background:var(--g)}
+.toggle-sw::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle-sw.on::after{transform:translateX(20px)}
+.order-hist-item{
+  background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:14px 16px;margin:0 16px 10px;cursor:pointer;transition:background .15s;
+}
+.order-hist-item:active{background:var(--s2)}
+.oh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.oh-id{font-family:var(--font-h);font-size:14px;font-weight:700;color:var(--g)}
+.status-pill{padding:4px 10px;border-radius:30px;font-size:10px;font-weight:800}
+.sp-Pending{background:rgba(255,171,0,.12);color:var(--amber)}
+.sp-Packaging{background:rgba(255,109,0,.12);color:#ff6d00}
+.sp-Dispatched{background:rgba(41,121,255,.12);color:var(--blue)}
+.sp-Delivered{background:var(--g-dim);color:var(--g)}
+.sp-Cancelled{background:rgba(255,23,68,.12);color:var(--red)}
+
+/* ═══════════════════════════════════════════
+   OVERLAYS & SHEETS
+═══════════════════════════════════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:300;display:none}
+.overlay.show{display:block}
+.sheet{
+  position:fixed;bottom:-100%;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;z-index:400;background:var(--s1);
+  border-radius:28px 28px 0 0;padding:20px 20px 40px;
+  max-height:90vh;overflow-y:auto;
+  transition:bottom .42s cubic-bezier(.16,1,.3,1);
+}
+.sheet.open{bottom:0}
+.sheet-handle{width:40px;height:4px;background:var(--bd2);border-radius:10px;margin:0 auto 20px}
+.sheet-em{font-size:68px;display:block;text-align:center;margin-bottom:14px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4));animation:emPop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes emPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.sheet-name{font-family:var(--font-h);font-size:22px;font-weight:800;margin-bottom:6px}
+.sheet-desc{font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.7}
+.sheet-price{font-family:var(--font-h);font-size:28px;font-weight:800;color:var(--g);margin-bottom:20px}
+.field-sm{
+  padding:12px 14px;background:var(--s2);border:1.5px solid var(--bd);
+  border-radius:var(--r3);color:var(--t1);font-size:13px;width:100%;transition:border-color .2s;
+}
+.field-sm:focus{border-color:var(--g)}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+#sidebar{
+  position:fixed;top:0;left:-100%;width:82%;max-width:320px;height:100%;z-index:500;
+  background:var(--s1);border-right:1px solid var(--bd);padding:0;
+  transition:left .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;overflow-y:auto;
+}
+#sidebar.open{left:0}
+.sidebar-header{
+  padding:40px 20px 24px;background:linear-gradient(135deg,#001608,#002d18);
+  border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:14px;
+}
+.sidebar-av{width:60px;height:60px;border-radius:18px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:28px;border:2px solid var(--g);flex-shrink:0}
+.sidebar-name{font-family:var(--font-h);font-size:18px;font-weight:800}
+.sidebar-phone{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.premium-badge{display:inline-block;background:var(--amber);color:#000;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:800;margin-top:6px}
+.sidebar-body{flex:1;padding:16px}
+.sb-section{margin-bottom:20px}
+.sb-section-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding:0 4px}
+.sb-item{
+  display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:var(--r3);
+  font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;color:var(--t1);
+}
+.sb-item:active{background:var(--s2)}
+.sb-item i{width:20px;color:var(--t2);font-size:15px;text-align:center}
+.sb-notif{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:var(--r3);font-size:13px;font-weight:600}
+.sidebar-footer{padding:16px}
+.logout-btn{
+  width:100%;padding:14px;background:rgba(255,23,68,.1);color:var(--red);
+  border:1px solid rgba(255,23,68,.2);border-radius:var(--r2);font-weight:800;font-size:14px;
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+#toast{
+  position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--s3);color:var(--t1);padding:11px 22px;border-radius:14px;
+  font-size:13px;font-weight:700;opacity:0;z-index:9999;
+  transition:all .3s;white-space:nowrap;max-width:90vw;text-align:center;
+  border:1px solid var(--bd2);pointer-events:none;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ═══════════════════════════════════════════
+   LOADING
+═══════════════════════════════════════════ */
+.spin{width:40px;height:40px;border:4px solid var(--bd);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ═══════════════════════════════════════════
+   CHIP & MISC
+═══════════════════════════════════════════ */
+.chip-g{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--g-dim);color:var(--g);border:1px solid rgba(0,200,83,.3)}
+.chip-a{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(255,171,0,.1);color:var(--amber);border:1px solid rgba(255,171,0,.2)}
+.alert-info{background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.2);border-radius:12px;padding:12px 14px;font-size:12px;color:#82b1ff;font-weight:600}
+.divider-line{height:8px;background:var(--s2);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);margin:6px 0}
+.empty-state{text-align:center;padding:50px 20px;color:var(--t2)}
+.empty-state .es-icon{font-size:56px;margin-bottom:14px}
+.empty-state .es-title{font-family:var(--font-h);font-size:18px;font-weight:700;margin-bottom:6px}
+</style>
 </head>
-<body data-theme="dark">
+<body>
 
-    <!-- SPLASH -->
-    <div id="splash" class="fixed inset-0 z-[10000] bg-black flex items-center justify-center">
-        <div class="text-3xl font-black tracking-tighter text-white">MULTILOOPS<span class="text-green-500">.</span></div>
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-mark">🛍️</div>
+  <div class="splash-name">Multiloops Ventures</div>
+  <div style="font-size:12px;color:var(--t2)">Your Premium Super App</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<div id="toast"></div>
+
+<!-- ═══════ AUTH SCREEN ═══════ -->
+<div class="screen" id="authScreen">
+  <div class="auth-hero">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;">
+      <div style="width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--g),#00695c);display:flex;align-items:center;justify-content:center;font-size:24px;">🛍️</div>
+      <div>
+        <div style="font-family:var(--font-h);font-size:16px;font-weight:800">Multiloops Ventures</div>
+        <div style="font-size:11px;color:var(--t2)">Premium Super App</div>
+      </div>
     </div>
-
-    <!-- LOGIN (Monochrome Mesh) -->
-    <div id="loginScreen" class="fixed inset-0 z-[9000] mesh-gradient hidden flex flex-col justify-center px-8">
-        <h1 class="text-5xl font-black mb-2 tracking-tighter text-white">Welcome<br>to the Loop.</h1>
-        <p class="text-gray-400 mb-10">Premium Ventures & Daily Essentials.</p>
-        
-        <div class="space-y-4">
-            <div id="phoneInputArea">
-                <input type="tel" id="loginPhone" placeholder="+91 Phone Number" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-green-500">
-                <button onclick="authAction('phone')" class="w-full bg-white text-black font-black p-5 rounded-2xl mt-4">Send OTP</button>
-            </div>
-            <div id="otpInputArea" class="hidden">
-                <input type="number" id="loginOtp" placeholder="Enter 6-Digit OTP" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none">
-                <button onclick="verifyOtp()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl mt-4">Enter Multiloops</button>
-            </div>
-            <div class="text-center text-gray-600 text-xs py-2 uppercase font-bold tracking-widest">or</div>
-            <button onclick="authAction('google')" class="w-full glass p-5 rounded-2xl flex items-center justify-center gap-3 text-white">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5"> Google Account
-            </button>
-        </div>
+    <div class="auth-title">Welcome<br>to the Loop.</div>
+    <div class="auth-sub">Groceries · Electronics · Beauty & 10 more categories — all delivered fast.</div>
+  </div>
+  <div class="auth-card">
+    <div id="phoneArea">
+      <div class="field-wrap">
+        <label class="field-label">Phone Number</label>
+        <input type="tel" class="field" id="phoneIn" placeholder="+91 XXXXXXXXXX">
+      </div>
+      <button class="btn-green" onclick="sendOTP()" style="margin-bottom:14px">Send OTP →</button>
     </div>
-
-    <!-- ONBOARDING -->
-    <div id="onboarding" class="fixed inset-0 z-[8000] bg-[var(--bg)] hidden flex flex-col p-8 overflow-y-auto">
-        <h2 class="text-3xl font-black mb-6">Create Profile</h2>
-        
-        <p class="text-xs font-black text-[var(--text-dim)] uppercase mb-4">Select Avatar</p>
-        <div id="avatarGrid" class="flex gap-4 overflow-x-auto no-scrollbar pb-4 mb-6"></div>
-
-        <input type="text" id="nickName" placeholder="Nickname (e.g., Mano)" class="w-full p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] outline-none mb-4">
-        
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="userAddress" placeholder="Delivery Address" class="flex-grow p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] outline-none">
-            <button onclick="fetchGPS()" class="p-5 glass rounded-2xl">📍</button>
-        </div>
-
-        <p class="text-xs font-black text-[var(--text-dim)] uppercase mb-4">Interests</p>
-        <div id="favCats" class="flex flex-wrap gap-2 mb-10"></div>
-
-        <button onclick="saveProfile()" class="w-full bg-[var(--primary)] text-white font-black p-5 rounded-2xl shadow-xl">Complete Setup</button>
+    <div id="otpArea" style="display:none">
+      <div class="field-wrap">
+        <label class="field-label">6-Digit OTP</label>
+        <input type="number" class="field" id="otpIn" placeholder="Enter OTP">
+      </div>
+      <button class="btn-green" onclick="verifyOTP()" style="margin-bottom:14px">Verify & Continue →</button>
+      <button onclick="document.getElementById('phoneArea').style.display='block';document.getElementById('otpArea').style.display='none'" style="width:100%;background:none;border:none;color:var(--t2);font-size:13px;padding:6px">← Change number</button>
     </div>
+    <div class="or-divider"><span>or</span></div>
+    <button class="btn-outline" onclick="googleLogin()">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+  </div>
+</div>
 
-    <!-- SIDEBAR -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-[9500] hidden backdrop-blur-sm" onclick="toggleSidebar(false)"></div>
-    <div id="sidebar" class="fixed top-0 left-[-100%] w-[85%] max-w-sm h-full bg-[var(--surface)] z-[9600] transition-all duration-300 p-8 flex flex-col">
-        <div class="flex items-center gap-4 mb-10">
-            <img id="sideAvatar" src="" class="w-16 h-16 rounded-full border-2 border-[var(--primary)]">
-            <div>
-                <h3 id="sideNick" class="text-xl font-black">Mano</h3>
-                <span id="sideBadge" class="hidden text-[10px] bg-[var(--primary)] text-white px-2 py-0.5 rounded-full font-black">VERIFIED LOOPER</span>
-            </div>
-        </div>
-
-        <div class="flex-grow space-y-8 overflow-y-auto no-scrollbar">
-            <div>
-                <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-4">Settings</p>
-                <div class="space-y-4 font-bold text-sm">
-                    <div class="flex justify-between items-center">
-                        <span>Theme Mode</span>
-                        <button onclick="toggleTheme()" class="bg-[var(--surface-alt)] px-4 py-2 rounded-xl text-[10px]">Switch Mode</button>
-                    </div>
-                    <p onclick="openPremium()">Get Premium Badge</p>
-                    <p onclick="showScreen('history')">Order History</p>
-                    <p onclick="showScreen('profile-edit')">Edit Profile</p>
-                </div>
-            </div>
-
-            <div>
-                <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-4">Preferences</p>
-                <div class="space-y-4 font-bold text-sm">
-                    <div class="flex justify-between items-center"><span>Master Mute</span> <input type="checkbox" id="masterMute" class="accent-green-500"></div>
-                    <div class="flex justify-between items-center"><span>Order Tracking Alerts</span> <input type="checkbox" checked class="accent-green-500"></div>
-                    <div class="flex justify-between items-center"><span>Promotions</span> <input type="checkbox" checked class="accent-green-500"></div>
-                    <div class="flex justify-between items-center"><span>WhatsApp Updates</span> <input type="checkbox" checked class="accent-green-500"></div>
-                </div>
-            </div>
-        </div>
-
-        <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl font-black text-sm mt-6">Sign Out</button>
+<!-- ═══════ ONBOARDING ═══════ -->
+<div class="screen" id="onboardScreen">
+  <div class="onboard-wrap">
+    <div class="onboard-title">Let's set you up 🎉</div>
+    <div class="onboard-sub">Personalise your Multiloops experience</div>
+    <div class="section-label">Choose your avatar</div>
+    <div class="avatar-row" id="avatarRow"></div>
+    <div class="field-wrap">
+      <label class="field-label">Your Name</label>
+      <input type="text" class="field" id="nameIn" placeholder="Full name">
     </div>
+    <div class="field-wrap">
+      <label class="field-label">Nickname (shows on home)</label>
+      <input type="text" class="field" id="nickIn" placeholder="e.g. Mano">
+    </div>
+    <div class="field-wrap">
+      <label class="field-label">Delivery Address</label>
+      <input type="text" class="field" id="addrIn" placeholder="Full delivery address">
+    </div>
+    <div class="section-label">Your preferred categories (optional)</div>
+    <div class="pref-wrap" id="prefWrap"></div>
+    <button class="btn-green" onclick="saveProfile()">Start Shopping →</button>
+  </div>
+</div>
 
-    <!-- MAIN NAV -->
-    <nav id="bottomNav" class="fixed bottom-0 w-full bg-[var(--bg)] border-t border-[var(--border)] p-4 flex justify-around items-center z-[5000] hidden">
-        <button onclick="showScreen('home')" class="nav-item flex flex-col items-center gap-1 text-[var(--primary)]">
-            <span class="text-xl">🏠</span><span class="text-[9px] font-black uppercase">Home</span>
+<!-- ═══════ HOME SCREEN ═══════ -->
+<div class="screen" id="homeScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-greet" id="greetTxt">Good morning</div>
+      <div class="topbar-name" id="nickDisplay">User</div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn"><i class="fas fa-moon"></i></button>
+      <button class="icon-btn" onclick="showTab('cartScreen')">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="notif-dot" id="cartBadgeHome" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" onclick="openSidebar()" id="avatarHomeBtn" style="font-size:22px;background:var(--g-dim);border-color:rgba(0,200,83,.3)">😎</button>
+    </div>
+  </div>
+  <div class="searchbar-wrap">
+    <div class="searchbar">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search products, categories..." id="searchInp" oninput="handleSearch(this.value)">
+    </div>
+  </div>
+  <div class="scrollable" id="homeScroll">
+    <div class="hero-banner">
+      <div class="hero-tag">⚡ Flash Deals</div>
+      <div class="hero-h">Everything Delivered<br>At Your Doorstep</div>
+      <div class="hero-p">13 categories · Real-time tracking · 5% cashback</div>
+      <div class="hero-pill">🏷️ FIRST10 — 10% off first order</div>
+    </div>
+    <div class="sec-hdr">
+      <div class="sec-title">Categories</div>
+      <div class="sec-link" onclick="showTab('exploreScreen')">See all</div>
+    </div>
+    <div class="cat-scroll" id="catScrollHome"></div>
+    <div class="sec-hdr">
+      <div class="sec-title" id="prodSectionTitle">All Products</div>
+      <div class="sec-link" id="prodCount" style="color:var(--t2)"></div>
+    </div>
+    <div class="prod-grid" id="prodGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════ EXPLORE ═══════ -->
+<div class="screen" id="exploreScreen">
+  <div class="topbar">
+    <div class="topbar-name">Explore</div>
+  </div>
+  <div class="scrollable">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px" id="exploreGrid"></div>
+  </div>
+</div>
+
+<!-- ═══════ CART SCREEN ═══════ -->
+<div class="screen" id="cartScreen">
+  <div class="page-hdr">
+    <button class="back-btn" onclick="showTab('homeScreen')"><i class="fas fa-arrow-left" style="font-size:15px"></i></button>
+    <div class="page-title">My Cart 🛒</div>
+  </div>
+  <div class="scrollable">
+    <div id="cartList" style="padding-top:12px"></div>
+    <div id="cartEmpty" class="cart-empty-state" style="display:none">
+      <div class="cem-icon">🛒</div>
+      <div style="font-family:var(--font-h);font-size:18px;font-weight:700;margin-bottom:8px">Cart is empty</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:20px">Add items from the store</div>
+      <button class="btn-green" style="width:180px" onclick="showTab('homeScreen')">Shop Now</button>
+    </div>
+    <div id="cartCheckout" style="display:none">
+      <div class="divider-line"></div>
+      <div style="padding:16px 16px 8px"><div style="font-family:var(--font-h);font-size:16px;font-weight:700">Bill Summary</div></div>
+      <div class="bill-card">
+        <div class="bill-row"><span>Item Total</span><span id="bSubtotal">₹0</span></div>
+        <div class="bill-row bill-disc" id="bDiscRow" style="display:none"><span>🏷️ Coupon discount</span><span id="bDisc">-₹0</span></div>
+        <div class="bill-row bill-disc" id="bCbRow" style="display:none"><span>💰 Cashback used</span><span id="bCb">-₹0</span></div>
+        <div class="bill-row bill-surp" id="bSurpRow" style="display:none"><span>⭐ Loopy Surprise</span><span id="bSurp">+₹0 on next order</span></div>
+        <div class="bill-row total"><span>Total Payable</span><span id="bTotal" style="color:var(--g)">₹0</span></div>
+      </div>
+      <div style="padding:0 16px 14px">
+        <div class="section-label">Coupon Code</div>
+        <div class="coupon-row">
+          <input type="text" class="coupon-inp" id="couponInp" placeholder="Enter code (e.g. FIRST10)" oninput="this.value=this.value.toUpperCase()">
+          <button class="apply-btn" onclick="applyCoupon()">Apply</button>
+        </div>
+        <div id="couponMsg"></div>
+      </div>
+      <div id="walletRow" style="padding:0 16px 14px;display:none">
+        <div class="wallet-use-row">
+          <div>
+            <div style="font-size:13px;font-weight:700">💰 Wallet: <span id="walShowAmt" style="color:var(--g)">₹0</span></div>
+            <div style="font-size:11px;color:var(--t2);margin-top:2px">Min ₹10 always charged in cash</div>
+          </div>
+          <button class="use-wallet-btn" id="useWalBtn" onclick="useWallet()">Use</button>
+        </div>
+      </div>
+      <div style="padding:0 16px 24px">
+        <button class="btn-green" onclick="showTab('orderScreen')">Proceed to Checkout →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ORDER SCREEN ═══════ -->
+<div class="screen" id="orderScreen">
+  <div class="page-hdr">
+    <button class="back-btn" onclick="showTab('cartScreen')"><i class="fas fa-arrow-left" style="font-size:15px"></i></button>
+    <div class="page-title">Place Order</div>
+  </div>
+  <div class="scrollable">
+    <div class="form-section" style="margin-top:16px">
+      <div class="form-sec-title">📦 Delivery Details</div>
+      <input type="text" class="field-sm" id="odName" placeholder="Your full name" style="margin-bottom:10px">
+      <input type="text" class="field-sm" id="odAddr" placeholder="Delivery address" style="margin-bottom:10px">
+      <input type="tel" class="field-sm" id="odPhone" placeholder="Phone number">
+    </div>
+    <div class="form-section">
+      <div class="form-sec-title">🕐 Delivery Slot</div>
+      <div class="slot-grid">
+        <button class="slot-btn" onclick="pickSlot(this,'Morning (6am-12pm)')">
+          <span class="slot-em">🌅</span><span class="slot-time">6AM–12PM</span><span class="slot-label">Morning</span>
         </button>
-        <button onclick="showScreen('explore')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)]">
-            <span class="text-xl">🔍</span><span class="text-[9px] font-black uppercase">Explore</span>
+        <button class="slot-btn" onclick="pickSlot(this,'Afternoon (12pm-6pm)')">
+          <span class="slot-em">☀️</span><span class="slot-time">12PM–6PM</span><span class="slot-label">Afternoon</span>
         </button>
-        <button onclick="showScreen('wallet')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)]">
-            <span class="text-xl">💳</span><span class="text-[9px] font-black uppercase">Wallet</span>
+        <button class="slot-btn" onclick="pickSlot(this,'Night (6pm-12am)')">
+          <span class="slot-em">🌙</span><span class="slot-time">6PM–12AM</span><span class="slot-label">Night</span>
         </button>
-        <button onclick="showScreen('cart')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)] relative">
-            <span class="text-xl">🛒</span><span class="text-[9px] font-black uppercase">Cart</span>
-            <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
-        </button>
-    </nav>
-
-    <!-- CONTENT SCREENS -->
-    <div id="mainContent">
-        <!-- Home -->
-        <div id="screen-home" class="screen active p-5">
-            <header class="flex justify-between items-center mb-6">
-                <div onclick="toggleSidebar(true)" class="w-10 h-10 glass rounded-full flex items-center justify-center">☰</div>
-                <div class="text-center">
-                    <p id="dynamicGreet" class="text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest"></p>
-                    <h2 id="topNickName" class="text-lg font-black"></h2>
-                </div>
-                <div onclick="showNotifications()" class="w-10 h-10 glass rounded-full flex items-center justify-center">🔔</div>
-            </header>
-
-            <div onclick="showLocationSheet()" class="glass p-4 rounded-2xl mb-8 flex items-center gap-3">
-                <span class="text-lg">📍</span>
-                <div class="overflow-hidden">
-                    <p class="text-[9px] font-black text-[var(--text-dim)] uppercase">Delivering to</p>
-                    <p id="topAddr" class="text-xs font-bold truncate">Set Address</p>
-                </div>
-            </div>
-
-            <div id="homeCategoryScroll" class="flex gap-4 overflow-x-auto no-scrollbar mb-8"></div>
-
-            <h3 class="text-xl font-black mb-4">Recommended</h3>
-            <div id="recoGrid" class="flex gap-4 overflow-x-auto no-scrollbar mb-10"></div>
-
-            <div id="homeSections" class="space-y-10"></div>
-        </div>
-
-        <!-- Category Detail -->
-        <div id="screen-category-detail" class="screen p-5">
-            <div class="flex items-center gap-4 mb-6">
-                <button onclick="showScreen('home')" class="text-2xl">←</button>
-                <h2 id="catDetailTitle" class="text-2xl font-black">Category</h2>
-            </div>
-            <div id="catDetailGrid" class="grid grid-cols-2 gap-4"></div>
-        </div>
-
-        <!-- Explore -->
-        <div id="screen-explore" class="screen p-5">
-            <h2 class="text-3xl font-black py-6">Categories</h2>
-            <div id="exploreGrid" class="grid grid-cols-2 gap-4"></div>
-        </div>
-
-        <!-- Wallet -->
-        <div id="screen-wallet" class="screen p-5">
-            <h2 class="text-3xl font-black py-6">Wallet</h2>
-            <div class="bg-gradient-to-br from-zinc-800 to-black p-8 rounded-[40px] border border-zinc-700 relative overflow-hidden">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Loopy Balance</p>
-                <h1 class="text-5xl font-black mb-8">₹<span id="wallBal">0.00</span></h1>
-                <div class="flex gap-3">
-                    <button onclick="openAddCredits()" class="flex-grow bg-[var(--primary)] text-white p-4 rounded-2xl font-black text-xs">Add Credits</button>
-                    <button class="flex-grow glass p-4 rounded-2xl font-black text-xs">History</button>
-                </div>
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
-            </div>
-            
-            <div class="mt-8 space-y-4">
-                <h4 class="font-black text-sm">Quick Top-up</h4>
-                <div class="grid grid-cols-3 gap-3">
-                    <button onclick="quickAdd(500)" class="glass p-4 rounded-2xl font-black">₹500</button>
-                    <button onclick="quickAdd(1000)" class="glass p-4 rounded-2xl font-black">₹1000</button>
-                    <button onclick="quickAdd(2000)" class="glass p-4 rounded-2xl font-black">₹2000</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cart -->
-        <div id="screen-cart" class="screen p-5">
-            <h2 class="text-3xl font-black py-6">My Cart</h2>
-            <div id="cartItems" class="space-y-4 mb-8"></div>
-            
-            <div id="cartBill" class="glass p-6 rounded-[32px] space-y-3">
-                <div class="flex justify-between text-sm"><span>Items Total</span><span id="billItems">₹0</span></div>
-                <div class="flex justify-between text-sm"><span>Delivery Fee</span><span>₹25</span></div>
-                <div class="flex justify-between text-sm"><span>GST (18%)</span><span id="billGST">₹0</span></div>
-                <div class="flex justify-between text-sm text-[var(--primary)] font-bold italic"><span>Loopy Surprise</span><span id="billSurprise">-₹0</span></div>
-                <div class="flex justify-between text-xl font-black pt-4 border-t border-[var(--border)]"><span>Total Amount</span><span id="billTotal">₹0</span></div>
-            </div>
-            
-            <button onclick="initiateCheckout()" class="w-full bg-[var(--primary)] text-white p-5 rounded-2xl font-black text-lg mt-8 shadow-xl shadow-green-500/20">Place Order</button>
-        </div>
-
-        <!-- Tracking -->
-        <div id="screen-tracking" class="screen p-5">
-            <h2 class="text-3xl font-black py-6">Live Status</h2>
-            <div class="bg-[var(--surface)] border border-[var(--primary)]/30 p-8 rounded-[40px] mb-6">
-                <div class="flex items-center gap-6 mb-10">
-                    <div class="w-16 h-16 bg-[var(--primary)] rounded-full flex items-center justify-center text-3xl">🛵</div>
-                    <div>
-                        <p class="text-xs font-bold text-gray-500 uppercase">Order #MVL-9921</p>
-                        <h4 class="text-xl font-black" id="liveStatus">Packaging Items</h4>
-                    </div>
-                </div>
-                <div class="space-y-8 relative">
-                    <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[var(--border)]"></div>
-                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-green-500 rounded-full"></div> <p class="text-sm font-bold">Order Confirmed • <span id="confTime"></span></p></div>
-                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-green-500 rounded-full animate-ping"></div> <p class="text-sm font-bold">Packaging Started • <span id="packTime"></span></p></div>
-                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-zinc-800 rounded-full"></div> <p class="text-sm font-bold text-gray-600">Dispatched</p></div>
-                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-zinc-800 rounded-full"></div> <p class="text-sm font-bold text-gray-600">Arrived</p></div>
-                </div>
-            </div>
-            <button onclick="showScreen('home')" class="w-full glass p-5 rounded-2xl font-black">Keep Shopping</button>
-        </div>
-
-        <!-- Premium Screen -->
-        <div id="screen-premium" class="screen p-5 bg-gradient-to-b from-yellow-900/20 to-black">
-            <button onclick="showScreen('home')" class="text-xl mb-6">← Back</button>
-            <div class="text-center py-10">
-                <h1 class="text-4xl font-black text-[var(--accent)] mb-4 italic">LOOPER PREMIUM</h1>
-                <p class="text-gray-400 px-6">Join the elite club of Multiloops Ventures. Get the verified badge and zero delivery fees.</p>
-            </div>
-            <div class="glass p-8 rounded-[40px] border-[var(--accent)] mb-10 text-center">
-                <h2 class="text-5xl font-black mb-2">₹499<span class="text-sm font-normal text-gray-500">/year</span></h2>
-                <ul class="text-sm font-bold space-y-4 my-8 text-left">
-                    <li>✨ Verified Profile Badge</li>
-                    <li>🚀 Priority Delivery Slot</li>
-                    <li>🎁 2x Loopy Surprise Cashback</li>
-                    <li>🎧 24/7 Dedicated Support</li>
-                </ul>
-                <button onclick="upgradeToPremium()" class="w-full bg-[var(--accent)] text-black p-5 rounded-2xl font-black">Get Premium Now</button>
-            </div>
-        </div>
+      </div>
     </div>
-
-    <!-- PRODUCT DETAIL SHEET -->
-    <div id="productOverlay" class="fixed inset-0 bg-black/80 z-[6000] hidden" onclick="closeProductSheet()"></div>
-    <div id="productSheet" class="fixed bottom-0 left-0 right-0 bg-[var(--surface)] z-[6100] bottom-sheet rounded-t-[40px] p-8 pb-12">
-        <div class="w-12 h-1 bg-[var(--border)] rounded-full mx-auto mb-8"></div>
-        <div class="flex justify-between items-start mb-6">
-            <div>
-                <span id="sheetBadge" class="text-[9px] font-black px-2 py-1 rounded-md bg-zinc-800 text-gray-400 uppercase tracking-widest mb-2 inline-block">VENTURE</span>
-                <h2 id="sheetName" class="text-3xl font-black tracking-tight leading-none">Product Name</h2>
-                <div class="flex items-center gap-2 mt-2">
-                    <span class="text-yellow-500">★★★★★</span>
-                    <span id="sheetRating" class="text-xs font-bold text-gray-500">4.8</span>
-                </div>
-            </div>
-            <p id="sheetPrice" class="text-2xl font-black text-[var(--primary)]">₹0</p>
-        </div>
-
-        <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-3">Choose Delivery Slot</p>
-        <div class="grid grid-cols-3 gap-3 mb-8" id="sheetSlots">
-            <button onclick="setTempSlot(0, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">6AM-12PM</button>
-            <button onclick="setTempSlot(1, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">12PM-6PM</button>
-            <button onclick="setTempSlot(2, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">6PM-12AM</button>
-        </div>
-
-        <div id="subContainer" class="hidden mb-8">
-            <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-3">Subscription (Loops Only)</p>
-            <select id="sheetSub" class="w-full bg-[var(--bg)] border border-[var(--border)] p-4 rounded-2xl text-sm font-bold">
-                <option value="once">One-time Purchase</option>
-                <option value="daily">Daily Loop</option>
-                <option value="alternate">Alternate Days</option>
-                <option value="weekly">Once a Week</option>
-            </select>
-        </div>
-
-        <button id="sheetAction" class="w-full bg-[var(--primary)] text-white p-5 rounded-3xl font-black text-lg">Add To Cart</button>
+    <div class="form-section" id="subSection" style="display:none">
+      <div class="form-sec-title">🔁 Subscription <span style="font-size:11px;font-weight:400;color:var(--t2)">(For eligible items)</span></div>
+      <div class="sub-grid">
+        <button class="sub-btn sel" onclick="pickSub(this,'None')">No Subscription</button>
+        <button class="sub-btn" onclick="pickSub(this,'Daily')">📅 Daily</button>
+        <button class="sub-btn" onclick="pickSub(this,'Alternate Days')">🔁 Alternate Days</button>
+        <button class="sub-btn" onclick="pickSub(this,'Weekly')">📆 Weekly</button>
+        <button class="sub-btn" onclick="pickSub(this,'Monthly')">🗓️ Monthly</button>
+      </div>
     </div>
-
-    <!-- ADD CREDITS / PAY SHEET -->
-    <div id="paySheet" class="fixed inset-0 bg-black z-[9999] hidden p-8 flex flex-col items-center">
-        <button onclick="closePaySheet()" class="absolute top-8 left-8 text-2xl">✕</button>
-        <h2 class="text-2xl font-black mt-20 mb-10">Add Credits</h2>
-        
-        <div class="bg-white p-4 rounded-3xl mb-10">
-            <img id="qrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=MultiloopsVenturesPay" class="w-48 h-48">
-        </div>
-        
-        <p class="text-gray-500 text-sm mb-8 text-center">Scan QR code or use UPI Intent below</p>
-        
-        <div class="grid grid-cols-2 gap-4 w-full">
-            <button onclick="simulatePay()" class="glass p-5 rounded-2xl font-black flex flex-col items-center gap-2">
-                <span class="text-xl">🅿️</span> PhonePe
-            </button>
-            <button onclick="simulatePay()" class="glass p-5 rounded-2xl font-black flex flex-col items-center gap-2">
-                <span class="text-xl">🇬</span> Google Pay
-            </button>
-        </div>
+    <div class="form-section">
+      <div class="form-sec-title">💳 Payment Method</div>
+      <div class="pay-grid">
+        <button class="pay-btn" onclick="pickPay(this,'Cash on Delivery')">💵<br>Cash on Delivery</button>
+        <button class="pay-btn" onclick="pickPay(this,'UPI')">📱<br>UPI Payment</button>
+      </div>
+      <div id="upiBox" style="display:none;margin-top:10px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--r3);padding:14px">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Pay to UPI ID</div>
+        <div style="font-size:16px;font-weight:800;color:var(--g);margin-bottom:10px">multiloopsventures@upi</div>
+        <input type="text" class="field-sm" id="txnInp" placeholder="Enter transaction ID after payment">
+      </div>
     </div>
+    <div style="padding:0 16px 24px">
+      <button class="btn-green" onclick="placeOrder()">Place Order 🎉</button>
+    </div>
+  </div>
+</div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<!-- ═══════ SUCCESS ═══════ -->
+<div class="screen" id="successScreen">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:40px 24px;text-align:center">
+    <div class="success-ring">🎉</div>
+    <div class="success-h">Order Placed!</div>
+    <div style="font-size:14px;color:var(--t2);margin-bottom:4px">Thank you for shopping with</div>
+    <div style="font-family:var(--font-h);font-size:17px;font-weight:800;margin-bottom:10px">Multiloops Ventures</div>
+    <div class="order-chip" id="successOid">#ORD0001</div>
+    <div id="successSurprise" class="surprise-box" style="display:none"></div>
+    <div style="font-size:13px;color:var(--t2);margin:14px 0 32px;line-height:1.8">We'll send you updates as your<br>order progresses!</div>
+    <button class="btn-green" style="max-width:280px" onclick="showTab('homeScreen')">Continue Shopping →</button>
+  </div>
+</div>
 
-    <script>
-        // 1. DATA & STATE
-        const firebaseConfig = {
-            apiKey: "AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
-            authDomain: "multiloops-ventures-a1d41.firebaseapp.com",
-            projectId: "multiloops-ventures-a1d41",
-            storageBucket: "multiloops-ventures-a1d41.firebasestorage.app",
-            messagingSenderId: "239033809088",
-            appId: "1:239033809088:web:05b978c6dcf42a8c175525"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+<!-- ═══════ WALLET ═══════ -->
+<div class="screen" id="walletScreen">
+  <div class="topbar"><div class="page-title">Loopy Wallet</div></div>
+  <div class="scrollable">
+    <div class="wallet-hero">
+      <div class="wallet-label">Available Balance</div>
+      <div class="wallet-bal" id="walBal">₹0.00</div>
+      <div class="wallet-sub">5% cashback earned on every order</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 16px">
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:16px;text-align:center;cursor:pointer" onclick="toast('UPI payment coming soon!')">
+        <div style="font-size:22px;margin-bottom:6px">📲</div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2)">Add via UPI</div>
+      </div>
+      <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r2);padding:16px;text-align:center;cursor:pointer" onclick="toast('History loaded!')">
+        <div style="font-size:22px;margin-bottom:6px">🧾</div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2)">Txn History</div>
+      </div>
+    </div>
+    <div style="padding:4px 16px 10px;font-family:var(--font-h);font-size:15px;font-weight:700">Recent Transactions</div>
+    <div id="txnList"><div class="txn-item" style="color:var(--t2);font-size:13px">No transactions yet</div></div>
+  </div>
+</div>
 
-        const categories = ["Electronics", "Kitchen Appliances", "Fruits & Vegetables", "Pharmacy", "Pet Items", "Snacks", "Beverages", "School Items", "Toys", "Gift Items", "Beauty & Care", "Sports Items", "Clothing"];
-        const greets = [
-            "Ready to loop in?", "Fueling your ventures.", "Morning Mano, loops await.", "Your essentials, sorted.", 
-            "Premium standard only.", "Stay sharp, looper.", "The venture continues.", "Crafted for quality.",
-            "Fresh loops incoming.", "Upgrade your lifestyle.", "The loop is your domain.", "Success, delivered.",
-            "Elevated essentials.", "Venture into the new.", "A new loop begins."
-        ];
+<!-- ═══════ PROFILE ═══════ -->
+<div class="screen" id="profileScreen">
+  <div class="page-hdr">
+    <button class="back-btn" onclick="showTab('homeScreen')"><i class="fas fa-arrow-left" style="font-size:15px"></i></button>
+    <div class="page-title">Profile</div>
+    <button onclick="logout()" style="margin-left:auto;background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.25);color:var(--red);padding:8px 14px;border-radius:10px;font-size:12px;font-weight:700">Logout</button>
+  </div>
+  <div class="scrollable">
+    <div class="profile-hero">
+      <div class="profile-av" id="profAvatar">😎</div>
+      <div>
+        <div style="font-family:var(--font-h);font-size:20px;font-weight:800;color:#fff" id="profName">User</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:2px" id="profPhone"></div>
+        <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="chip-g">✓ Verified</span>
+          <span class="chip-a" id="profWalChip">💰 ₹0</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="ps-item"><div class="ps-val" id="psOrders">0</div><div class="ps-label">Orders</div></div>
+      <div class="ps-item"><div class="ps-val" id="psSaved">₹0</div><div class="ps-label">Saved</div></div>
+      <div class="ps-item"><div class="ps-val" id="psCashback">₹0</div><div class="ps-label">Cashback</div></div>
+    </div>
+    <div class="sec-hdr"><div class="sec-title">Category Preferences</div></div>
+    <div class="pref-wrap" id="profPrefWrap" style="padding:0 16px 14px"></div>
+    <div class="sec-hdr"><div class="sec-title">Order History</div></div>
+    <div id="orderHistList"><div style="padding:0 16px 14px;font-size:13px;color:var(--t2)">No orders yet</div></div>
+    <div class="settings-group">
+      <div class="sg-label">Notification Preferences</div>
+      <div class="sg-item" onclick="togSet('n_master')"><span>🔔 Master Notifications</span><div class="toggle-sw on" id="sw_n_master"></div></div>
+      <div class="sg-item" onclick="togSet('n_order')"><span>📦 Order Placed</span><div class="toggle-sw on" id="sw_n_order"></div></div>
+      <div class="sg-item" onclick="togSet('n_pack')"><span>📫 Order Packed</span><div class="toggle-sw on" id="sw_n_pack"></div></div>
+      <div class="sg-item" onclick="togSet('n_dispatch')"><span>🚚 Dispatched</span><div class="toggle-sw on" id="sw_n_dispatch"></div></div>
+      <div class="sg-item" onclick="togSet('n_arrive')"><span>🏠 Arrived</span><div class="toggle-sw on" id="sw_n_arrive"></div></div>
+      <div class="sg-item" onclick="togSet('n_offers')"><span>🏷️ Offers & Discounts</span><div class="toggle-sw on" id="sw_n_offers"></div></div>
+      <div class="sg-item" onclick="togSet('n_wallet')"><span>💰 Wallet & Cashback</span><div class="toggle-sw on" id="sw_n_wallet"></div></div>
+    </div>
+    <div class="settings-group">
+      <div class="sg-label">Account Settings</div>
+      <div class="sg-item"><span>📍 Manage Addresses</span><i class="fas fa-chevron-right" style="font-size:12px;color:var(--t3)"></i></div>
+      <div class="sg-item"><span>🎨 Change Avatar</span><i class="fas fa-chevron-right" style="font-size:12px;color:var(--t3)"></i></div>
+      <div class="sg-item"><span>🔒 Privacy Policy</span><i class="fas fa-chevron-right" style="font-size:12px;color:var(--t3)"></i></div>
+      <div class="sg-item"><span>📱 About App v1.0</span><i class="fas fa-chevron-right" style="font-size:12px;color:var(--t3)"></i></div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+</div>
 
-        let state = {
-            user: JSON.parse(localStorage.getItem('mv_user_v3')),
-            cart: [],
-            wallet: parseFloat(localStorage.getItem('mv_wallet_v3')) || 0,
-            allProducts: [],
-            currentSheetProduct: null,
-            tempSlot: "6AM-12PM",
-            theme: localStorage.getItem('mv_theme') || 'dark'
-        };
+<!-- ═══════ SIDEBAR ═══════ -->
+<div class="overlay" id="sideOverlay" onclick="closeSidebar()" style="z-index:490"></div>
+<div id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-av" id="sideAv">😎</div>
+    <div>
+      <div class="sidebar-name" id="sideName">User</div>
+      <div class="sidebar-phone" id="sidePhone"></div>
+      <span class="premium-badge" id="sidePremBadge" style="display:none">⭐ LOOPER PREMIUM</span>
+    </div>
+  </div>
+  <div class="sidebar-body">
+    <div class="sb-section">
+      <div class="sb-section-label">Navigation</div>
+      <div class="sb-item" onclick="closeSidebar();showTab('homeScreen')"><i class="fas fa-home"></i>Home</div>
+      <div class="sb-item" onclick="closeSidebar();showTab('exploreScreen')"><i class="fas fa-th-large"></i>All Categories</div>
+      <div class="sb-item" onclick="closeSidebar();showTab('walletScreen')"><i class="fas fa-wallet"></i>Loopy Wallet</div>
+      <div class="sb-item" onclick="closeSidebar();showTab('profileScreen')"><i class="fas fa-user"></i>My Profile</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Account</div>
+      <div class="sb-item"><i class="fas fa-map-marker-alt"></i>Manage Addresses</div>
+      <div class="sb-item"><i class="fas fa-history"></i>Order History</div>
+      <div class="sb-item" onclick="closeSidebar();showTab('profileScreen')"><i class="fas fa-bell"></i>Notifications</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Preferences</div>
+      <div class="sb-notif"><span><i class="fas fa-adjust" style="margin-right:8px;color:var(--t2)"></i>Dark Mode</span><div class="toggle-sw on" id="themeToggle" onclick="toggleTheme()"></div></div>
+      <div class="sb-notif"><span><i class="fas fa-bell-slash" style="margin-right:8px;color:var(--t2)"></i>Master Mute</span><div class="toggle-sw" id="muteTog" onclick="this.classList.toggle('on')"></div></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-section-label">Info</div>
+      <div class="sb-item"><i class="fas fa-shield-alt"></i>Privacy Policy</div>
+      <div class="sb-item"><i class="fas fa-info-circle"></i>About App</div>
+      <div class="sb-item"><i class="fas fa-share-alt"></i>Share App</div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt" style="margin-right:8px"></i>Sign Out</button>
+  </div>
+</div>
 
-        // 2. PRODUCT GENERATOR
-        function initProducts() {
-            state.allProducts = [];
-            categories.forEach((cat, cIdx) => {
-                for(let i=1; i<=20; i++) {
-                    const isVenture = ["Electronics", "Kitchen Appliances", "Clothing", "Sports Items"].includes(cat);
-                    state.allProducts.push({
-                        id: `p-${cIdx}-${i}`,
-                        name: `${cat} ${i === 1 ? 'Pro' : 'Elite'} ${i}`,
-                        price: isVenture ? 1499 + (i*800) : 39 + (i*15),
-                        rating: (4.2 + (Math.random() * 0.7)).toFixed(1),
-                        cat: cat,
-                        type: isVenture ? 'venture' : 'loop',
-                        img: `https://picsum.photos/seed/${cat}${i}/400/400`
-                    });
-                }
-            });
-        }
+<!-- ═══════ BOTTOM NAV ═══════ -->
+<nav id="bnav">
+  <button class="bn on" id="bn-home" onclick="showTab('homeScreen')"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="bn" id="bn-explore" onclick="showTab('exploreScreen')"><i class="fas fa-th-large"></i><span>Explore</span></button>
+  <button class="bn" id="bn-cart" onclick="showTab('cartScreen')">
+    <i class="fas fa-shopping-cart"></i><span>Cart</span>
+    <span class="bn-badge" id="cartBadge">0</span>
+  </button>
+  <button class="bn" id="bn-wallet" onclick="showTab('walletScreen')"><i class="fas fa-wallet"></i><span>Wallet</span></button>
+  <button class="bn" id="bn-profile" onclick="showTab('profileScreen')"><i class="fas fa-user"></i><span>Profile</span></button>
+</nav>
 
-        // 3. AUTH & ONBOARDING
-        auth.onAuthStateChanged(user => {
-            document.getElementById('splash').style.display = 'none';
-            if(user) {
-                if(state.user) startApp();
-                else showOnboarding();
-            } else {
-                document.getElementById('loginScreen').classList.remove('hidden');
-            }
-        });
+<!-- ═══════ ITEM DETAIL SHEET ═══════ -->
+<div class="sheet" id="itemSheet">
+  <div class="sheet-handle"></div>
+  <span class="sheet-em" id="shEm">🛍️</span>
+  <div class="sheet-name" id="shName">Item</div>
+  <div class="sheet-desc" id="shDesc">Description</div>
+  <div class="sheet-price" id="shPrice">₹0</div>
+  <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Add to cart</div>
+  <button class="btn-green" onclick="addFromSheet()">Add to Cart</button>
+</div>
 
-        function authAction(type) {
-            if(type === 'google') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-            else {
-                document.getElementById('phoneInputArea').classList.add('hidden');
-                document.getElementById('otpInputArea').classList.remove('hidden');
-                // Simulate OTP send
-                window.confirmationResult = { confirm: (code) => Promise.resolve({user: {}}) };
-            }
-        }
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<div id="recaptcha-container"></div>
 
-        function verifyOtp() { showOnboarding(); }
+<script>
+/* ═══════════════════════════════════════════
+   FIREBASE
+═══════════════════════════════════════════ */
+const FB_CFG = {
+  apiKey:"AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
+  authDomain:"multiloops-ventures-a1d41.firebaseapp.com",
+  projectId:"multiloops-ventures-a1d41",
+  storageBucket:"multiloops-ventures-a1d41.firebasestorage.app",
+  messagingSenderId:"239033809088",
+  appId:"1:239033809088:web:05b978c6dcf42a8c175525"
+};
+firebase.initializeApp(FB_CFG);
+const auth = firebase.auth();
 
-        function showOnboarding() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('onboarding').classList.remove('hidden');
-            
-            const avGrid = document.getElementById('avatarGrid');
-            for(let i=1; i<=10; i++) {
-                const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=MV${i}`;
-                avGrid.innerHTML += `<img src="${url}" onclick="selectAvatar(this, '${url}')" class="avatar-ring w-20 h-20 rounded-full cursor-pointer bg-zinc-800">`;
-            }
+/* ═══════════════════════════════════════════
+   AIRTABLE
+═══════════════════════════════════════════ */
+const AT_TOKEN = "patl0Vtxpf82UWVOs.966263846f77b5b2cacdf0149b638eb5b88cd4419ef2209974109e7b1799b7db";
+const AT_URL = `https://api.airtable.com/v0/appBK5ZQ8le1b1URP/tbl4YysRCkC0kCy4h`;
 
-            const favs = document.getElementById('favCats');
-            categories.forEach(c => {
-                favs.innerHTML += `<button onclick="this.classList.toggle('bg-green-500')" class="px-4 py-2 border border-zinc-800 rounded-full text-[10px] font-bold uppercase">${c}</button>`;
-            });
-        }
+/* ═══════════════════════════════════════════
+   CATALOGUE — REAL PRODUCTS
+═══════════════════════════════════════════ */
+const CAT_META = {
+  "Electronics":      {em:"📱",sub:false,color:"#ffab00"},
+  "Kitchen":          {em:"🍳",sub:false,color:"#ff6d00"},
+  "Fruits":           {em:"🍎",sub:true, color:"#76ff03"},
+  "Pharmacy":         {em:"💊",sub:true, color:"#2979ff"},
+  "Pets":             {em:"🐾",sub:true, color:"#e040fb"},
+  "Snacks":           {em:"🍿",sub:false,color:"#ffab00"},
+  "Beverages":        {em:"☕",sub:true, color:"#7c4dff"},
+  "School":           {em:"📚",sub:false,color:"#00e5ff"},
+  "Toys":             {em:"🧸",sub:false,color:"#f50057"},
+  "Gifts":            {em:"🎁",sub:false,color:"#c6ff00"},
+  "Beauty":           {em:"💄",sub:false,color:"#ff80ab"},
+  "Sports":           {em:"⚽",sub:false,color:"#40c4ff"},
+  "Clothing":         {em:"👕",sub:false,color:"#00c853"},
+};
 
-        function selectAvatar(el, url) {
-            document.querySelectorAll('.avatar-ring').forEach(a => a.classList.remove('selected'));
-            el.classList.add('selected');
-            state.tempAvatar = url;
-        }
+const CATALOGUE = {
+  "Electronics":[
+    {id:"E01",n:"Samsung Galaxy S24 Ultra",p:129999,s:20,e:"📱",d:"200MP camera, S Pen, Snapdragon 8 Gen 3",cb:0},
+    {id:"E02",n:"Apple iPhone 15 Pro",p:134900,s:15,e:"📱",d:"A17 Pro chip, titanium design, ProRes video",cb:0},
+    {id:"E03",n:"Apple iPad Air M2",p:74900,s:25,e:"💻",d:"M2 chip, 11\" Liquid Retina, 5G ready",cb:500},
+    {id:"E04",n:"Sony WH-1000XM5",p:26990,s:40,e:"🎧",d:"Industry-leading noise cancellation, 30hr battery",cb:300},
+    {id:"E05",n:"Apple Watch Series 9",p:41900,s:18,e:"⌚",d:"S9 chip, double tap gesture, carbon neutral",cb:0},
+    {id:"E06",n:"JBL Charge 5",p:14999,s:60,e:"🔊",d:"20hr playtime, IP67 waterproof, USB-C charge out",cb:200},
+    {id:"E07",n:"Logitech MX Master 3S",p:9995,s:45,e:"🖱️",d:"8K DPI MagSpeed scroll, works on glass",cb:0},
+    {id:"E08",n:"Samsung 65\" QLED 4K TV",p:64990,s:8,e:"📺",d:"Quantum Dot, 120Hz, Tizen OS, Dolby Atmos",cb:0},
+    {id:"E09",n:"Kindle Paperwhite 11th Gen",p:13999,s:35,e:"📖",d:"6.8\" display, IPX8, 10 weeks battery",cb:150},
+    {id:"E10",n:"Canon EOS R50 Camera",p:65990,s:12,e:"📷",d:"24.2MP APS-C, 4K video, Dual Pixel AF",cb:0},
+    {id:"E11",n:"DJI Mini 3 Pro Drone",p:74900,s:10,e:"🚁",d:"4K/60fps, obstacle sensing, 34min flight",cb:0},
+    {id:"E12",n:"Xiaomi 43\" Smart TV 4K",p:24999,s:22,e:"🖥️",d:"Vivid Picture Engine, PatchWall, Android TV",cb:400},
+    {id:"E13",n:"Apple AirPods Pro 2nd Gen",p:24900,s:30,e:"🎵",d:"H2 chip, Adaptive Audio, USB-C, MagSafe",cb:0},
+    {id:"E14",n:"Lenovo IdeaPad Slim 5",p:55990,s:14,e:"💻",d:"Ryzen 5 7530U, 16GB RAM, 512GB SSD",cb:800},
+    {id:"E15",n:"Bose QuietComfort 45",p:24990,s:28,e:"🎧",d:"World-class ANC, 24hr battery, foldable",cb:250},
+    {id:"E16",n:"GoPro Hero 12 Black",p:36990,s:18,e:"📷",d:"5.3K60 video, HyperSmooth 6.0, waterproof",cb:0},
+    {id:"E17",n:"Samsung Galaxy Tab S9",p:72999,s:16,e:"📲",d:"Snapdragon 8 Gen 2, 11\" AMOLED, S Pen inc.",cb:500},
+    {id:"E18",n:"TP-Link Archer AX55 Router",p:5999,s:50,e:"📡",d:"WiFi 6, 3000Mbps, 4 antennas, MU-MIMO",cb:0},
+    {id:"E19",n:"Anker 65W GaN Charger",p:2499,s:100,e:"🔌",d:"3-port, USB-C PD, folds flat, universal",cb:0},
+    {id:"E20",n:"Realme Buds T300",p:1999,s:80,e:"🎧",d:"30dB ANC, 40hr total, IPX5, LDAC support",cb:0},
+  ],
+  "Kitchen":[
+    {id:"K01",n:"Instant Pot Duo 7-in-1 5.7L",p:9999,s:35,e:"🫕",d:"Pressure cooker, slow cooker, sauté & more",cb:150},
+    {id:"K02",n:"Philips Air Fryer HD9252",p:8995,s:28,e:"🍗",d:"4.1L, Rapid Air, fat-free frying, digital panel",cb:200},
+    {id:"K03",n:"Bosch Hand Mixer 500W",p:3299,s:55,e:"🥣",d:"500W, 5 speeds, dough hooks & beaters included",cb:0},
+    {id:"K04",n:"Prestige IRIS Plus 750W Mixer",p:3195,s:60,e:"🌀",d:"750W, 3 jars, 5-speed + pulse, 5yr motor warranty",cb:0},
+    {id:"K05",n:"Morphy Richards OTG 60L",p:8499,s:20,e:"♨️",d:"2000W, motorised rotisserie, convection + grill",cb:100},
+    {id:"K06",n:"Pigeon Induction Cooktop 1800W",p:1799,s:70,e:"🔥",d:"7 preset menus, feather touch, auto shut-off",cb:0},
+    {id:"K07",n:"Butterfly Smart 5L Pressure Cooker",p:2299,s:45,e:"🍲",d:"ISI certified, hard anodised, inner lid",cb:50},
+    {id:"K08",n:"Milton Thermosteel Flip Lid 1L",p:799,s:120,e:"🫙",d:"24hr hot & cold, stainless steel, leakproof",cb:0},
+    {id:"K09",n:"Prestige Knife Set 5pc",p:1499,s:50,e:"🔪",d:"Stainless steel, full tang, ergonomic handle",cb:0},
+    {id:"K10",n:"Tupperware 6-Piece Set",p:2499,s:40,e:"🥡",d:"Air-tight, microwave safe, 500ml to 1.5L",cb:0},
+    {id:"K11",n:"Teflon Non-stick Tawa 28cm",p:999,s:80,e:"🥞",d:"PFOA-free coating, induction compatible, 3mm",cb:0},
+    {id:"K12",n:"Borosil Glass Mixing Bowl Set 3",p:799,s:60,e:"🥗",d:"Borosilicate glass, microwave & dishwasher safe",cb:0},
+    {id:"K13",n:"Eureka Forbes WD Maxima Vacuum",p:8995,s:15,e:"🧹",d:"Wet & dry, 2000W, stainless steel tank, HEPA",cb:150},
+    {id:"K14",n:"Kent Cold Press Juicer",p:7999,s:18,e:"🥤",d:"240W, slow press, 80% juice yield, quiet motor",cb:200},
+    {id:"K15",n:"Wonderchef Crimson Edge Toaster",p:1595,s:65,e:"🍞",d:"2-slice, 7 browning levels, removable tray",cb:0},
+    {id:"K16",n:"OXO Good Grips Can Opener",p:1299,s:50,e:"🥫",d:"Stainless steel, smooth-edge, ergonomic turn knob",cb:0},
+    {id:"K17",n:"Jaypee Royale 5pc Casserole",p:2999,s:30,e:"🍱",d:"Insulated, stainless steel inner, 1–3.5L",cb:50},
+    {id:"K18",n:"Lifelong 6-Layer Steel Rack",p:1999,s:25,e:"🗄️",d:"Powder coated, adjustable shelves, 120kg load",cb:0},
+    {id:"K19",n:"Cello Artica Bottle 1L",p:499,s:150,e:"💧",d:"Double-wall insulation, 18hr cold, BPA free",cb:0},
+    {id:"K20",n:"Wonderchef Nutri-Blend 400W",p:2195,s:55,e:"🌊",d:"Compact blender + chopper + grinder in one",cb:0},
+  ],
+  "Fruits":[
+    {id:"F01",n:"Alphonso Mangoes 1kg",p:320,s:80,e:"🥭",d:"Premium Ratnagiri GI-tagged Alphonso mangoes",cb:5},
+    {id:"F02",n:"Organic Baby Spinach 250g",p:55,s:180,e:"🥬",d:"Farm-fresh, pre-washed, pesticide-free",cb:2},
+    {id:"F03",n:"Strawberries 250g Punnet",p:120,s:100,e:"🍓",d:"Mahabaleshwar strawberries, sweet & juicy",cb:3},
+    {id:"F04",n:"Hass Avocados 3pc",p:180,s:60,e:"🥑",d:"Ripe & ready, imported, creamy texture",cb:5},
+    {id:"F05",n:"Thompson Seedless Grapes 500g",p:85,s:150,e:"🍇",d:"Washed & ready to eat, sweet green grapes",cb:2},
+    {id:"F06",n:"Dragon Fruit 1pc",p:140,s:45,e:"🐉",d:"Vietnamese red pitaya, rich in antioxidants",cb:4},
+    {id:"F07",n:"Baby Carrots 500g",p:55,s:200,e:"🥕",d:"Pre-washed, farm-fresh, naturally sweet",cb:1},
+    {id:"F08",n:"Mixed Bell Peppers 3pc",p:75,s:130,e:"🫑",d:"Red + yellow + green, capsicums, crunchy",cb:2},
+    {id:"F09",n:"Imported Blueberries 125g",p:180,s:50,e:"🫐",d:"Plump, sweet, rich in anthocyanins",cb:5},
+    {id:"F10",n:"Tender Coconut 1pc",p:65,s:90,e:"🥥",d:"Fresh, full of electrolytes, ready to drink",cb:0},
+    {id:"F11",n:"Kiwi Fruit 6pc",p:145,s:70,e:"🥝",d:"Zespri Green kiwi, tangy-sweet, vitamin C rich",cb:3},
+    {id:"F12",n:"Watermelon Whole ~3kg",p:99,s:40,e:"🍉",d:"Seedless, Karnataka farm, chilled on arrival",cb:0},
+    {id:"F13",n:"Cherry Tomatoes 250g",p:65,s:160,e:"🍅",d:"Vine-ripened, sweet-acidic balance, ready to eat",cb:1},
+    {id:"F14",n:"Pomegranate 1pc ~400g",p:80,s:110,e:"🍎",d:"Bhagwa variety, deep red arils, juicy",cb:2},
+    {id:"F15",n:"Papaya Half ~800g",p:60,s:90,e:"🍈",d:"Ripe, sweet, pre-cut and wrapped",cb:0},
+    {id:"F16",n:"Sweet Corn 2pc",p:40,s:200,e:"🌽",d:"Yellow sweet corn, tender kernels, fresh",cb:0},
+    {id:"F17",n:"Broccoli Head ~500g",p:85,s:120,e:"🥦",d:"Florets intact, dark green, zero pesticide",cb:2},
+    {id:"F18",n:"Green Apple Granny Smith 4pc",p:120,s:80,e:"🍏",d:"Tart & crisp, imported, waxed for freshness",cb:3},
+    {id:"F19",n:"Yellow Banana Dozen",p:45,s:300,e:"🍌",d:"Robusta variety, naturally ripened, no ethylene",cb:0},
+    {id:"F20",n:"Lemon 6pc",p:35,s:400,e:"🍋",d:"Juicy Kagzi lemons, thin skin, high juice yield",cb:0},
+  ],
+  "Pharmacy":[
+    {id:"P01",n:"Dolo 650 Paracetamol (15 tabs)",p:30,s:500,e:"💊",d:"Paracetamol 650mg — fever & pain relief",cb:0},
+    {id:"P02",n:"Calpol 500 (Strip of 10)",p:18,s:600,e:"💊",d:"Paracetamol 500mg, mild pain & fever",cb:0},
+    {id:"P03",n:"Volini Spray 100g",p:249,s:80,e:"💨",d:"Diclofenac + Menthol — muscle & joint pain",cb:0},
+    {id:"P04",n:"Combiflam Tablet (Strip 10)",p:25,s:400,e:"🔵",d:"Ibuprofen + Paracetamol — anti-inflammatory",cb:0},
+    {id:"P05",n:"Limcee Vitamin C 500mg 30 tabs",p:28,s:350,e:"🍊",d:"Chewable, orange flavour, daily immunity boost",cb:0},
+    {id:"P06",n:"Becosules Capsules 30pc",p:85,s:300,e:"💛",d:"B-complex + Vitamin C — deficiency supplement",cb:0},
+    {id:"P07",n:"Cetirizine 10mg 10 tabs",p:25,s:500,e:"🟡",d:"Antihistamine — allergy, cold, itching relief",cb:0},
+    {id:"P08",n:"Pantoprazole 40mg 10 tabs",p:45,s:400,e:"🟠",d:"Proton-pump inhibitor — acidity, GERD relief",cb:0},
+    {id:"P09",n:"Digene Gel 200ml Orange",p:75,s:250,e:"🍊",d:"Antacid — immediate acidity & gas relief",cb:0},
+    {id:"P10",n:"ORS Electral 21.8g Sachet",p:15,s:800,e:"💧",d:"WHO-formula ORS — rehydration after diarrhoea",cb:0},
+    {id:"P11",n:"Band-Aid Flexible 30-strip Box",p:85,s:300,e:"🩹",d:"Sterile, breathable, flexi-fabric bandages",cb:0},
+    {id:"P12",n:"Savlon Antiseptic Liquid 100ml",p:99,s:200,e:"🧴",d:"Chlorhexidine — wound cleaning & disinfection",cb:0},
+    {id:"P13",n:"Vicks VapoRub 50g",p:115,s:280,e:"💙",d:"Camphor + Eucalyptus — cold & chest congestion",cb:0},
+    {id:"P14",n:"Iodex Balm 50g",p:85,s:220,e:"⚫",d:"Methyl salicylate + menthol — muscle aches",cb:0},
+    {id:"P15",n:"Dr. Morepen Glucometer GS3",p:999,s:60,e:"🩸",d:"5-second result, ±10% accuracy, no coding",cb:20},
+    {id:"P16",n:"Omron HEM-7120 BP Monitor",p:1995,s:35,e:"❤️",d:"Clinically validated, irregular heartbeat detect",cb:50},
+    {id:"P17",n:"Thermometer Dr. Morepen MT-111",p:249,s:120,e:"🌡️",d:"30-sec digital, flexible tip, fever alarm",cb:5},
+    {id:"P18",n:"Strepsils Honey Lemon 24 lozenges",p:95,s:400,e:"🍬",d:"Dichlorobenzyl alcohol — sore throat relief",cb:0},
+    {id:"P19",n:"Wellman Multivitamin 30 tabs",p:499,s:80,e:"💚",d:"22 vitamins & minerals for men's health",cb:10},
+    {id:"P20",n:"Biotin 10000mcg 60 tabs",p:599,s:70,e:"🟢",d:"Hair, skin & nails support, vegetarian caps",cb:10},
+  ],
+  "Pets":[
+    {id:"PT01",n:"Pedigree Adult Dog Food 3kg",p:850,s:60,e:"🐕",d:"Chicken & veg, complete balanced nutrition",cb:20},
+    {id:"PT02",n:"Royal Canin Adult Cat Food 2kg",p:1490,s:40,e:"🐈",d:"Tailored nutrition, urinary tract health support",cb:30},
+    {id:"PT03",n:"Whiskas Tuna & Salmon 85g×12",p:540,s:80,e:"🐟",d:"Wet cat food pouches, natural proteins",cb:10},
+    {id:"PT04",n:"Drools Chicken & Egg 3kg",p:699,s:55,e:"🐶",d:"Real chicken first ingredient, omega-rich",cb:15},
+    {id:"PT05",n:"GoodBoy Dog Chew Sticks 10pc",p:149,s:130,e:"🦴",d:"Natural rawhide, promotes dental hygiene",cb:0},
+    {id:"PT06",n:"Catit Flower Fountain 3L",p:1799,s:25,e:"⛲",d:"Circulating water fountain, triple filtration",cb:40},
+    {id:"PT07",n:"Furminator Deshedding Brush",p:1499,s:35,e:"🪮",d:"Reduces shedding 90%, stainless steel edge",cb:30},
+    {id:"PT08",n:"Neon Flying Saucer Wheel Hamster",p:699,s:45,e:"🐹",d:"Silent spinner, 23cm diameter, easy clip-in",cb:10},
+    {id:"PT09",n:"Drools Chicken Digest Kitten 1.5kg",p:799,s:38,e:"🍗",d:"High protein kitten food, DHA for brain dev.",cb:15},
+    {id:"PT10",n:"Mr. Pet 5-in-1 Grooming Kit",p:1299,s:40,e:"✂️",d:"Nail clipper, comb, brush, toothbrush, scissors",cb:25},
+    {id:"PT11",n:"Himalaya Erina Coat Cleanser 450ml",p:349,s:75,e:"🛁",d:"Neem + Marigold, anti-parasitic dog shampoo",cb:5},
+    {id:"PT12",n:"Trixie Cat Scratching Post 65cm",p:999,s:30,e:"🐱",d:"Sisal-wrapped post, plush base, anti-slip",cb:20},
+    {id:"PT13",n:"Adjustable Nylon Dog Harness L",p:499,s:55,e:"🦮",d:"No-pull, step-in design, reflective stitching",cb:10},
+    {id:"PT14",n:"Pet Vitamin E & Fish Oil 60 caps",p:380,s:60,e:"💊",d:"Omega-3 for coat shine & joint health",cb:8},
+    {id:"PT15",n:"Tetra AquaSafe Plus 100ml",p:299,s:50,e:"🐠",d:"Neutralises chlorine & heavy metals in tap water",cb:5},
+    {id:"PT16",n:"Kong Classic Rubber Toy Medium",p:799,s:42,e:"🔴",d:"Fillable chew toy, extreme rubber, vet-recommended",cb:15},
+    {id:"PT17",n:"Cat Litter Silica Gel 5L",p:649,s:65,e:"🏖️",d:"99% odour control, 4-week lifespan, dust-free",cb:12},
+    {id:"PT18",n:"Zolux Bird Cage 38×25cm",p:1199,s:20,e:"🦜",d:"Galvanised wire, slide-out tray, easy clean",cb:25},
+    {id:"PT19",n:"Adaptil Dog Calming Collar",p:1799,s:22,e:"😴",d:"Pheromone collar, 4-week supply, anxiety relief",cb:40},
+    {id:"PT20",n:"Drools Focus Puppy Starter 3kg",p:849,s:48,e:"🐾",d:"DHA-enriched for brain & eye development",cb:18},
+  ],
+  "Snacks":[
+    {id:"SN01",n:"Lays Classic Salted 52g",p:20,s:400,e:"🥔",d:"Original salted flavour potato chips",cb:0},
+    {id:"SN02",n:"Bingo Mad Angles 65g",p:20,s:350,e:"📐",d:"Achari Masti triangular corn chips",cb:0},
+    {id:"SN03",n:"Haldiram's Aloo Bhujia 400g",p:115,s:200,e:"🌿",d:"Classic Bikaner-style spiced bhujia",cb:2},
+    {id:"SN04",n:"Oreo Original 300g Pack",p:85,s:300,e:"🍪",d:"Chocolate sandwich cookies with cream filling",cb:0},
+    {id:"SN05",n:"KitKat 4-Finger 41g",p:30,s:500,e:"🍫",d:"Crispy wafer layers with milk chocolate",cb:0},
+    {id:"SN06",n:"Pringles Original 130g",p:150,s:120,e:"🥫",d:"Saddle-shaped chips, stackable, resealable",cb:5},
+    {id:"SN07",n:"Cadbury Dairy Milk 180g",p:85,s:280,e:"🍫",d:"Classic creamy milk chocolate bar",cb:2},
+    {id:"SN08",n:"Britannia Good Day Butter 100g",p:25,s:400,e:"🍪",d:"Rich butter cookies with real cashew pieces",cb:0},
+    {id:"SN09",n:"Bikaji Mix Namkeen 400g",p:95,s:180,e:"🥜",d:"Assorted Indian namkeen — sev, peanuts, flakes",cb:0},
+    {id:"SN10",n:"Too Yumm Multigrain Chips 55g",p:20,s:300,e:"🌾",d:"Baked, not fried, multigrain, 40% less fat",cb:0},
+    {id:"SN11",n:"Lay's Cream & Onion 52g",p:20,s:400,e:"🧅",d:"Sour cream & onion flavoured potato chips",cb:0},
+    {id:"SN12",n:"Snickers 50g",p:30,s:450,e:"🍫",d:"Peanuts, caramel and nougat in milk chocolate",cb:0},
+    {id:"SN13",n:"Paper Boat Aamras 200ml",p:35,s:350,e:"🥭",d:"Traditional Indian Alphonso mango pulp drink",cb:0},
+    {id:"SN14",n:"Parle-G Original Biscuits 799g",p:50,s:300,e:"🍪",d:"India's most loved glucose biscuit",cb:0},
+    {id:"SN15",n:"Act II Microwave Popcorn 3pk",p:120,s:150,e:"🍿",d:"Movie-style butter popcorn, 3 bags in pack",cb:0},
+    {id:"SN16",n:"Doritos Nacho Cheese 55g",p:40,s:200,e:"🌽",d:"Triangle corn chips with cheesy seasoning",cb:0},
+    {id:"SN17",n:"Parle Monaco Salted 200g",p:40,s:300,e:"⬜",d:"Crispy salted crackers with sesame seeds",cb:0},
+    {id:"SN18",n:"Pulse Candy Imli 20pc",p:20,s:600,e:"🍬",d:"Sweet & tangy imli candy with chaat masala centre",cb:0},
+    {id:"SN19",n:"Patanjali Murabba Amla 500g",p:155,s:100,e:"🫙",d:"Gooseberry preserve, natural, no artificial colour",cb:3},
+    {id:"SN20",n:"Sunfeast Dark Fantasy Choco 150g",p:45,s:250,e:"🍫",d:"Dark chocolate filled cream biscuits",cb:0},
+  ],
+  "Beverages":[
+    {id:"BV01",n:"Nescafé Classic Jar 200g",p:450,s:120,e:"☕",d:"100% pure soluble coffee, rich aroma",cb:10},
+    {id:"BV02",n:"Tata Gold Tea 500g",p:270,s:180,e:"🍵",d:"Premium Assam and Darjeeling blend",cb:5},
+    {id:"BV03",n:"Red Bull Energy Drink 250ml 4pk",p:400,s:80,e:"🐂",d:"80mg caffeine, B-vitamins, taurine",cb:0},
+    {id:"BV04",n:"Tropicana Orange Juice 1L",p:120,s:150,e:"🍊",d:"100% pure orange juice, no added sugar",cb:3},
+    {id:"BV05",n:"Bisleri Mineral Water 1L ×6",p:78,s:300,e:"💧",d:"Natural mineral water, ISI certified",cb:0},
+    {id:"BV06",n:"Complan Chocolate 500g",p:320,s:90,e:"🍫",d:"23 vital nutrients for complete growth",cb:0},
+    {id:"BV07",n:"Boost Chocolate Malt 500g",p:279,s:100,e:"⚡",d:"Stamina, strength & concentration supplement",cb:0},
+    {id:"BV08",n:"Coca-Cola 2L Bottle",p:95,s:200,e:"🥤",d:"Classic carbonated cola drink",cb:0},
+    {id:"BV09",n:"Tetley Green Tea Tulsi 25 bags",p:165,s:140,e:"🍵",d:"Antioxidant-rich, immunity boosting herbal tea",cb:5},
+    {id:"BV10",n:"MuscleBlaze Whey Protein 1kg",p:2199,s:30,e:"💪",d:"25g protein per serving, 5.5g BCAA, rich choc",cb:50},
+    {id:"BV11",n:"Maaza Mango 600ml",p:40,s:400,e:"🥭",d:"Frooti-style thick mango drink, chilled best",cb:0},
+    {id:"BV12",n:"B Natural Mixed Fruit Juice 1L",p:110,s:120,e:"🍹",d:"25% fruit content, no artificial colour",cb:2},
+    {id:"BV13",n:"Bru Gold Coffee 50g Pouch",p:95,s:200,e:"☕",d:"South Indian filter coffee blend, chicory mixed",cb:2},
+    {id:"BV14",n:"Lipton Yellow Label Tea 250g",p:165,s:160,e:"🍵",d:"Golden tips, refreshing cup every time",cb:3},
+    {id:"BV15",n:"Monster Ultra Zero 500ml 4pk",p:480,s:60,e:"🟢",d:"Zero sugar energy drink, green apple flavour",cb:0},
+    {id:"BV16",n:"Dabur Hajmola Digestive 120 tabs",p:75,s:350,e:"🍬",d:"Imli-jeera digestive candy, post-meal aid",cb:0},
+    {id:"BV17",n:"Horlicks Original 500g",p:265,s:130,e:"🌾",d:"Malted milk drink, classic wheat-malt taste",cb:0},
+    {id:"BV18",n:"Appy Fizz Apple Drink 600ml",p:40,s:300,e:"🍾",d:"Sparkling apple drink, chilled, fizzy",cb:0},
+    {id:"BV19",n:"Saffola Oats 500g",p:115,s:200,e:"🥣",d:"100% rolled oats, heart-healthy, no sugar",cb:2},
+    {id:"BV20",n:"Glucon-D Nimbu Pani 1kg",p:185,s:150,e:"🍋",d:"Instant glucose energy drink with lemon",cb:3},
+  ],
+  "School":[
+    {id:"SC01",n:"Classmate Notebook A4 200pg ×6",p:130,s:200,e:"📓",d:"Single-line, 70 GSM paper, smooth writing",cb:0},
+    {id:"SC02",n:"Faber-Castell Colour Pencils 24",p:95,s:150,e:"✏️",d:"Oil-based colour, break-resistant, 24 shades",cb:0},
+    {id:"SC03",n:"Faber-Castell Geometry Box",p:120,s:120,e:"📐",d:"School-grade set, compass + divider + scales",cb:0},
+    {id:"SC04",n:"Reynolds Trimax Pens Blue 10pc",p:75,s:300,e:"🖊️",d:"1mm ball tip, smooth flow, anti-clog tip",cb:0},
+    {id:"SC05",n:"Casio FX-82MS Scientific Calc",p:895,s:60,e:"🔢",d:"240+ functions, two-line display, solar+battery",cb:15},
+    {id:"SC06",n:"Staedtler HB Pencils 12pc",p:99,s:200,e:"✏️",d:"Hexagonal shaft, break-resistant, latex-free eraser",cb:0},
+    {id:"SC07",n:"Xerox A4 75 GSM Paper 500 sheets",p:299,s:80,e:"📄",d:"Bright white, 99% jam-free, ream-wrapped",cb:5},
+    {id:"SC08",n:"Maped Color'Peps Highlighters 5",p:130,s:180,e:"🖍️",d:"Chisel tip, fluorescent, water-based, no bleed",cb:0},
+    {id:"SC09",n:"Wildcraft Bolt 30L Backpack",p:1299,s:40,e:"🎒",d:"Ergonomic, laptop sleeve, rain cover, 2yr wty",cb:30},
+    {id:"SC10",n:"Fevicol Glue Stick 8g",p:25,s:400,e:"🔵",d:"Washable, solvent-free, school-safe formula",cb:0},
+    {id:"SC11",n:"Deli Scissors 21cm",p:89,s:120,e:"✂️",d:"Stainless steel blade, soft-grip handle, sharp",cb:0},
+    {id:"SC12",n:"Classmate 5-Subject Spiral 200pg",p:95,s:150,e:"📔",d:"Ruled pages, hard cover, tear-resistant",cb:0},
+    {id:"SC13",n:"Maped TWIST-N-FLEX Ruler 30cm",p:75,s:100,e:"📏",d:"Flexible + unbreakable, metric + inch",cb:0},
+    {id:"SC14",n:"Apsara Gold HB Pencils ×10",p:50,s:300,e:"✏️",d:"Smooth HB graphite, yellow hexagonal",cb:0},
+    {id:"SC15",n:"Pelikan 4001 Blue Ink 62.5ml",p:295,s:55,e:"🖋️",d:"Fountain pen ink, non-waterproof, vibrant blue",cb:5},
+    {id:"SC16",n:"Classmate Pen Case Green",p:199,s:80,e:"🟩",d:"Zipper pouch, mesh inner pocket, durable",cb:0},
+    {id:"SC17",n:"Scotch Tape 2pc 18mm×33m",p:120,s:150,e:"📦",d:"Crystal clear, strong adhesive, easy-tear",cb:0},
+    {id:"SC18",n:"Drawing Sheet A3 25-Piece Pad",p:150,s:90,e:"🎨",d:"200 GSM cartridge paper, smooth surface",cb:0},
+    {id:"SC19",n:"Casio DQ-747 Alarm Clock",p:699,s:45,e:"⏰",d:"Dual alarm, snooze, LED backlight, battery",cb:10},
+    {id:"SC20",n:"Durable A4 Ring Binder 25mm",p:349,s:60,e:"📋",d:"4D-ring, polypropylene cover, 200-sheet cap",cb:0},
+  ],
+  "Toys":[
+    {id:"T01",n:"LEGO Classic Bricks 484pc",p:3499,s:22,e:"🧱",d:"Ages 4+, open-ended creative building",cb:100},
+    {id:"T02",n:"Nerf N-Strike Elite Blaster",p:1295,s:35,e:"🔫",d:"Fires 12 darts up to 27m, 6-dart clip",cb:30},
+    {id:"T03",n:"Hot Wheels Basic Cars 20pk",p:1799,s:40,e:"🚗",d:"1:64 scale die-cast, random assortment",cb:50},
+    {id:"T04",n:"Barbie Dreamhouse Playset",p:5999,s:8,e:"🏠",d:"3-story, 8 rooms, elevator, pool, 75+ pieces",cb:120},
+    {id:"T05",n:"Play-Doh 10-Colour Set",p:650,s:80,e:"🎨",d:"Non-toxic, salt-based, 84g per can",cb:0},
+    {id:"T06",n:"UNO Card Game",p:349,s:120,e:"🃏",d:"Classic family game, 112 cards, 2–10 players",cb:0},
+    {id:"T07",n:"Funskool Carrom Board",p:2199,s:18,e:"🎯",d:"Tournament-spec, 3ft, polished surface, coins incl.",cb:60},
+    {id:"T08",n:"WLtoys 1:14 RC Car",p:1899,s:28,e:"🏎️",d:"40km/h, 4WD off-road, 2.4GHz control",cb:40},
+    {id:"T09",n:"Rubik's Speed Cube 3×3",p:349,s:100,e:"🎲",d:"Original Rubik's, smooth mechanism, stickerless",cb:0},
+    {id:"T10",n:"Funskool Magnetic Drawing Board",p:449,s:70,e:"🎨",d:"A4 size, pen + stamp + erase, no mess",cb:0},
+    {id:"T11",n:"Milton Junior Chess Wooden",p:599,s:50,e:"♟️",d:"Weighted pieces, folding board + storage",cb:10},
+    {id:"T12",n:"Playskool Weebles 6pc Farm",p:899,s:32,e:"🐓",d:"Wobble figures, ages 18m+, bright colours",cb:20},
+    {id:"T13",n:"Meccano Junior 150pc Set",p:1999,s:20,e:"⚙️",d:"Real tools, real bolts, open-ended building",cb:50},
+    {id:"T14",n:"Science Experiment Kit 50 Exp",p:1299,s:30,e:"🔬",d:"Chemistry, physics & biology at home",cb:30},
+    {id:"T15",n:"Funskool Scrabble (English)",p:999,s:40,e:"🔤",d:"2–4 players, 100 tiles, wooden racks",cb:20},
+    {id:"T16",n:"Crayola 64 Crayons Sharpener Box",p:699,s:60,e:"🖍️",d:"Built-in sharpener, classic wax crayons",cb:0},
+    {id:"T17",n:"Squishmallow 20cm Cow",p:799,s:45,e:"🐄",d:"Super-soft marshmallow texture, safe fill",cb:15},
+    {id:"T18",n:"NerfBlasters Pistol Toy",p:499,s:65,e:"🔫",d:"Single shot, 3 foam darts, ages 6+",cb:0},
+    {id:"T19",n:"Funskool Snakes & Ladders",p:299,s:100,e:"🎲",d:"Jumbo board, 2–6 players, includes dice",cb:0},
+    {id:"T20",n:"Play & Learn Abacus 13-Rod",p:349,s:80,e:"🧮",d:"Colourful beads, wooden frame, ages 3+",cb:0},
+  ],
+  "Gifts":[
+    {id:"GF01",n:"Lindt Lindor Chocolate Box 200g",p:1299,s:50,e:"🍫",d:"Assorted milk, dark & white truffle chocolates",cb:30},
+    {id:"GF02",n:"Yankee Candle Scented 3-Set",p:1799,s:40,e:"🕯️",d:"Vanilla Cupcake + Fresh Linen + Clean Cotton",cb:40},
+    {id:"GF03",n:"Leather Bound Notebook A5",p:749,s:60,e:"📒",d:"Handstitched, 200 lined pages, pen loop",cb:15},
+    {id:"GF04",n:"Fossil Logan Leather Wallet",p:2995,s:30,e:"👛",d:"Bifold, 6 card slots, RFID-blocking lining",cb:80},
+    {id:"GF05",n:"Premium Silk Tie + Pocket Square",p:1999,s:28,e:"👔",d:"Jacquard weave, gift box included",cb:50},
+    {id:"GF06",n:"Aromatic Bath & Body Gift Set",p:1499,s:35,e:"🛁",d:"Rose & jasmine bath bombs, lotion, scrub",cb:30},
+    {id:"GF07",n:"Crystal Wine Glass Pair",p:1599,s:25,e:"🥂",d:"Lead-free crystal, hand-blown, 350ml capacity",cb:40},
+    {id:"GF08",n:"Spotify Plaque Light (Custom)",p:499,s:80,e:"💡",d:"Acrylic LED nightlight, USB-C, 3 light modes",cb:10},
+    {id:"GF09",n:"Twinings Tea Starter Gift Box",p:1199,s:45,e:"🍵",d:"12 varieties, 60 bags, ribbon-tied gift box",cb:25},
+    {id:"GF10",n:"Gourmet Hamper Premium",p:2999,s:18,e:"🧺",d:"Artisanal chocolates, nuts, jams, honey",cb:80},
+    {id:"GF11",n:"Polaroid Photo Frame Collage",p:899,s:55,e:"🖼️",d:"Holds 16 prints, string lights included",cb:20},
+    {id:"GF12",n:"Parker Jotter Ballpoint Pen",p:799,s:70,e:"🖊️",d:"Stainless steel, medium blue refill, gift box",cb:15},
+    {id:"GF13",n:"LUSH Fresh Face Mask 75g",p:799,s:40,e:"🌹",d:"Cupcake — cocoa + mint + lavender fresh mask",cb:15},
+    {id:"GF14",n:"Bamboo Spa Gift Set 5pc",p:1299,s:32,e:"🎋",d:"Pumice stone, bamboo tray, oils, towel",cb:30},
+    {id:"GF15",n:"Handmade Macramé Wall Hanging",p:999,s:25,e:"🎀",d:"Cotton rope, boho style, 50×30cm, ready to hang",cb:20},
+    {id:"GF16",n:"Casio F91W Classic Watch",p:1999,s:60,e:"⌚",d:"Digital, alarm, stopwatch, 7yr battery, retro icon",cb:40},
+    {id:"GF17",n:"Artisan Honey Gift Box 3 Types",p:1499,s:30,e:"🍯",d:"Raw forest, Jamun, Multifloral, 250g each",cb:35},
+    {id:"GF18",n:"Personalised Star Map Print A4",p:599,s:70,e:"⭐",d:"Custom date, location, framed, premium print",cb:10},
+    {id:"GF19",n:"Good Vibes Succulents 3-Pot Set",p:599,s:45,e:"🪴",d:"Low-maintenance, ceramic pots, drainage holes",cb:0},
+    {id:"GF20",n:"The Art of Gift Wrapped Book",p:399,s:55,e:"📚",d:"101 creative wrapping ideas, craft guide",cb:0},
+  ],
+  "Beauty":[
+    {id:"BE01",n:"Lakme 9to5 Primer+Matte 30ml",p:295,s:100,e:"💄",d:"BB cream with SPF 20 matte finish, all-day wear",cb:8},
+    {id:"BE02",n:"Mamaearth Vitamin C Serum 30ml",p:549,s:80,e:"✨",d:"10% Vitamin C + Turmeric, brightening",cb:15},
+    {id:"BE03",n:"Nivea Body Lotion Soft 400ml",p:320,s:120,e:"🧴",d:"Light formula, Jojoba + Vitamin E, 48hr care",cb:10},
+    {id:"BE04",n:"Dove Intense Repair Shampoo 650ml",p:380,s:90,e:"🚿",d:"Keratin actives, reduces breakage, no SLS",cb:8},
+    {id:"BE05",n:"The Face Shop Rice Water Toner",p:649,s:60,e:"🌸",d:"Ceramide-rich, brightening & soothing water",cb:20},
+    {id:"BE06",n:"Colorbar Matte Me Lipstick",p:449,s:70,e:"💋",d:"Long-stay matte, 12hr wear, non-drying",cb:10},
+    {id:"BE07",n:"Biotique Bio Sandalwood SPF 75",p:320,s:110,e:"☀️",d:"Sandal + aloe, non-greasy, daily sunscreen",cb:8},
+    {id:"BE08",n:"Neutrogena Oil-Free Acne Wash 175ml",p:399,s:95,e:"🫧",d:"Salicylic acid 2%, pore-clearing, non-comedogenic",cb:10},
+    {id:"BE09",n:"L'Oreal Extraordinary Oil 200ml",p:649,s:50,e:"💆",d:"6 rare flower oils, 72hr smooth frizz-free hair",cb:20},
+    {id:"BE10",n:"MyGlamm Kajal Kohl",p:195,s:150,e:"👁️",d:"Smudge-proof, waterproof, intense black, 10hr",cb:5},
+    {id:"BE11",n:"Plum E-Luminence Simply Nourish Lotion",p:495,s:75,e:"💛",d:"Vitamin E + Jojoba, antioxidant glow",cb:12},
+    {id:"BE12",n:"WOW Apple Cider Vinegar Shampoo",p:399,s:85,e:"🍎",d:"Scalp detox, no sulphates, DHT blockers",cb:10},
+    {id:"BE13",n:"The Derma Co 10% Niacinamide Serum",p:549,s:65,e:"🔬",d:"Pore minimiser + oil control + spot reduction",cb:15},
+    {id:"BE14",n:"Himalaya Herbals Face Wash 150ml",p:125,s:200,e:"🌿",d:"Neem + Turmeric, anti-acne, oil-control",cb:3},
+    {id:"BE15",n:"SUGAR Blend & Trend Eyeshadow",p:599,s:55,e:"👁️",d:"9 shades, blendable, crease-proof pigments",cb:15},
+    {id:"BE16",n:"Forest Essentials Face Serum 30ml",p:1995,s:30,e:"🌺",d:"Saffron + Neel + Rose, Ayurvedic brightening",cb:50},
+    {id:"BE17",n:"Bioderma Sensibio H2O 250ml",p:899,s:45,e:"💙",d:"Micellar water for sensitive skin, makeup remover",cb:20},
+    {id:"BE18",n:"Streax Hair Serum 45ml",p:125,s:180,e:"💧",d:"Walnut oil, anti-frizz, heat protectant",cb:3},
+    {id:"BE19",n:"OGX Argan Oil of Morocco 385ml",p:699,s:50,e:"✨",d:"Penetrating argan oil treatment conditioner",cb:18},
+    {id:"BE20",n:"Faces Canada Weightless Moisturiser",p:349,s:90,e:"🌸",d:"SPF 30, lightweight, daily defence cream",cb:8},
+  ],
+  "Sports":[
+    {id:"SP01",n:"Nike Air Zoom Pegasus 40",p:8995,s:25,e:"👟",d:"Running shoe, ReactX foam, wide forefoot",cb:200},
+    {id:"SP02",n:"Cosco Tournament Cricket Ball",p:699,s:60,e:"🏏",d:"4-piece, alum tanned leather, 5.75oz",cb:15},
+    {id:"SP03",n:"Adidas Tiro 23 Training Ball",p:1299,s:45,e:"⚽",d:"FIFA Quality Pro, TPU cover, butyl bladder",cb:30},
+    {id:"SP04",n:"Yoga Mat 6mm Premium TPE",p:999,s:55,e:"🧘",d:"Eco-friendly, non-slip, alignment lines, strap",cb:25},
+    {id:"SP05",n:"Boldfit Resistance Bands 5pc",p:699,s:80,e:"💪",d:"5 levels 10–60lb, latex, door anchor + handles",cb:15},
+    {id:"SP06",n:"Li-Ning Carbon Racquet Badminton",p:1999,s:30,e:"🏸",d:"Full carbon frame, 30lbs tension, head-heavy",cb:50},
+    {id:"SP07",n:"RPM Speed Jump Rope",p:449,s:100,e:"🪢",d:"Steel cable, sealed bearings, adjustable 3m",cb:0},
+    {id:"SP08",n:"Tynor Knee Cap Support Medium",p:399,s:70,e:"🦵",d:"Neoprene, open patella, graduated compression",cb:10},
+    {id:"SP09",n:"Speedo Vanquisher 2.0 Goggles",p:899,s:45,e:"🥽",d:"Anti-fog, UV protection, silicone gasket",cb:20},
+    {id:"SP10",n:"Kore PVC Dumbbell Set 10kg",p:1199,s:28,e:"🏋️",d:"5kg pair, easy grip, home gym starter",cb:30},
+    {id:"SP11",n:"HealthSense LS-55 Skipping Rope",p:349,s:90,e:"🪢",d:"Digital counter, foam handles, kids–adults",cb:0},
+    {id:"SP12",n:"Nivia Storm Football Size 5",p:699,s:50,e:"⚽",d:"32-panel, machine-stitched, PVC cover",cb:15},
+    {id:"SP13",n:"Champion Gym Gloves Medium",p:499,s:65,e:"🥊",d:"Half-finger, wrist support, anti-slip palm",cb:10},
+    {id:"SP14",n:"Boldfit Ab Wheel Roller",p:349,s:80,e:"⭕",d:"Dual wheel, foam grips, knee mat incl.",cb:0},
+    {id:"SP15",n:"Nivia NR-101 Eye Mask Swim Cap",p:299,s:100,e:"🏊",d:"Silicone, wrinkle-free, UV protected eyes",cb:5},
+    {id:"SP16",n:"Victor Challenger 9500 Shuttle",p:599,s:75,e:"🏸",d:"Feather shuttle, 6-piece tube, tournament grade",cb:10},
+    {id:"SP17",n:"Boldfit Medicine Ball 3kg",p:699,s:35,e:"⚫",d:"Rubber, textured surface, 3kg core training",cb:15},
+    {id:"SP18",n:"Strauss Table Tennis Set",p:999,s:40,e:"🏓",d:"2 bats, 3 balls, net + post clamp system",cb:20},
+    {id:"SP19",n:"Reebok Wrist Wrap 1 Pair",p:499,s:60,e:"🤼",d:"Velcro, thumb loop, 60cm, power lifting",cb:10},
+    {id:"SP20",n:"Nivia Tennis Ball Can 3pc",p:399,s:120,e:"🎾",d:"Pressurised, ITF-approved, all-court use",cb:0},
+  ],
+  "Clothing":[
+    {id:"CL01",n:"Levi's 511 Slim Fit Jeans",p:3499,s:35,e:"👖",d:"Stretch denim, mid-rise, slim through thigh",cb:100},
+    {id:"CL02",n:"Allen Solly Men Polo Shirt",p:1199,s:55,e:"👕",d:"Premium cotton, classic fit, 5-button placket",cb:30},
+    {id:"CL03",n:"Fabindia Block Print Kurta",p:1799,s:30,e:"👘",d:"100% cotton, hand block print, relaxed fit",cb:50},
+    {id:"CL04",n:"H&M Basic T-Shirt 3-Pack",p:999,s:80,e:"👕",d:"Jersey cotton, crew neck, slim fit, M/L/XL",cb:25},
+    {id:"CL05",n:"Peter England Men Formal Shirt",p:1495,s:45,e:"👔",d:"100% cotton, easy-iron, regular fit, checks",cb:35},
+    {id:"CL06",n:"Nike Dri-FIT Training Shorts",p:2195,s:50,e:"🩳",d:"Moisture-wicking, 7\" inseam, zippered pocket",cb:60},
+    {id:"CL07",n:"Zara Kids Floral Dress 5–6Y",p:1799,s:25,e:"👗",d:"Cotton voile, smocked yoke, flutter sleeves",cb:50},
+    {id:"CL08",n:"Wuff n Purr Dog Raincoat M",p:649,s:40,e:"🐶",d:"Waterproof, reflective strip, snap buttons",cb:15},
+    {id:"CL09",n:"Skechers Go Walk Slip-On",p:3299,s:38,e:"👟",d:"Hands-free, machine washable, ultra-lightweight",cb:80},
+    {id:"CL10",n:"Uniqlo Heattech Extra Warm Inner",p:1490,s:50,e:"🧥",d:"2× warmth fleece inner, slim profile",cb:40},
+    {id:"CL11",n:"Van Heusen Women Formal Blazer",p:2999,s:22,e:"🧥",d:"Structured shoulders, 2-button, polyviscose",cb:80},
+    {id:"CL12",n:"Levi's Men White T-Shirt",p:899,s:70,e:"⬜",d:"Slim-fit crew neck, 100% organic cotton",cb:20},
+    {id:"CL13",n:"Biba Women Anarkali Kurta",p:1299,s:28,e:"👗",d:"A-line, printed georgette, ethnic flared cut",cb:30},
+    {id:"CL14",n:"Roadster Men Jogger Pants",p:1199,s:60,e:"👖",d:"Fleece jogger, ribbed cuffs, 2 zip pockets",cb:30},
+    {id:"CL15",n:"Knitwell Winter Socks 6-Pack",p:349,s:100,e:"🧦",d:"Cotton-wool blend, cushioned sole, full-length",cb:0},
+    {id:"CL16",n:"Arrow Men Business Trouser",p:2199,s:32,e:"👔",d:"Polyester-viscose, formal slim, available 28–38",cb:60},
+    {id:"CL17",n:"Wrogn Men Graphic Tee",p:699,s:75,e:"👕",d:"Oversized fit, reactive print, enzyme washed",cb:15},
+    {id:"CL18",n:"Adidas Girls Tights Navy 10Y",p:999,s:30,e:"👧",d:"Techfit Aeroready, 4-way stretch, kids sport",cb:25},
+    {id:"CL19",n:"Woodland Men Casual Shirt",p:1895,s:40,e:"🌿",d:"Earth-toned checks, brushed twill, regular fit",cb:50},
+    {id:"CL20",n:"Monte Carlo Wool Blend Sweater",p:1799,s:28,e:"🧶",d:"V-neck, slim fit, acrylic-wool, easy care",cb:45},
+  ],
+};
 
-        function saveProfile() {
-            const nick = document.getElementById('nickName').value;
-            const addr = document.getElementById('userAddress').value;
-            if(!nick || !addr || !state.tempAvatar) return alert("Fill all details!");
+const COUPONS = {
+  FIRST10:{type:'pct',val:10,desc:'10% off'},
+  SAVE20: {type:'flat',val:20,desc:'₹20 off'},
+  MULTILOOPS:{type:'pct',val:15,desc:'15% off'}
+};
+const MIN_CASH = 10;
+const AVATARS = ["😎","🧑‍💻","👨‍🍳","👩‍🎨","🦸","🧙‍♂️","🧑‍🚀","🎤","🦊","🐼","🐯","👩‍💼"];
+const GREETINGS = [
+  [0,5,"Burning the midnight oil? 🌙"],
+  [5,7,"Early bird catches the loop 🐦"],
+  [7,9,"Good morning! Fresh deals await ☀️"],
+  [9,11,"Morning hustle mode on 💪"],
+  [11,13,"Almost noon — treat yourself 😋"],
+  [13,15,"Good afternoon! Recharge time ⚡"],
+  [15,17,"Mid-afternoon scroll, we see you 👀"],
+  [17,19,"Evening vibes incoming 🌆"],
+  [19,21,"Good evening! Wind down deals 🛍️"],
+  [21,23,"Night shopping? Best prices! 🌃"],
+  [23,24,"Night owl alert! Loop in 🦉"],
+];
 
-            state.user = { nickname: nick, address: addr, avatar: state.tempAvatar, isPremium: false };
-            localStorage.setItem('mv_user_v3', JSON.stringify(state.user));
-            startApp();
-        }
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let APP = {
+  user: null,        // {name,nick,addr,avatar,phone,prefs[],notifs{}}
+  cart: {},          // {itemId: {item, qty}}
+  orders: [],
+  wallet: 0,
+  txns: [],
+  orderCounter: 0,
+  prefs: [],
+  notifs: {n_master:1,n_order:1,n_pack:1,n_dispatch:1,n_arrive:1,n_offers:1,n_wallet:1},
+  theme: 'dark',
+  couponDisc: 0,
+  couponCode: '',
+  walletUsed: 0,
+  slot: '',
+  payment: '',
+  sub: 'None',
+  currentCat: null,
+  sheetItem: null,
+};
 
-        // 4. MAIN APP ENGINE
-        function startApp() {
-            document.getElementById('onboarding').classList.add('hidden');
-            document.getElementById('bottomNav').classList.remove('hidden');
-            document.getElementById('mainApp')?.classList?.remove('hidden'); // Ensure app body is shown
-            
-            // Apply Theme
-            document.body.setAttribute('data-theme', state.theme);
-            
-            // Set User Details
-            document.getElementById('topNickName').innerText = state.user.nickname;
-            document.getElementById('topAddr').innerText = state.user.address;
-            document.getElementById('sideNick').innerText = state.user.nickname;
-            document.getElementById('sideAvatar').src = state.user.avatar;
-            document.getElementById('headerAvatar')?.setAttribute('src', state.user.avatar);
-            if(state.user.isPremium) document.getElementById('sideBadge').classList.remove('hidden');
+function saveApp() {
+  try {
+    localStorage.setItem('ml_app_v4', JSON.stringify({
+      user: APP.user,
+      orders: APP.orders,
+      wallet: APP.wallet,
+      txns: APP.txns,
+      orderCounter: APP.orderCounter,
+      prefs: APP.prefs,
+      notifs: APP.notifs,
+      theme: APP.theme,
+    }));
+  } catch(e) {}
+}
 
-            updateGreeting();
-            initProducts();
-            renderHome();
-            renderExplore();
-            updateWalletUI();
-            showScreen('home');
-        }
+function loadApp() {
+  try {
+    const raw = localStorage.getItem('ml_app_v4');
+    if(raw) {
+      const d = JSON.parse(raw);
+      APP.user = d.user || null;
+      APP.orders = d.orders || [];
+      APP.wallet = d.wallet || 0;
+      APP.txns = d.txns || [];
+      APP.orderCounter = d.orderCounter || 0;
+      APP.prefs = d.prefs || [];
+      APP.notifs = d.notifs || APP.notifs;
+      APP.theme = d.theme || 'dark';
+    }
+  } catch(e) {}
+}
 
-        function renderHome() {
-            // Category Scroll
-            const catScroll = document.getElementById('homeCategoryScroll');
-            catScroll.innerHTML = categories.map(c => `
-                <div onclick="openCategory('${c}')" class="flex-shrink-0 flex flex-col items-center gap-2">
-                    <div class="w-16 h-16 glass rounded-full flex items-center justify-center text-xl">📦</div>
-                    <p class="text-[9px] font-black uppercase tracking-tighter">${c.split(' ')[0]}</p>
-                </div>
-            `).join('');
+/* ═══════════════════════════════════════════
+   FIREBASE AUTH FLOW
+═══════════════════════════════════════════ */
+auth.getRedirectResult().then(r => { if(r && r.user) checkOnboard(r.user); }).catch(()=>{});
+auth.onAuthStateChanged(u => {
+  setTimeout(() => {
+    const splash = document.getElementById('splash');
+    splash.style.opacity = '0';
+    setTimeout(() => { splash.style.display='none'; }, 500);
+    loadApp();
+    document.documentElement.setAttribute('data-theme', APP.theme);
+    updateThemeIcon();
+    if(u) {
+      if(!APP.user || !APP.user.name) {
+        APP.user = APP.user || {};
+        APP.user.phone = u.phoneNumber || u.email || '';
+        checkOnboard(u);
+      } else {
+        APP.user.phone = u.phoneNumber || u.email || APP.user.phone || '';
+        initApp();
+      }
+    } else {
+      showOnly('authScreen');
+    }
+  }, 2300);
+});
 
-            // Recommended (Randomized)
-            const recoGrid = document.getElementById('recoGrid');
-            const items = state.allProducts.sort(() => 0.5 - Math.random()).slice(0, 10);
-            recoGrid.innerHTML = items.map(p => `
-                <div class="flex-shrink-0 w-44 glass p-4 rounded-[32px] border border-zinc-900" onclick="openProductSheet('${p.id}')">
-                    <img src="${p.img}" class="w-full h-28 object-cover rounded-2xl mb-3">
-                    <h4 class="text-xs font-bold truncate">${p.name}</h4>
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="text-green-500 font-black">₹${p.price}</span>
-                        <div class="flex items-center text-[9px] font-black">⭐ ${p.rating}</div>
-                    </div>
-                </div>
-            `).join('');
+function sendOTP() {
+  const phone = document.getElementById('phoneIn').value.trim();
+  if(!phone) { toast('Enter your phone number'); return; }
+  const v = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size:'invisible'});
+  auth.signInWithPhoneNumber(phone, v).then(res => {
+    window._cr = res;
+    document.getElementById('phoneArea').style.display = 'none';
+    document.getElementById('otpArea').style.display = 'block';
+    toast('OTP sent!');
+  }).catch(e => toast(e.message || 'Error sending OTP'));
+}
 
-            // Grid Sections
-            const sections = document.getElementById('homeSections');
-            sections.innerHTML = categories.slice(0, 3).map(cat => `
-                <div>
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-black">${cat}</h3>
-                        <button onclick="openCategory('${cat}')" class="text-xs font-bold text-green-500">View All</button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        ${state.allProducts.filter(p => p.cat === cat).slice(0, 4).map(p => renderProductCard(p)).join('')}
-                    </div>
-                </div>
-            `).join('');
-        }
+function verifyOTP() {
+  const otp = document.getElementById('otpIn').value.trim();
+  if(!otp) return;
+  window._cr.confirm(otp).then(r => checkOnboard(r.user)).catch(() => toast('Wrong OTP'));
+}
 
-        function renderProductCard(p) {
-            const inCart = state.cart.find(c => c.id === p.id);
-            return `
-                <div class="glass p-4 rounded-[32px] relative" onclick="openProductSheet('${p.id}')">
-                    <img src="${p.img}" class="w-full h-32 object-cover rounded-2xl mb-4">
-                    <h4 class="text-xs font-bold leading-tight mb-2 h-8 overflow-hidden">${p.name}</h4>
-                    <div class="flex justify-between items-center">
-                        <p class="text-sm font-black">₹${p.price}</p>
-                        <div id="step-${p.id}">
-                            ${inCart ? renderStepper(p.id, inCart.qty) : `<button onclick="addToCart(event, '${p.id}')" class="w-8 h-8 bg-[var(--primary)] text-white rounded-xl font-black">+</button>`}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
+function googleLogin() {
+  auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+}
 
-        function renderStepper(id, qty) {
-            return `
-                <div class="flex items-center bg-[var(--primary)] rounded-xl overflow-hidden stepper-active">
-                    <button onclick="changeQty(event, '${id}', -1)" class="px-2 py-1 font-black text-white">−</button>
-                    <span class="px-2 text-xs font-black">${qty}</span>
-                    <button onclick="changeQty(event, '${id}', 1)" class="px-2 py-1 font-black text-white">+</button>
-                </div>
-            `;
-        }
+function checkOnboard(fbUser) {
+  if(!APP.user || !APP.user.name) {
+    buildAvatarRow();
+    buildPrefPills();
+    showOnly('onboardScreen');
+  } else {
+    initApp();
+  }
+}
 
-        // 5. NAVIGATION & ACTIONS
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + id).classList.add('active');
-            
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.replace('text-[var(--primary)]', 'text-[var(--text-dim)]'));
-            const activeNav = Array.from(document.querySelectorAll('.nav-item')).find(n => n.innerText.toLowerCase().includes(id));
-            if(activeNav) activeNav.classList.replace('text-[var(--text-dim)]', 'text-[var(--primary)]');
+function buildAvatarRow() {
+  const row = document.getElementById('avatarRow');
+  row.innerHTML = AVATARS.map((a,i)=>`<div class="av-opt${i===0?' sel':''}" onclick="pickAvatar(this,'${a}')" data-av="${a}">${a}</div>`).join('');
+  window._selAv = AVATARS[0];
+}
 
-            if(id === 'cart') renderCart();
-        }
+function pickAvatar(el, av) {
+  document.querySelectorAll('.av-opt').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  window._selAv = av;
+}
 
-        function openCategory(cat) {
-            document.getElementById('catDetailTitle').innerText = cat;
-            const grid = document.getElementById('catDetailGrid');
-            grid.innerHTML = state.allProducts.filter(p => p.cat === cat).map(p => renderProductCard(p)).join('');
-            showScreen('category-detail');
-        }
+function buildPrefPills() {
+  const wrap = document.getElementById('prefWrap');
+  wrap.innerHTML = Object.keys(CAT_META).map(c=>`<div class="pref-pill" onclick="this.classList.toggle('sel');this.dataset.sel=this.classList.contains('sel')" data-cat="${c}">${CAT_META[c].em} ${c}</div>`).join('');
+}
 
-        function renderExplore() {
-            document.getElementById('exploreGrid').innerHTML = categories.map(c => `
-                <div onclick="openCategory('${c}')" class="bg-[var(--surface-alt)] p-8 rounded-[40px] text-center border border-[var(--border)]">
-                    <div class="text-4xl mb-3">📦</div>
-                    <p class="text-xs font-black uppercase tracking-widest">${c}</p>
-                </div>
-            `).join('');
-        }
+function saveProfile() {
+  const name = document.getElementById('nameIn').value.trim();
+  const nick = document.getElementById('nickIn').value.trim() || name.split(' ')[0];
+  const addr = document.getElementById('addrIn').value.trim();
+  if(!name || !addr) { toast('Please fill your name and address'); return; }
+  const prefs = Array.from(document.querySelectorAll('#prefWrap .pref-pill.sel')).map(e=>e.dataset.cat);
+  APP.user = { name, nick, addr, avatar: window._selAv || '😎', phone: APP.user?.phone || '', prefs };
+  APP.prefs = prefs;
+  saveApp();
+  initApp();
+}
 
-        function openProductSheet(id) {
-            const p = state.allProducts.find(x => x.id === id);
-            state.currentSheetProduct = p;
-            
-            document.getElementById('sheetName').innerText = p.name;
-            document.getElementById('sheetPrice').innerText = `₹${p.price}`;
-            document.getElementById('sheetRating').innerText = p.rating;
-            document.getElementById('sheetBadge').innerText = p.type;
-            
-            document.getElementById('subContainer').style.display = p.type === 'loop' ? 'block' : 'none';
-            
-            setTempSlot(0, document.querySelector('.slot-btn'));
-            document.getElementById('productSheet').classList.add('open');
-            document.getElementById('productOverlay').classList.remove('hidden');
+function logout() {
+  if(!confirm('Sign out?')) return;
+  auth.signOut().then(() => { localStorage.clear(); location.reload(); });
+}
 
-            document.getElementById('sheetAction').onclick = () => addToCart(null, p.id);
-        }
+/* ═══════════════════════════════════════════
+   INIT APP
+═══════════════════════════════════════════ */
+function initApp() {
+  document.getElementById('bnav').classList.add('show');
+  updateGreeting();
+  renderCatScrollHome();
+  renderProducts(null);
+  renderExplore();
+  renderProfilePage();
+  renderWalletPage();
+  buildProfPrefGrid();
+  showTab('homeScreen');
+}
 
-        function closeProductSheet() {
-            document.getElementById('productSheet').classList.remove('open');
-            document.getElementById('productOverlay').classList.add('hidden');
-        }
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+function showOnly(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('bnav').classList.remove('show');
+}
 
-        function setTempSlot(idx, el) {
-            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('border-[var(--primary)]'));
-            el.classList.add('border-[var(--primary)]');
-            state.tempSlot = el.innerText;
-        }
+function showTab(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('bnav').classList.add('show');
+  // Active nav
+  document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
+  const navMap = {homeScreen:'bn-home',exploreScreen:'bn-explore',cartScreen:'bn-cart',walletScreen:'bn-wallet',profileScreen:'bn-profile'};
+  if(navMap[id]) document.getElementById(navMap[id]).classList.add('on');
+  closeAll();
+  if(id==='cartScreen') renderCart();
+  if(id==='orderScreen') prefillOrder();
+  if(id==='profileScreen') renderProfilePage();
+  if(id==='walletScreen') renderWalletPage();
+  window.scrollTo(0,0);
+}
 
-        function addToCart(e, id) {
-            if(e) e.stopPropagation();
-            const p = state.allProducts.find(x => x.id === id);
-            const inCart = state.cart.find(c => c.id === id);
+/* ═══════════════════════════════════════════
+   GREETING
+═══════════════════════════════════════════ */
+function updateGreeting() {
+  const h = new Date().getHours();
+  let msg = 'Welcome!';
+  for(const [a,b,m] of GREETINGS) if(h>=a&&h<b){msg=m;break;}
+  document.getElementById('greetTxt').textContent = msg;
+  const nick = APP.user?.nick || APP.user?.name || 'User';
+  document.getElementById('nickDisplay').textContent = nick;
+  document.getElementById('avatarHomeBtn').textContent = APP.user?.avatar || '😎';
+  // sidebar
+  document.getElementById('sideAv').textContent = APP.user?.avatar || '😎';
+  document.getElementById('sideName').textContent = APP.user?.name || 'User';
+  document.getElementById('sidePhone').textContent = APP.user?.phone || '';
+}
 
-            if(inCart) {
-                inCart.qty++;
-            } else {
-                state.cart.push({
-                    ...p, 
-                    qty: 1, 
-                    slot: state.tempSlot, 
-                    sub: document.getElementById('sheetSub').value || 'once'
-                });
-            }
-            closeProductSheet();
-            updateCartUI();
-            renderHome();
-        }
+/* ═══════════════════════════════════════════
+   CATEGORIES
+═══════════════════════════════════════════ */
+const HOME_CAT_LIMIT = 6; // show 6 by default, "show more" reveals rest
+let showAllCats = false;
 
-        function changeQty(e, id, delta) {
-            e.stopPropagation();
-            const item = state.cart.find(c => c.id === id);
-            item.qty += delta;
-            if(item.qty <= 0) state.cart = state.cart.filter(c => c.id !== id);
-            updateCartUI();
-            renderHome();
-            if(document.getElementById('screen-cart').classList.contains('active')) renderCart();
-        }
+function renderCatScrollHome() {
+  const scroll = document.getElementById('catScrollHome');
+  const cats = APP.prefs.length > 0
+    ? [...APP.prefs, ...Object.keys(CAT_META).filter(k=>!APP.prefs.includes(k))]
+    : Object.keys(CAT_META);
+  const visible = showAllCats ? cats : cats.slice(0, HOME_CAT_LIMIT);
+  scroll.innerHTML =
+    `<div class="cat-chip active" onclick="filterCat(null,this)">
+      <span class="cat-em">🛍️</span><span class="cat-lbl">All</span>
+    </div>` +
+    visible.map(c=>`
+      <div class="cat-chip" onclick="filterCat('${c}',this)">
+        <span class="cat-em">${CAT_META[c].em}</span><span class="cat-lbl">${c}</span>
+      </div>`).join('') +
+    (!showAllCats && cats.length > HOME_CAT_LIMIT
+      ? `<div class="show-more-chip" onclick="showAllCats=true;renderCatScrollHome()">
+          <span class="cat-em">➕</span><span class="cat-lbl">More</span>
+        </div>`
+      : '');
+}
 
-        function updateCartUI() {
-            const badge = document.getElementById('cartBadge');
-            const total = state.cart.reduce((a, b) => a + b.qty, 0);
-            if(total > 0) {
-                badge.innerText = total;
-                badge.classList.remove('hidden');
-            } else badge.classList.add('hidden');
-        }
+function filterCat(cat, el) {
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  APP.currentCat = cat;
+  document.getElementById('prodSectionTitle').textContent = cat || 'All Products';
+  renderProducts(cat);
+}
 
-        function renderCart() {
-            const list = document.getElementById('cartItems');
-            list.innerHTML = state.cart.map(p => `
-                <div class="glass p-4 rounded-[32px] flex items-center gap-4">
-                    <img src="${p.img}" class="w-16 h-16 rounded-2xl object-cover">
-                    <div class="flex-grow">
-                        <h4 class="text-xs font-black">${p.name}</h4>
-                        <p class="text-[9px] text-gray-500 uppercase">${p.slot} • ${p.sub}</p>
-                        <p class="text-sm font-black text-[var(--primary)]">₹${p.price}</p>
-                    </div>
-                    ${renderStepper(p.id, p.qty)}
-                </div>
-            `).join('');
+/* ═══════════════════════════════════════════
+   PRODUCTS
+═══════════════════════════════════════════ */
+function renderProducts(cat, search='') {
+  const grid = document.getElementById('prodGrid');
+  let items = [];
+  const cats = cat ? [cat] : (APP.prefs.length>0
+    ? [...APP.prefs, ...Object.keys(CATALOGUE).filter(k=>!APP.prefs.includes(k))]
+    : Object.keys(CATALOGUE));
+  cats.forEach(k => {
+    if(!CATALOGUE[k]) return;
+    CATALOGUE[k].forEach(i => items.push({...i, cat:k}));
+  });
+  if(search) items = items.filter(i=>i.n.toLowerCase().includes(search.toLowerCase())||i.cat.toLowerCase().includes(search.toLowerCase()));
+  document.getElementById('prodCount').textContent = `${items.length} items`;
+  grid.innerHTML = items.map(item => {
+    const qty = APP.cart[item.id]?.qty || 0;
+    const rating = (4.1 + Math.random()*0.8).toFixed(1);
+    return `<div class="prod-card cat-${item.cat.replace(/[^a-zA-Z]/g,'')}" onclick="openItemSheet('${item.id}','${item.cat}')">
+      <div class="prod-thumb" style="background:${CAT_META[item.cat]?.color||'#333'}18">
+        <span class="prod-em">${item.e}</span>
+        <span class="prod-rating"><i class="fas fa-star" style="font-size:8px"></i> ${rating}</span>
+        ${item.cb>0?`<span class="prod-cb-badge">+₹${item.cb}</span>`:''}
+      </div>
+      <div class="prod-body">
+        <div class="prod-name">${item.n}</div>
+        <div class="prod-unit">${item.cat}</div>
+        <div class="prod-foot">
+          <div class="prod-price">₹${item.p.toLocaleString()}</div>
+          ${item.s===0
+            ?`<span class="oos-tag">Out of stock</span>`
+            :qty===0
+              ?`<button class="add-btn" onclick="event.stopPropagation();quickAdd('${item.id}','${item.cat}')">+</button>`
+              :`<div class="stepper">
+                  <button class="st-btn st-minus" onclick="event.stopPropagation();changeQty('${item.id}',-1)">−</button>
+                  <span class="st-num">${qty}</span>
+                  <button class="st-btn st-plus" onclick="event.stopPropagation();changeQty('${item.id}',1)">+</button>
+                </div>`
+          }
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-            const sub = state.cart.reduce((a, b) => a + (b.price * b.qty), 0);
-            const gst = (sub * 0.18).toFixed(0);
-            const total = parseInt(sub) + parseInt(gst) + 25;
-            const loopy = sub > 500 ? 50 : 0;
+function handleSearch(q) {
+  renderProducts(APP.currentCat, q);
+}
 
-            document.getElementById('billItems').innerText = `₹${sub}`;
-            document.getElementById('billGST').innerText = `₹${gst}`;
-            document.getElementById('billSurprise').innerText = `-₹${loopy}`;
-            document.getElementById('billTotal').innerText = `₹${total - loopy}`;
-        }
+function renderExplore() {
+  document.getElementById('exploreGrid').innerHTML = Object.entries(CAT_META).map(([c,m])=>`
+    <div style="background:${m.color}14;border:1.5px solid ${m.color}30;border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:transform .15s"
+      onclick="filterCat('${c}',document.querySelector('.cat-chip'));showTab('homeScreen')"
+      onactive="this.style.transform='scale(.97)'">
+      <div style="font-size:36px;margin-bottom:8px">${m.em}</div>
+      <div style="font-family:var(--font-h);font-size:13px;font-weight:700">${c}</div>
+      <div style="font-size:11px;color:var(--t2);margin-top:3px">${CATALOGUE[c]?.length||0} items</div>
+    </div>`).join('');
+}
 
-        // 6. WALLET & FINTECH
-        function updateWalletUI() {
-            document.getElementById('wallBal').innerText = state.wallet.toFixed(2);
-            localStorage.setItem('mv_wallet_v3', state.wallet);
-        }
+/* ═══════════════════════════════════════════
+   ITEM SHEET
+═══════════════════════════════════════════ */
+function openItemSheet(id, cat) {
+  const item = CATALOGUE[cat]?.find(i=>i.id===id);
+  if(!item) return;
+  APP.sheetItem = {...item, cat};
+  document.getElementById('shEm').textContent = item.e;
+  document.getElementById('shName').textContent = item.n;
+  document.getElementById('shDesc').textContent = item.d;
+  document.getElementById('shPrice').textContent = `₹${item.p.toLocaleString()}`;
+  openSheet('itemSheet');
+}
 
-        function openAddCredits() {
-            document.getElementById('paySheet').classList.remove('hidden');
-        }
+function addFromSheet() {
+  if(!APP.sheetItem) return;
+  if(APP.sheetItem.s === 0) { toast('Out of stock!'); return; }
+  quickAdd(APP.sheetItem.id, APP.sheetItem.cat);
+  closeAll();
+}
 
-        function closePaySheet() {
-            document.getElementById('paySheet').classList.add('hidden');
-        }
+/* ═══════════════════════════════════════════
+   CART MANAGEMENT
+═══════════════════════════════════════════ */
+function quickAdd(id, cat) {
+  const item = CATALOGUE[cat]?.find(i=>i.id===id);
+  if(!item || item.s===0) return;
+  if(!APP.cart[id]) APP.cart[id] = {item:{...item,cat}, qty:0};
+  if(APP.cart[id].qty >= item.s) { toast('Max stock reached'); return; }
+  APP.cart[id].qty++;
+  updateCartBadge();
+  renderProducts(APP.currentCat, document.getElementById('searchInp').value);
+  toast(`${item.n} added ✓`);
+}
 
-        function quickAdd(amt) {
-            state.wallet += amt;
-            updateWalletUI();
-            alert(`₹${amt} added to Loopy Wallet!`);
-        }
+function changeQty(id, d) {
+  if(!APP.cart[id]) return;
+  APP.cart[id].qty += d;
+  if(APP.cart[id].qty <= 0) delete APP.cart[id];
+  updateCartBadge();
+  renderProducts(APP.currentCat, document.getElementById('searchInp').value);
+}
 
-        function simulatePay() {
-            state.wallet += 1000;
-            updateWalletUI();
-            alert("UPI Intent Success! ₹1000 added.");
-            closePaySheet();
-        }
+function updateCartBadge() {
+  const total = Object.values(APP.cart).reduce((s,c)=>s+c.qty, 0);
+  const badge = document.getElementById('cartBadge');
+  const badgeHome = document.getElementById('cartBadgeHome');
+  badge.textContent = total;
+  badge.classList.toggle('show', total>0);
+  badgeHome.textContent = total;
+  badgeHome.style.display = total>0 ? 'flex' : 'none';
+}
 
-        function initiateCheckout() {
-            if(state.cart.length === 0) return alert("Your cart is empty!");
-            const total = parseInt(document.getElementById('billTotal').innerText.replace('₹', ''));
-            
-            if(state.wallet < total) {
-                alert("Insufficient balance in Loopy Wallet. Please add credits.");
-                showScreen('wallet');
-            } else {
-                state.wallet -= total;
-                updateWalletUI();
-                state.cart = [];
-                updateCartUI();
-                const now = new Date();
-                document.getElementById('confTime').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('packTime').innerText = "In 2 mins";
-                showScreen('tracking');
-            }
-        }
+function renderCart() {
+  const list = document.getElementById('cartList');
+  const empty = document.getElementById('cartEmpty');
+  const checkout = document.getElementById('cartCheckout');
+  const items = Object.values(APP.cart);
+  if(!items.length) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    checkout.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  checkout.style.display = 'block';
+  list.innerHTML = items.map(({item,qty})=>`
+    <div class="cart-item">
+      <div class="cart-em">${item.e}</div>
+      <div class="cart-info">
+        <div class="cart-name">${item.n}</div>
+        <div class="cart-price">₹${(item.p*qty).toLocaleString()}</div>
+      </div>
+      <div class="stepper">
+        <button class="st-btn st-minus" onclick="cartQty('${item.id}',-1)">−</button>
+        <span class="st-num">${qty}</span>
+        <button class="st-btn st-plus" onclick="cartQty('${item.id}',1)">+</button>
+      </div>
+    </div>`).join('');
+  updateBill();
+  const walRow = document.getElementById('walletRow');
+  document.getElementById('walShowAmt').textContent = `₹${APP.wallet.toFixed(0)}`;
+  walRow.style.display = APP.wallet > 0 ? 'block' : 'none';
+}
 
-        // 7. UTILS
-        function toggleSidebar(open) {
-            document.getElementById('sidebar').style.left = open ? '0' : '-100%';
-            document.getElementById('sidebarOverlay').style.display = open ? 'block' : 'none';
-        }
+function cartQty(id, d) {
+  if(!APP.cart[id]) return;
+  APP.cart[id].qty += d;
+  if(APP.cart[id].qty <= 0) delete APP.cart[id];
+  updateCartBadge();
+  renderCart();
+}
 
-        function toggleTheme() {
-            state.theme = state.theme === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', state.theme);
-            localStorage.setItem('mv_theme', state.theme);
-        }
+function updateBill() {
+  const items = Object.values(APP.cart);
+  const subtotal = items.reduce((s,{item,qty})=>s+item.p*qty,0);
+  const disc = APP.couponDisc;
+  const cbUsed = APP.walletUsed;
+  const total = Math.max(MIN_CASH, subtotal - disc - cbUsed);
+  document.getElementById('bSubtotal').textContent = `₹${subtotal.toLocaleString()}`;
+  document.getElementById('bTotal').textContent = `₹${total.toLocaleString()}`;
+  const dRow = document.getElementById('bDiscRow');
+  const cRow = document.getElementById('bCbRow');
+  dRow.style.display = disc>0 ? 'flex' : 'none';
+  document.getElementById('bDisc').textContent = `-₹${disc}`;
+  cRow.style.display = cbUsed>0 ? 'flex' : 'none';
+  document.getElementById('bCb').textContent = `-₹${cbUsed}`;
+  // Loopy Surprise
+  const totalCb = items.reduce((s,{item,qty})=>s+item.cb*qty,0);
+  const surpRow = document.getElementById('bSurpRow');
+  surpRow.style.display = totalCb>0 ? 'flex' : 'none';
+  document.getElementById('bSurp').textContent = `+₹${totalCb} on next order`;
+}
 
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let period = "Morning";
-            if(hour >= 12 && hour < 17) period = "Afternoon";
-            if(hour >= 17) period = "Evening";
-            document.getElementById('dynamicGreet').innerText = `Good ${period} • ${greets[Math.floor(Math.random()*greets.length)]}`;
-        }
+function applyCoupon() {
+  const code = document.getElementById('couponInp').value.trim().toUpperCase();
+  const msgEl = document.getElementById('couponMsg');
+  if(!code) return;
+  if(COUPONS[code]) {
+    const c = COUPONS[code];
+    const sub = Object.values(APP.cart).reduce((s,{item,qty})=>s+item.p*qty,0);
+    APP.couponDisc = c.type==='pct' ? Math.round(sub*c.val/100) : c.val;
+    APP.couponCode = code;
+    msgEl.className = 'coupon-msg coupon-ok';
+    msgEl.textContent = `✓ ${c.desc} applied! You save ₹${APP.couponDisc}`;
+    updateBill();
+  } else {
+    msgEl.className = 'coupon-msg coupon-err';
+    msgEl.textContent = '✗ Invalid coupon code';
+    APP.couponDisc = 0; APP.couponCode = '';
+  }
+}
 
-        function fetchGPS() {
-            navigator.geolocation.getCurrentPosition(p => {
-                document.getElementById('userAddress').value = `GPS: ${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)} (Precise)`;
-            });
-        }
+function useWallet() {
+  const sub = Object.values(APP.cart).reduce((s,{item,qty})=>s+item.p*qty,0);
+  const maxUse = Math.max(0, sub - APP.couponDisc - MIN_CASH);
+  APP.walletUsed = Math.min(APP.wallet, maxUse);
+  document.getElementById('useWalBtn').textContent = '✓ Applied';
+  document.getElementById('useWalBtn').style.opacity = '.6';
+  toast(`₹${APP.walletUsed.toFixed(0)} wallet applied`);
+  updateBill();
+}
 
-        function openPremium() {
-            toggleSidebar(false);
-            showScreen('premium');
-        }
+/* ═══════════════════════════════════════════
+   ORDER SCREEN
+═══════════════════════════════════════════ */
+function prefillOrder() {
+  if(APP.user) {
+    document.getElementById('odName').value = APP.user.name || '';
+    document.getElementById('odAddr').value = APP.user.addr || '';
+    document.getElementById('odPhone').value = APP.user.phone || '';
+  }
+  // Show subscription section if any subscribable item in cart
+  const hasSub = Object.values(APP.cart).some(({item})=>CAT_META[item.cat]?.sub);
+  document.getElementById('subSection').style.display = hasSub ? 'block' : 'none';
+  // Reset slot/payment/sub
+  document.querySelectorAll('.slot-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.sub-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelector('.sub-btn')?.classList.add('sel');
+  APP.slot = ''; APP.payment = ''; APP.sub = 'None';
+  document.getElementById('upiBox').style.display='none';
+}
 
-        function upgradeToPremium() {
-            if(state.wallet < 499) return alert("Add ₹499 to wallet to upgrade.");
-            state.wallet -= 499;
-            state.user.isPremium = true;
-            localStorage.setItem('mv_user_v3', JSON.stringify(state.user));
-            location.reload();
-        }
+function pickSlot(btn, slot) {
+  document.querySelectorAll('.slot-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  APP.slot = slot;
+}
 
-        function logout() {
-            localStorage.clear();
-            auth.signOut().then(() => location.reload());
-        }
+function pickSub(btn, sub) {
+  document.querySelectorAll('.sub-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  APP.sub = sub;
+}
 
-        function showNotifications() {
-            alert("No new notifications for your ventures.");
-        }
-    </script>
+function pickPay(btn, pay) {
+  document.querySelectorAll('.pay-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  APP.payment = pay;
+  document.getElementById('upiBox').style.display = pay==='UPI' ? 'block' : 'none';
+}
+
+/* ═══════════════════════════════════════════
+   PLACE ORDER
+═══════════════════════════════════════════ */
+async function placeOrder() {
+  const name = document.getElementById('odName').value.trim();
+  const addr = document.getElementById('odAddr').value.trim();
+  const phone = document.getElementById('odPhone').value.trim();
+  if(!name||!addr||!phone) { toast('Fill all delivery details'); return; }
+  if(!APP.slot) { toast('Choose a delivery slot'); return; }
+  if(!APP.payment) { toast('Choose a payment method'); return; }
+  const items = Object.values(APP.cart);
+  if(!items.length) { toast('Cart is empty'); return; }
+  const subtotal = items.reduce((s,{item,qty})=>s+item.p*qty,0);
+  const total = Math.max(MIN_CASH, subtotal - APP.couponDisc - APP.walletUsed);
+  const cashbackEarned = items.reduce((s,{item,qty})=>s+item.cb*qty,0);
+  APP.orderCounter++;
+  const oid = `#ORD${String(APP.orderCounter).padStart(4,'0')}`;
+  const itemsStr = items.map(({item,qty})=>`${item.n} x${qty}`).join(' | ');
+  const subStr = APP.sub !== 'None' ? APP.sub : 'None';
+  const orderObj = {
+    oid, date:new Date().toLocaleDateString('en-IN'),
+    name, addr, phone, items:itemsStr, total,
+    slot:APP.slot, payment:APP.payment, sub:subStr,
+    coupon:APP.couponCode, discount:APP.couponDisc,
+    walletUsed:APP.walletUsed, cashbackEarned, status:'Pending'
+  };
+  APP.orders.unshift(orderObj);
+  APP.wallet = Math.max(0, APP.wallet - APP.walletUsed + cashbackEarned);
+  if(APP.walletUsed>0) APP.txns.unshift({type:'dr',amt:APP.walletUsed,desc:`Order ${oid}`,date:new Date().toLocaleDateString()});
+  if(cashbackEarned>0) APP.txns.unshift({type:'cr',amt:cashbackEarned,desc:`Cashback — ${oid}`,date:new Date().toLocaleDateString()});
+  // Update user address
+  if(APP.user) { APP.user.addr = addr; }
+  saveApp();
+  // Airtable push
+  try {
+    fetch(AT_URL, {
+      method:'POST',
+      headers:{'Authorization':`Bearer ${AT_TOKEN}`,'Content-Type':'application/json'},
+      body:JSON.stringify({fields:{
+        "ORDER ID":oid,"CUSTOMER NAME":name,"PHONE NUMBER":phone,
+        "ADDRESS":addr,"ITEMS":itemsStr,"TOTAL":total,
+        "DELIVERY SLOT":APP.slot,"PAYMENT":APP.payment,"STATUS":"Pending",
+        "COUPON":APP.couponCode||'',"DISCOUNT":APP.couponDisc,
+        "DATE":new Date().toISOString().split('T')[0],"SUBSCRIPTION":subStr
+      }})
+    });
+  } catch(e){}
+  // Reset cart & state
+  APP.cart = {}; APP.couponDisc=0; APP.couponCode=''; APP.walletUsed=0;
+  APP.slot=''; APP.payment=''; APP.sub='None';
+  updateCartBadge();
+  document.getElementById('successOid').textContent = oid;
+  const surpEl = document.getElementById('successSurprise');
+  if(cashbackEarned>0){
+    surpEl.style.display='block';
+    surpEl.textContent=`⭐ Loopy Surprise! ₹${cashbackEarned} cashback added to your wallet!`;
+  } else surpEl.style.display='none';
+  showOnly('successScreen');
+  document.getElementById('bnav').classList.add('show');
+}
+
+/* ═══════════════════════════════════════════
+   PROFILE
+═══════════════════════════════════════════ */
+function renderProfilePage() {
+  if(!APP.user) return;
+  document.getElementById('profAvatar').textContent = APP.user.avatar||'😎';
+  document.getElementById('profName').textContent = APP.user.name||'User';
+  document.getElementById('profPhone').textContent = APP.user.phone||'';
+  document.getElementById('profWalChip').textContent = `💰 ₹${APP.wallet.toFixed(0)}`;
+  document.getElementById('psOrders').textContent = APP.orders.length;
+  const saved = APP.orders.reduce((s,o)=>s+(o.discount||0),0);
+  document.getElementById('psSaved').textContent = `₹${saved}`;
+  document.getElementById('psCashback').textContent = `₹${APP.wallet.toFixed(0)}`;
+  // Notifs
+  Object.keys(APP.notifs).forEach(k => {
+    const el = document.getElementById('sw_'+k);
+    if(el) el.className = 'toggle-sw'+(APP.notifs[k]?' on':'');
+  });
+  renderOrderHistory();
+}
+
+function buildProfPrefGrid() {
+  const wrap = document.getElementById('profPrefWrap');
+  wrap.innerHTML = Object.entries(CAT_META).map(([c,m])=>`
+    <div class="pref-pill ${APP.prefs.includes(c)?'sel':''}" onclick="togglePref('${c}',this)">
+      ${m.em} ${c}
+    </div>`).join('');
+}
+
+function togglePref(cat, el) {
+  if(APP.prefs.includes(cat)) APP.prefs = APP.prefs.filter(p=>p!==cat);
+  else APP.prefs.push(cat);
+  el.classList.toggle('sel');
+  saveApp();
+  renderCatScrollHome();
+  renderProducts(APP.currentCat);
+}
+
+function togSet(key) {
+  APP.notifs[key] = APP.notifs[key] ? 0 : 1;
+  const el = document.getElementById('sw_'+key);
+  if(el) el.className = 'toggle-sw'+(APP.notifs[key]?' on':'');
+  saveApp();
+}
+
+function renderOrderHistory() {
+  const list = document.getElementById('orderHistList');
+  if(!APP.orders.length){
+    list.innerHTML='<div style="padding:0 16px 14px;font-size:13px;color:var(--t2)">No orders yet</div>';
+    return;
+  }
+  list.innerHTML = APP.orders.slice(0,5).map(o=>`
+    <div class="order-hist-item" onclick="toast('Order ${o.oid}: ${o.status}')">
+      <div class="oh-top">
+        <span class="oh-id">${o.oid}</span>
+        <span class="status-pill sp-${o.status}">${o.status}</span>
+      </div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:4px">${o.date} · ₹${o.total}</div>
+      <div style="font-size:12px;color:var(--t1)">${o.items.substring(0,55)}${o.items.length>55?'...':''}</div>
+      <div style="font-size:11px;color:var(--g);margin-top:6px;font-weight:700">↺ Reorder</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   WALLET
+═══════════════════════════════════════════ */
+function renderWalletPage() {
+  document.getElementById('walBal').textContent = APP.wallet.toFixed(2);
+  const list = document.getElementById('txnList');
+  if(!APP.txns.length){
+    list.innerHTML='<div class="txn-item" style="color:var(--t2);font-size:13px">No transactions yet</div>';
+    return;
+  }
+  list.innerHTML = APP.txns.slice(0,15).map(t=>`
+    <div class="txn-item">
+      <div class="txn-icon">${t.type==='cr'?'💰':'🛒'}</div>
+      <div class="txn-info">
+        <div class="txn-title">${t.desc}</div>
+        <div class="txn-date">${t.date}</div>
+      </div>
+      <div class="txn-amt ${t.type==='cr'?'txn-cr':'txn-dr'}">${t.type==='cr'?'+':'-'}₹${t.amt}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════ */
+function toggleTheme() {
+  APP.theme = APP.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', APP.theme);
+  updateThemeIcon();
+  const tog = document.getElementById('themeToggle');
+  if(tog) tog.className = 'toggle-sw'+(APP.theme==='dark'?' on':'');
+  saveApp();
+}
+function updateThemeIcon() {
+  const btn = document.getElementById('themeBtn');
+  if(btn) btn.innerHTML = `<i class="fas fa-${APP.theme==='dark'?'sun':'moon'}"></i>`;
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sideOverlay').style.display='block';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sideOverlay').style.display='none';
+}
+
+/* ═══════════════════════════════════════════
+   SHEETS
+═══════════════════════════════════════════ */
+function openSheet(id) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('open');
+}
+function closeAll() {
+  document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('open'));
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_tt);
+  _tt = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+</script>
 </body>
 </html>
