@@ -7,242 +7,379 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00b14f; }
-        [data-theme="light"] { --bg: #ffffff; --text: #000000; --card: #f3f4f6; --border: #e5e7eb; }
-        [data-theme="dark"] { --bg: #000000; --text: #ffffff; --card: #111111; --border: #1f2937; }
+        :root {
+            --primary: #00b14f;
+            --accent: #FFD700;
+        }
+        [data-theme="dark"] {
+            --bg: #000000;
+            --surface: #111111;
+            --surface-alt: #1a1a1a;
+            --text: #ffffff;
+            --text-dim: #9ca3af;
+            --border: #262626;
+        }
+        [data-theme="light"] {
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --surface-alt: #f3f4f6;
+            --text: #111827;
+            --text-dim: #6b7280;
+            --border: #e5e7eb;
+        }
 
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: all 0.3s ease; overscroll-behavior: none; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .active-tab { color: var(--accent) !important; font-weight: 800; border-bottom: 2px solid var(--accent); }
-        .mesh-bg { background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%); }
-        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0, 0, 0.2, 1); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+        }
+
+        .mesh-gradient {
+            background: var(--bg);
+            background-image: radial-gradient(at 0% 0%, #222 0, transparent 50%), 
+                               radial-gradient(at 50% 0%, #333 0, transparent 50%);
+        }
+
+        .glass { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            backdrop-filter: blur(10px); 
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        .screen.active { display: flex; }
+
+        .stepper-active {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        .bottom-sheet {
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+        }
         .bottom-sheet.open { transform: translateY(0); }
-        .category-selected { border: 2px solid var(--accent) !important; background: rgba(0, 177, 79, 0.1) !important; }
-        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* 3D Avatars */
+        .avatar-ring {
+            border: 2px solid transparent;
+            padding: 2px;
+            transition: 0.2s;
+        }
+        .avatar-ring.selected { border-color: var(--primary); transform: scale(1.1); }
+
+        .loopy-surprise {
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { box-shadow: 0 0 5px var(--primary); }
+            to { box-shadow: 0 0 20px var(--primary); }
+        }
     </style>
 </head>
 <body data-theme="dark">
 
-    <!-- Splash Screen -->
-    <div id="splash" class="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center">
-        <div class="text-4xl font-extrabold tracking-tighter animate-bounce">MULTILOOPS<span class="text-green-500">.</span></div>
+    <!-- SPLASH -->
+    <div id="splash" class="fixed inset-0 z-[10000] bg-black flex items-center justify-center">
+        <div class="text-3xl font-black tracking-tighter text-white">MULTILOOPS<span class="text-green-500">.</span></div>
     </div>
 
-    <!-- Login Screen -->
-    <div id="loginScreen" class="fixed inset-0 z-[8000] mesh-bg hidden flex flex-col justify-center px-8">
-        <div class="mb-12">
-            <h1 class="text-5xl font-black italic tracking-tighter">THE LOOP<span class="text-green-500">.</span></h1>
-            <p class="text-gray-400 mt-2">Premium Fintech & Essentials.</p>
-        </div>
-        <div class="space-y-4" id="authUI">
-            <div id="recaptcha-container"></div>
-            <input type="tel" id="phone" placeholder="+91 Phone Number" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl outline-none focus:border-green-500">
-            <button onclick="handleLogin('phone')" class="w-full bg-green-500 text-white font-black p-4 rounded-2xl">Send Access Code</button>
-            <div id="otpBox" class="hidden">
-                <input type="number" id="otp" placeholder="6-digit OTP" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl mt-4 outline-none">
-                <button onclick="handleVerify()" class="w-full bg-white text-black font-black p-4 rounded-2xl mt-2">Verify & Entry</button>
+    <!-- LOGIN (Monochrome Mesh) -->
+    <div id="loginScreen" class="fixed inset-0 z-[9000] mesh-gradient hidden flex flex-col justify-center px-8">
+        <h1 class="text-5xl font-black mb-2 tracking-tighter text-white">Welcome<br>to the Loop.</h1>
+        <p class="text-gray-400 mb-10">Premium Ventures & Daily Essentials.</p>
+        
+        <div class="space-y-4">
+            <div id="phoneInputArea">
+                <input type="tel" id="loginPhone" placeholder="+91 Phone Number" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-green-500">
+                <button onclick="authAction('phone')" class="w-full bg-white text-black font-black p-5 rounded-2xl mt-4">Send OTP</button>
             </div>
-            <button onclick="handleLogin('google')" class="w-full glass p-4 rounded-2xl flex items-center justify-center gap-2 font-bold mt-4">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5" alt=""> Google Account
+            <div id="otpInputArea" class="hidden">
+                <input type="number" id="loginOtp" placeholder="Enter 6-Digit OTP" class="w-full p-5 rounded-2xl bg-white/5 border border-white/10 text-white outline-none">
+                <button onclick="verifyOtp()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl mt-4">Enter Multiloops</button>
+            </div>
+            <div class="text-center text-gray-600 text-xs py-2 uppercase font-bold tracking-widest">or</div>
+            <button onclick="authAction('google')" class="w-full glass p-5 rounded-2xl flex items-center justify-center gap-3 text-white">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5"> Google Account
             </button>
         </div>
     </div>
 
-    <!-- Onboarding -->
-    <div id="onboardingScreen" class="fixed inset-0 z-[7500] bg-black hidden overflow-y-auto px-6 py-10">
-        <h2 class="text-3xl font-black mb-6">Setup Profile</h2>
+    <!-- ONBOARDING -->
+    <div id="onboarding" class="fixed inset-0 z-[8000] bg-[var(--bg)] hidden flex flex-col p-8 overflow-y-auto">
+        <h2 class="text-3xl font-black mb-6">Create Profile</h2>
         
-        <p class="text-xs font-bold text-gray-500 uppercase mb-4">Choose Avatar</p>
-        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-6" id="avatarList"></div>
+        <p class="text-xs font-black text-[var(--text-dim)] uppercase mb-4">Select Avatar</p>
+        <div id="avatarGrid" class="flex gap-4 overflow-x-auto no-scrollbar pb-4 mb-6"></div>
 
-        <input type="text" id="nickInput" placeholder="Nickname (e.g. Mano)" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl mb-4">
+        <input type="text" id="nickName" placeholder="Nickname (e.g., Mano)" class="w-full p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] outline-none mb-4">
         
         <div class="flex gap-2 mb-4">
-            <input type="text" id="addrInput" placeholder="Delivery Address" class="flex-grow bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
-            <button onclick="getGPSLocation()" class="bg-zinc-800 p-4 rounded-2xl">📍</button>
+            <input type="text" id="userAddress" placeholder="Delivery Address" class="flex-grow p-5 rounded-2xl bg-[var(--surface)] border border-[var(--border)] outline-none">
+            <button onclick="fetchGPS()" class="p-5 glass rounded-2xl">📍</button>
         </div>
 
-        <p class="text-xs font-bold text-gray-500 uppercase mb-4">Favorite Categories</p>
-        <div id="prefList" class="flex flex-wrap gap-2 mb-8"></div>
+        <p class="text-xs font-black text-[var(--text-dim)] uppercase mb-4">Interests</p>
+        <div id="favCats" class="flex flex-wrap gap-2 mb-10"></div>
 
-        <div class="flex items-center gap-3 mb-10 bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
-            <input type="checkbox" id="premiumCheck" class="w-6 h-6 accent-green-500">
-            <div class="text-xs font-bold uppercase">Upgrade to Premium (Get Verified Badge)</div>
-        </div>
-
-        <button onclick="completeOnboarding()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl shadow-xl">Launch App</button>
+        <button onclick="saveProfile()" class="w-full bg-[var(--primary)] text-white font-black p-5 rounded-2xl shadow-xl">Complete Setup</button>
     </div>
 
-    <!-- Main App -->
-    <main id="mainApp" class="hidden">
-        <!-- Header -->
-        <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl p-5 flex justify-between items-center">
-            <div onclick="openSidebar()" class="w-10 h-10 rounded-full border border-zinc-800 overflow-hidden">
-                <img id="headerAvatar" src="" class="w-full h-full object-cover">
+    <!-- SIDEBAR -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-[9500] hidden backdrop-blur-sm" onclick="toggleSidebar(false)"></div>
+    <div id="sidebar" class="fixed top-0 left-[-100%] w-[85%] max-w-sm h-full bg-[var(--surface)] z-[9600] transition-all duration-300 p-8 flex flex-col">
+        <div class="flex items-center gap-4 mb-10">
+            <img id="sideAvatar" src="" class="w-16 h-16 rounded-full border-2 border-[var(--primary)]">
+            <div>
+                <h3 id="sideNick" class="text-xl font-black">Mano</h3>
+                <span id="sideBadge" class="hidden text-[10px] bg-[var(--primary)] text-white px-2 py-0.5 rounded-full font-black">VERIFIED LOOPER</span>
             </div>
-            <div class="text-center">
-                <p id="timeGreet" class="text-[10px] font-bold text-green-500 uppercase tracking-widest"></p>
-                <h3 id="topNick" class="text-sm font-black flex items-center justify-center gap-1"></h3>
-            </div>
-            <button class="w-10 h-10 glass rounded-full flex items-center justify-center">🔔</button>
-        </header>
-
-        <!-- Home -->
-        <div id="screen-home" class="screen pb-32">
-            <!-- Dynamic Categories Scroll -->
-            <div class="px-5 mb-8">
-                <div class="flex gap-4 overflow-x-auto no-scrollbar py-2" id="homeCatScroll"></div>
-            </div>
-
-            <!-- Recommended -->
-            <div class="px-5 mb-8">
-                <h3 class="text-lg font-black mb-4">Recommended for You</h3>
-                <div id="recoItems" class="flex gap-4 overflow-x-auto no-scrollbar"></div>
-            </div>
-
-            <!-- Main Listing -->
-            <div id="homeSections"></div>
         </div>
 
-        <!-- Categories -->
-        <div id="screen-categories" class="screen hidden pb-32 px-5">
-            <h2 class="text-3xl font-black py-6">All Categories</h2>
-            <div id="fullCatGrid" class="grid grid-cols-2 gap-4"></div>
+        <div class="flex-grow space-y-8 overflow-y-auto no-scrollbar">
+            <div>
+                <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-4">Settings</p>
+                <div class="space-y-4 font-bold text-sm">
+                    <div class="flex justify-between items-center">
+                        <span>Theme Mode</span>
+                        <button onclick="toggleTheme()" class="bg-[var(--surface-alt)] px-4 py-2 rounded-xl text-[10px]">Switch Mode</button>
+                    </div>
+                    <p onclick="openPremium()">Get Premium Badge</p>
+                    <p onclick="showScreen('history')">Order History</p>
+                    <p onclick="showScreen('profile-edit')">Edit Profile</p>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-4">Preferences</p>
+                <div class="space-y-4 font-bold text-sm">
+                    <div class="flex justify-between items-center"><span>Master Mute</span> <input type="checkbox" id="masterMute" class="accent-green-500"></div>
+                    <div class="flex justify-between items-center"><span>Order Tracking Alerts</span> <input type="checkbox" checked class="accent-green-500"></div>
+                    <div class="flex justify-between items-center"><span>Promotions</span> <input type="checkbox" checked class="accent-green-500"></div>
+                    <div class="flex justify-between items-center"><span>WhatsApp Updates</span> <input type="checkbox" checked class="accent-green-500"></div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl font-black text-sm mt-6">Sign Out</button>
+    </div>
+
+    <!-- MAIN NAV -->
+    <nav id="bottomNav" class="fixed bottom-0 w-full bg-[var(--bg)] border-t border-[var(--border)] p-4 flex justify-around items-center z-[5000] hidden">
+        <button onclick="showScreen('home')" class="nav-item flex flex-col items-center gap-1 text-[var(--primary)]">
+            <span class="text-xl">🏠</span><span class="text-[9px] font-black uppercase">Home</span>
+        </button>
+        <button onclick="showScreen('explore')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)]">
+            <span class="text-xl">🔍</span><span class="text-[9px] font-black uppercase">Explore</span>
+        </button>
+        <button onclick="showScreen('wallet')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)]">
+            <span class="text-xl">💳</span><span class="text-[9px] font-black uppercase">Wallet</span>
+        </button>
+        <button onclick="showScreen('cart')" class="nav-item flex flex-col items-center gap-1 text-[var(--text-dim)] relative">
+            <span class="text-xl">🛒</span><span class="text-[9px] font-black uppercase">Cart</span>
+            <span id="cartBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+        </button>
+    </nav>
+
+    <!-- CONTENT SCREENS -->
+    <div id="mainContent">
+        <!-- Home -->
+        <div id="screen-home" class="screen active p-5">
+            <header class="flex justify-between items-center mb-6">
+                <div onclick="toggleSidebar(true)" class="w-10 h-10 glass rounded-full flex items-center justify-center">☰</div>
+                <div class="text-center">
+                    <p id="dynamicGreet" class="text-[10px] font-bold text-[var(--primary)] uppercase tracking-widest"></p>
+                    <h2 id="topNickName" class="text-lg font-black"></h2>
+                </div>
+                <div onclick="showNotifications()" class="w-10 h-10 glass rounded-full flex items-center justify-center">🔔</div>
+            </header>
+
+            <div onclick="showLocationSheet()" class="glass p-4 rounded-2xl mb-8 flex items-center gap-3">
+                <span class="text-lg">📍</span>
+                <div class="overflow-hidden">
+                    <p class="text-[9px] font-black text-[var(--text-dim)] uppercase">Delivering to</p>
+                    <p id="topAddr" class="text-xs font-bold truncate">Set Address</p>
+                </div>
+            </div>
+
+            <div id="homeCategoryScroll" class="flex gap-4 overflow-x-auto no-scrollbar mb-8"></div>
+
+            <h3 class="text-xl font-black mb-4">Recommended</h3>
+            <div id="recoGrid" class="flex gap-4 overflow-x-auto no-scrollbar mb-10"></div>
+
+            <div id="homeSections" class="space-y-10"></div>
+        </div>
+
+        <!-- Category Detail -->
+        <div id="screen-category-detail" class="screen p-5">
+            <div class="flex items-center gap-4 mb-6">
+                <button onclick="showScreen('home')" class="text-2xl">←</button>
+                <h2 id="catDetailTitle" class="text-2xl font-black">Category</h2>
+            </div>
+            <div id="catDetailGrid" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Explore -->
+        <div id="screen-explore" class="screen p-5">
+            <h2 class="text-3xl font-black py-6">Categories</h2>
+            <div id="exploreGrid" class="grid grid-cols-2 gap-4"></div>
         </div>
 
         <!-- Wallet -->
-        <div id="screen-wallet" class="screen hidden pb-32 px-5">
-            <div class="bg-zinc-900 p-8 rounded-[40px] mt-6 border border-zinc-800">
-                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Loopy Wallet</p>
-                <h1 class="text-5xl font-black mb-6">₹1,500<span class="text-green-500">.00</span></h1>
-                <div class="flex gap-2">
-                    <button class="flex-grow bg-green-500 p-4 rounded-2xl font-black text-sm">Add Funds</button>
-                    <button class="flex-grow glass p-4 rounded-2xl font-black text-sm">History</button>
+        <div id="screen-wallet" class="screen p-5">
+            <h2 class="text-3xl font-black py-6">Wallet</h2>
+            <div class="bg-gradient-to-br from-zinc-800 to-black p-8 rounded-[40px] border border-zinc-700 relative overflow-hidden">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Loopy Balance</p>
+                <h1 class="text-5xl font-black mb-8">₹<span id="wallBal">0.00</span></h1>
+                <div class="flex gap-3">
+                    <button onclick="openAddCredits()" class="flex-grow bg-[var(--primary)] text-white p-4 rounded-2xl font-black text-xs">Add Credits</button>
+                    <button class="flex-grow glass p-4 rounded-2xl font-black text-xs">History</button>
+                </div>
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
+            </div>
+            
+            <div class="mt-8 space-y-4">
+                <h4 class="font-black text-sm">Quick Top-up</h4>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="quickAdd(500)" class="glass p-4 rounded-2xl font-black">₹500</button>
+                    <button onclick="quickAdd(1000)" class="glass p-4 rounded-2xl font-black">₹1000</button>
+                    <button onclick="quickAdd(2000)" class="glass p-4 rounded-2xl font-black">₹2000</button>
                 </div>
             </div>
         </div>
 
         <!-- Cart -->
-        <div id="screen-cart" class="screen hidden pb-32 px-5">
-            <h2 class="text-2xl font-black py-6">My Cart</h2>
-            <div id="cartList" class="space-y-4 mb-8"></div>
-            <div id="cartBill" class="glass p-6 rounded-3xl space-y-3">
-                <div class="flex justify-between text-sm"><span>Subtotal</span><span id="billSub">₹0</span></div>
-                <div class="flex justify-between text-sm"><span>Delivery (Slot)</span><span>₹25</span></div>
-                <div class="flex justify-between text-lg font-black pt-3 border-t border-zinc-800"><span>To Pay</span><span id="billTotal">₹0</span></div>
+        <div id="screen-cart" class="screen p-5">
+            <h2 class="text-3xl font-black py-6">My Cart</h2>
+            <div id="cartItems" class="space-y-4 mb-8"></div>
+            
+            <div id="cartBill" class="glass p-6 rounded-[32px] space-y-3">
+                <div class="flex justify-between text-sm"><span>Items Total</span><span id="billItems">₹0</span></div>
+                <div class="flex justify-between text-sm"><span>Delivery Fee</span><span>₹25</span></div>
+                <div class="flex justify-between text-sm"><span>GST (18%)</span><span id="billGST">₹0</span></div>
+                <div class="flex justify-between text-sm text-[var(--primary)] font-bold italic"><span>Loopy Surprise</span><span id="billSurprise">-₹0</span></div>
+                <div class="flex justify-between text-xl font-black pt-4 border-t border-[var(--border)]"><span>Total Amount</span><span id="billTotal">₹0</span></div>
             </div>
-            <button onclick="placeOrder()" class="w-full bg-green-500 p-5 rounded-2xl font-black text-white mt-6">Place Order</button>
+            
+            <button onclick="initiateCheckout()" class="w-full bg-[var(--primary)] text-white p-5 rounded-2xl font-black text-lg mt-8 shadow-xl shadow-green-500/20">Place Order</button>
         </div>
 
-        <!-- Order Tracking -->
-        <div id="screen-tracking" class="screen hidden pb-32 px-5">
-            <h2 class="text-2xl font-black py-6">Track Order</h2>
-            <div class="bg-zinc-900 p-6 rounded-3xl mb-6 border border-green-500/30">
-                <div class="flex items-center gap-4 mb-8">
-                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-xl">🚚</div>
+        <!-- Tracking -->
+        <div id="screen-tracking" class="screen p-5">
+            <h2 class="text-3xl font-black py-6">Live Status</h2>
+            <div class="bg-[var(--surface)] border border-[var(--primary)]/30 p-8 rounded-[40px] mb-6">
+                <div class="flex items-center gap-6 mb-10">
+                    <div class="w-16 h-16 bg-[var(--primary)] rounded-full flex items-center justify-center text-3xl">🛵</div>
                     <div>
-                        <p class="text-xs font-bold text-gray-400">Order #MLV-8829</p>
-                        <h4 class="font-black text-green-500" id="orderStatus">Packaging Your Venture</h4>
+                        <p class="text-xs font-bold text-gray-500 uppercase">Order #MVL-9921</p>
+                        <h4 class="text-xl font-black" id="liveStatus">Packaging Items</h4>
                     </div>
                 </div>
-                <!-- Mini Map Simulation -->
-                <div class="w-full h-40 bg-zinc-800 rounded-2xl relative overflow-hidden mb-6">
-                    <div class="absolute inset-0 opacity-30 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/0,0,1/400x200?access_token=none')] bg-cover"></div>
-                    <div class="absolute top-1/2 left-1/3 text-2xl animate-bounce">🛵</div>
-                </div>
-                <!-- Stepper -->
-                <div class="space-y-6 relative ml-4">
-                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-green-500 rounded-full"></div> <p class="text-sm font-bold">Confirmed - 10:30 AM</p></div>
-                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-green-500 rounded-full animate-ping"></div> <p class="text-sm font-bold">Packaging - 10:45 AM</p></div>
-                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-zinc-700 rounded-full"></div> <p class="text-sm text-gray-500">Dispatched</p></div>
+                <div class="space-y-8 relative">
+                    <div class="absolute left-[7px] top-2 bottom-2 w-[2px] bg-[var(--border)]"></div>
+                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-green-500 rounded-full"></div> <p class="text-sm font-bold">Order Confirmed • <span id="confTime"></span></p></div>
+                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-green-500 rounded-full animate-ping"></div> <p class="text-sm font-bold">Packaging Started • <span id="packTime"></span></p></div>
+                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-zinc-800 rounded-full"></div> <p class="text-sm font-bold text-gray-600">Dispatched</p></div>
+                    <div class="flex items-center gap-6 relative z-10"><div class="w-4 h-4 bg-zinc-800 rounded-full"></div> <p class="text-sm font-bold text-gray-600">Arrived</p></div>
                 </div>
             </div>
-            <button onclick="switchTab('home')" class="w-full glass p-5 rounded-2xl font-bold">Back to Home</button>
+            <button onclick="showScreen('home')" class="w-full glass p-5 rounded-2xl font-black">Keep Shopping</button>
         </div>
 
-        <!-- Bottom Nav -->
-        <nav class="fixed bottom-0 w-full bg-black/90 backdrop-blur-xl border-t border-zinc-900 flex justify-around p-4 z-50">
-            <button onclick="switchTab('home')" class="nav-item flex flex-col items-center gap-1 active-tab"><span>🏠</span><span class="text-[9px] uppercase font-bold">Home</span></button>
-            <button onclick="switchTab('categories')" class="nav-item flex flex-col items-center gap-1 text-gray-500"><span>📂</span><span class="text-[9px] uppercase font-bold">Categories</span></button>
-            <button onclick="switchTab('wallet')" class="nav-item flex flex-col items-center gap-1 text-gray-500"><span>💳</span><span class="text-[9px] uppercase font-bold">Wallet</span></button>
-            <button onclick="switchTab('cart')" class="nav-item flex flex-col items-center gap-1 text-gray-500 relative">
-                <span>🛒</span><span class="text-[9px] uppercase font-bold">Cart</span>
-                <span id="cartCount" class="absolute -top-1 -right-1 bg-green-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
-            </button>
-        </nav>
-    </main>
-
-    <!-- Sidebar -->
-    <div id="overlay" class="fixed inset-0 bg-black/80 z-[8500] hidden" onclick="closeSidebar()"></div>
-    <div id="sidebar" class="fixed top-0 left-[-100%] w-[80%] max-w-sm h-full bg-zinc-950 z-[9000] transition-all duration-300 p-8 overflow-y-auto">
-        <div class="flex items-center gap-4 mb-10">
-            <img id="sideAvatar" src="" class="w-14 h-14 rounded-full border-2 border-green-500">
-            <div>
-                <h3 id="sideNick" class="text-xl font-black"></h3>
-                <span id="sidePremium" class="hidden text-[8px] bg-green-500 text-white px-2 py-0.5 rounded-full font-black">PREMIUM VERIFIED</span>
+        <!-- Premium Screen -->
+        <div id="screen-premium" class="screen p-5 bg-gradient-to-b from-yellow-900/20 to-black">
+            <button onclick="showScreen('home')" class="text-xl mb-6">← Back</button>
+            <div class="text-center py-10">
+                <h1 class="text-4xl font-black text-[var(--accent)] mb-4 italic">LOOPER PREMIUM</h1>
+                <p class="text-gray-400 px-6">Join the elite club of Multiloops Ventures. Get the verified badge and zero delivery fees.</p>
             </div>
-        </div>
-
-        <div class="space-y-8">
-            <div>
-                <p class="text-[10px] font-black text-gray-600 tracking-widest uppercase mb-4">Account</p>
-                <div class="space-y-4 font-bold text-sm">
-                    <p class="flex justify-between" onclick="showOnboarding()">Edit Profile <span>➔</span></p>
-                    <p class="flex justify-between">Order History <span>➔</span></p>
-                    <div class="flex justify-between items-center">Theme: <button onclick="toggleTheme()" class="bg-zinc-800 px-3 py-1 rounded-full text-[10px]">Toggle Dark/Light</button></div>
-                </div>
+            <div class="glass p-8 rounded-[40px] border-[var(--accent)] mb-10 text-center">
+                <h2 class="text-5xl font-black mb-2">₹499<span class="text-sm font-normal text-gray-500">/year</span></h2>
+                <ul class="text-sm font-bold space-y-4 my-8 text-left">
+                    <li>✨ Verified Profile Badge</li>
+                    <li>🚀 Priority Delivery Slot</li>
+                    <li>🎁 2x Loopy Surprise Cashback</li>
+                    <li>🎧 24/7 Dedicated Support</li>
+                </ul>
+                <button onclick="upgradeToPremium()" class="w-full bg-[var(--accent)] text-black p-5 rounded-2xl font-black">Get Premium Now</button>
             </div>
-            <div>
-                <p class="text-[10px] font-black text-gray-600 tracking-widest uppercase mb-4">Notifications</p>
-                <div class="space-y-4 font-bold text-sm">
-                    <div class="flex justify-between items-center"><span>Global Mute</span> <input type="checkbox" class="accent-green-500"></div>
-                    <div class="flex justify-between items-center"><span>Delivery Alerts</span> <input type="checkbox" checked class="accent-green-500"></div>
-                    <div class="flex justify-between items-center"><span>Special Offers</span> <input type="checkbox" checked class="accent-green-500"></div>
-                </div>
-            </div>
-            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl font-black text-sm">Sign Out</button>
         </div>
     </div>
 
-    <!-- Product Sheet -->
-    <div id="productSheet" class="fixed bottom-0 left-0 right-0 z-[9500] bottom-sheet bg-zinc-900 rounded-t-[40px] p-8">
-        <div class="w-12 h-1 bg-zinc-800 rounded-full mx-auto mb-8"></div>
+    <!-- PRODUCT DETAIL SHEET -->
+    <div id="productOverlay" class="fixed inset-0 bg-black/80 z-[6000] hidden" onclick="closeProductSheet()"></div>
+    <div id="productSheet" class="fixed bottom-0 left-0 right-0 bg-[var(--surface)] z-[6100] bottom-sheet rounded-t-[40px] p-8 pb-12">
+        <div class="w-12 h-1 bg-[var(--border)] rounded-full mx-auto mb-8"></div>
         <div class="flex justify-between items-start mb-6">
             <div>
-                <h2 id="sheetName" class="text-3xl font-black"></h2>
-                <p id="sheetPrice" class="text-2xl font-bold text-green-500"></p>
+                <span id="sheetBadge" class="text-[9px] font-black px-2 py-1 rounded-md bg-zinc-800 text-gray-400 uppercase tracking-widest mb-2 inline-block">VENTURE</span>
+                <h2 id="sheetName" class="text-3xl font-black tracking-tight leading-none">Product Name</h2>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="text-yellow-500">★★★★★</span>
+                    <span id="sheetRating" class="text-xs font-bold text-gray-500">4.8</span>
+                </div>
             </div>
-            <div id="sheetType" class="bg-zinc-800 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">LOOP</div>
+            <p id="sheetPrice" class="text-2xl font-black text-[var(--primary)]">₹0</p>
         </div>
 
-        <p class="text-[10px] font-bold text-gray-500 uppercase mb-3">Delivery Slot</p>
-        <div class="grid grid-cols-3 gap-2 mb-8" id="slotPicker">
-            <button onclick="selectSlot(0, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">6AM - 12PM</button>
-            <button onclick="selectSlot(1, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">12PM - 6PM</button>
-            <button onclick="selectSlot(2, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">6PM - 12AM</button>
+        <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-3">Choose Delivery Slot</p>
+        <div class="grid grid-cols-3 gap-3 mb-8" id="sheetSlots">
+            <button onclick="setTempSlot(0, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">6AM-12PM</button>
+            <button onclick="setTempSlot(1, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">12PM-6PM</button>
+            <button onclick="setTempSlot(2, this)" class="slot-btn glass p-4 rounded-2xl text-[10px] font-black border-transparent border-2">6PM-12AM</button>
         </div>
 
-        <div id="subEngine" class="hidden mb-8">
-            <p class="text-[10px] font-bold text-gray-500 uppercase mb-3">Subscription Engine</p>
-            <select id="subSelect" class="w-full bg-black p-4 rounded-2xl border border-zinc-800 text-sm font-bold">
-                <option value="once">One-time Order</option>
-                <option value="daily">Daily Loop (7 days)</option>
-                <option value="weekly">Weekly Loop (4 weeks)</option>
-                <option value="alt">Alternate Days</option>
+        <div id="subContainer" class="hidden mb-8">
+            <p class="text-[10px] font-black text-[var(--text-dim)] uppercase tracking-widest mb-3">Subscription (Loops Only)</p>
+            <select id="sheetSub" class="w-full bg-[var(--bg)] border border-[var(--border)] p-4 rounded-2xl text-sm font-bold">
+                <option value="once">One-time Purchase</option>
+                <option value="daily">Daily Loop</option>
+                <option value="alternate">Alternate Days</option>
+                <option value="weekly">Once a Week</option>
             </select>
         </div>
 
-        <button onclick="confirmAddToCart()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl text-lg">Add To Venture</button>
+        <button id="sheetAction" class="w-full bg-[var(--primary)] text-white p-5 rounded-3xl font-black text-lg">Add To Cart</button>
+    </div>
+
+    <!-- ADD CREDITS / PAY SHEET -->
+    <div id="paySheet" class="fixed inset-0 bg-black z-[9999] hidden p-8 flex flex-col items-center">
+        <button onclick="closePaySheet()" class="absolute top-8 left-8 text-2xl">✕</button>
+        <h2 class="text-2xl font-black mt-20 mb-10">Add Credits</h2>
+        
+        <div class="bg-white p-4 rounded-3xl mb-10">
+            <img id="qrCode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=MultiloopsVenturesPay" class="w-48 h-48">
+        </div>
+        
+        <p class="text-gray-500 text-sm mb-8 text-center">Scan QR code or use UPI Intent below</p>
+        
+        <div class="grid grid-cols-2 gap-4 w-full">
+            <button onclick="simulatePay()" class="glass p-5 rounded-2xl font-black flex flex-col items-center gap-2">
+                <span class="text-xl">🅿️</span> PhonePe
+            </button>
+            <button onclick="simulatePay()" class="glass p-5 rounded-2xl font-black flex flex-col items-center gap-2">
+                <span class="text-xl">🇬</span> Google Pay
+            </button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <script>
-        // Firebase (Note: Replace with your keys for production)
-        const config = {
+        // 1. DATA & STATE
+        const firebaseConfig = {
             apiKey: "AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
             authDomain: "multiloops-ventures-a1d41.firebaseapp.com",
             projectId: "multiloops-ventures-a1d41",
@@ -250,274 +387,404 @@
             messagingSenderId: "239033809088",
             appId: "1:239033809088:web:05b978c6dcf42a8c175525"
         };
-        firebase.initializeApp(config);
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        let state = {
-            user: JSON.parse(localStorage.getItem('mlv_v2_user')),
-            cart: [],
-            categories: ["Electronics", "Kitchen Appliances", "Fruits & Vegetables", "Pharmacy", "Pet Items", "Snacks", "Beverages", "School Items", "Toys", "Gift Items", "Beauty & Care", "Sports Items", "Clothing"],
-            products: [],
-            selectedAvatar: null,
-            selectedPrefs: [],
-            activeSlot: '6AM - 12PM',
-            currentProduct: null
-        };
-
-        const greetings = [
-            "Ready for a restock?", "Fueling your ventures.", "Morning Mano, loops await.", 
-            "Your essentials, sorted.", "Quality over everything.", "Stay ahead of the loop.",
-            "Ventures, at your door.", "The premium standard.", "Ready to loop in?", "Your daily grind, fueled."
+        const categories = ["Electronics", "Kitchen Appliances", "Fruits & Vegetables", "Pharmacy", "Pet Items", "Snacks", "Beverages", "School Items", "Toys", "Gift Items", "Beauty & Care", "Sports Items", "Clothing"];
+        const greets = [
+            "Ready to loop in?", "Fueling your ventures.", "Morning Mano, loops await.", "Your essentials, sorted.", 
+            "Premium standard only.", "Stay sharp, looper.", "The venture continues.", "Crafted for quality.",
+            "Fresh loops incoming.", "Upgrade your lifestyle.", "The loop is your domain.", "Success, delivered.",
+            "Elevated essentials.", "Venture into the new.", "A new loop begins."
         ];
 
-        // 1. DATA GENERATOR (13 cats x 20 items)
-        function initData() {
-            state.categories.forEach((cat, cIdx) => {
+        let state = {
+            user: JSON.parse(localStorage.getItem('mv_user_v3')),
+            cart: [],
+            wallet: parseFloat(localStorage.getItem('mv_wallet_v3')) || 0,
+            allProducts: [],
+            currentSheetProduct: null,
+            tempSlot: "6AM-12PM",
+            theme: localStorage.getItem('mv_theme') || 'dark'
+        };
+
+        // 2. PRODUCT GENERATOR
+        function initProducts() {
+            state.allProducts = [];
+            categories.forEach((cat, cIdx) => {
                 for(let i=1; i<=20; i++) {
-                    state.products.push({
-                        id: `${cIdx}-${i}`,
-                        name: `${cat} Premium ${i}`,
-                        price: (cat === 'Electronics' || cat === 'Clothing') ? 999 + (i*500) : 49 + (i*10),
-                        category: cat,
-                        type: (cat === 'Electronics' || cat === 'Kitchen Appliances') ? 'venture' : 'loop',
-                        img: `https://picsum.photos/seed/${cat}${i}/400/400`,
-                        rating: (4 + Math.random()).toFixed(1)
+                    const isVenture = ["Electronics", "Kitchen Appliances", "Clothing", "Sports Items"].includes(cat);
+                    state.allProducts.push({
+                        id: `p-${cIdx}-${i}`,
+                        name: `${cat} ${i === 1 ? 'Pro' : 'Elite'} ${i}`,
+                        price: isVenture ? 1499 + (i*800) : 39 + (i*15),
+                        rating: (4.2 + (Math.random() * 0.7)).toFixed(1),
+                        cat: cat,
+                        type: isVenture ? 'venture' : 'loop',
+                        img: `https://picsum.photos/seed/${cat}${i}/400/400`
                     });
                 }
             });
         }
 
-        // 2. AUTHENTICATION & PERSISTENCE
+        // 3. AUTH & ONBOARDING
         auth.onAuthStateChanged(user => {
             document.getElementById('splash').style.display = 'none';
             if(user) {
-                if(state.user) showApp();
+                if(state.user) startApp();
                 else showOnboarding();
             } else {
-                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('loginScreen').classList.remove('hidden');
             }
         });
 
-        function handleLogin(type) {
+        function authAction(type) {
             if(type === 'google') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
             else {
-                const phone = document.getElementById('phone').value;
-                if(!phone) return alert("Enter number");
-                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size: 'invisible'});
-                auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(res => {
-                    window.confirmationResult = res;
-                    document.getElementById('otpBox').classList.remove('hidden');
-                });
+                document.getElementById('phoneInputArea').classList.add('hidden');
+                document.getElementById('otpInputArea').classList.remove('hidden');
+                // Simulate OTP send
+                window.confirmationResult = { confirm: (code) => Promise.resolve({user: {}}) };
             }
         }
 
-        function handleVerify() {
-            const code = document.getElementById('otp').value;
-            window.confirmationResult.confirm(code).then(() => showOnboarding());
-        }
+        function verifyOtp() { showOnboarding(); }
 
         function showOnboarding() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('onboardingScreen').style.display = 'block';
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('onboarding').classList.remove('hidden');
             
-            // Avatars
-            const avs = Array.from({length: 12}, (_, i) => `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`);
-            document.getElementById('avatarList').innerHTML = avs.map((a, i) => `
-                <img src="${a}" onclick="selectAv(this, '${a}')" class="w-16 h-16 rounded-full border-2 border-transparent cursor-pointer">
-            `).join('');
+            const avGrid = document.getElementById('avatarGrid');
+            for(let i=1; i<=10; i++) {
+                const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=MV${i}`;
+                avGrid.innerHTML += `<img src="${url}" onclick="selectAvatar(this, '${url}')" class="avatar-ring w-20 h-20 rounded-full cursor-pointer bg-zinc-800">`;
+            }
 
-            // Prefs
-            document.getElementById('prefList').innerHTML = state.categories.map(c => `
-                <button onclick="togglePref(this, '${c}')" class="px-4 py-2 border border-zinc-800 rounded-full text-xs font-bold">${c}</button>
-            `).join('');
-        }
-
-        function selectAv(el, url) {
-            document.querySelectorAll('#avatarList img').forEach(i => i.style.borderColor = 'transparent');
-            el.style.borderColor = '#00b14f';
-            state.selectedAvatar = url;
-        }
-
-        function togglePref(el, cat) {
-            el.classList.toggle('category-selected');
-            if(state.selectedPrefs.includes(cat)) state.selectedPrefs = state.selectedPrefs.filter(p => p !== cat);
-            else state.selectedPrefs.push(cat);
-        }
-
-        function getGPSLocation() {
-            navigator.geolocation.getCurrentPosition(pos => {
-                document.getElementById('addrInput').value = `GPS: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+            const favs = document.getElementById('favCats');
+            categories.forEach(c => {
+                favs.innerHTML += `<button onclick="this.classList.toggle('bg-green-500')" class="px-4 py-2 border border-zinc-800 rounded-full text-[10px] font-bold uppercase">${c}</button>`;
             });
         }
 
-        function completeOnboarding() {
-            const nick = document.getElementById('nickInput').value;
-            const addr = document.getElementById('addrInput').value;
-            if(!nick || !addr || !state.selectedAvatar) return alert("Complete all details");
-            
-            state.user = {
-                nickname: nick,
-                address: addr,
-                avatar: state.selectedAvatar,
-                prefs: state.selectedPrefs,
-                isPremium: document.getElementById('premiumCheck').checked
-            };
-            localStorage.setItem('mlv_v2_user', JSON.stringify(state.user));
-            showApp();
+        function selectAvatar(el, url) {
+            document.querySelectorAll('.avatar-ring').forEach(a => a.classList.remove('selected'));
+            el.classList.add('selected');
+            state.tempAvatar = url;
         }
 
-        // 3. MAIN APP UI
-        function showApp() {
-            document.getElementById('onboardingScreen').style.display = 'none';
-            document.getElementById('mainApp').classList.remove('hidden');
+        function saveProfile() {
+            const nick = document.getElementById('nickName').value;
+            const addr = document.getElementById('userAddress').value;
+            if(!nick || !addr || !state.tempAvatar) return alert("Fill all details!");
+
+            state.user = { nickname: nick, address: addr, avatar: state.tempAvatar, isPremium: false };
+            localStorage.setItem('mv_user_v3', JSON.stringify(state.user));
+            startApp();
+        }
+
+        // 4. MAIN APP ENGINE
+        function startApp() {
+            document.getElementById('onboarding').classList.add('hidden');
+            document.getElementById('bottomNav').classList.remove('hidden');
+            document.getElementById('mainApp')?.classList?.remove('hidden'); // Ensure app body is shown
             
-            document.getElementById('headerAvatar').src = state.user.avatar;
-            document.getElementById('topNick').innerHTML = `${state.user.nickname} ${state.user.isPremium ? '<span class="text-blue-400">☑</span>' : ''}`;
-            document.getElementById('timeGreet').innerText = greetings[Math.floor(Math.random()*greetings.length)];
+            // Apply Theme
+            document.body.setAttribute('data-theme', state.theme);
             
-            initData();
+            // Set User Details
+            document.getElementById('topNickName').innerText = state.user.nickname;
+            document.getElementById('topAddr').innerText = state.user.address;
+            document.getElementById('sideNick').innerText = state.user.nickname;
+            document.getElementById('sideAvatar').src = state.user.avatar;
+            document.getElementById('headerAvatar')?.setAttribute('src', state.user.avatar);
+            if(state.user.isPremium) document.getElementById('sideBadge').classList.remove('hidden');
+
+            updateGreeting();
+            initProducts();
             renderHome();
+            renderExplore();
+            updateWalletUI();
+            showScreen('home');
         }
 
         function renderHome() {
-            // Horizontal Cat Scroll
-            document.getElementById('homeCatScroll').innerHTML = state.categories.map(c => `
-                <div onclick="openCatView('${c}')" class="flex-shrink-0 flex flex-col items-center gap-2">
+            // Category Scroll
+            const catScroll = document.getElementById('homeCategoryScroll');
+            catScroll.innerHTML = categories.map(c => `
+                <div onclick="openCategory('${c}')" class="flex-shrink-0 flex flex-col items-center gap-2">
                     <div class="w-16 h-16 glass rounded-full flex items-center justify-center text-xl">📦</div>
-                    <span class="text-[9px] font-black uppercase tracking-tighter">${c.split(' ')[0]}</span>
+                    <p class="text-[9px] font-black uppercase tracking-tighter">${c.split(' ')[0]}</p>
                 </div>
             `).join('');
 
-            // Recommended (Based on Prefs)
-            const reco = state.products.filter(p => state.user.prefs.includes(p.category)).slice(0, 10);
-            document.getElementById('recoItems').innerHTML = (reco.length ? reco : state.products.slice(0,10)).map(p => `
-                <div onclick="openProduct('${p.id}')" class="flex-shrink-0 w-40 glass p-3 rounded-3xl border border-zinc-800">
-                    <img src="${p.img}" class="w-full h-24 object-cover rounded-2xl mb-2">
-                    <p class="text-[10px] font-bold truncate">${p.name}</p>
-                    <p class="text-green-500 font-black">₹${p.price}</p>
+            // Recommended (Randomized)
+            const recoGrid = document.getElementById('recoGrid');
+            const items = state.allProducts.sort(() => 0.5 - Math.random()).slice(0, 10);
+            recoGrid.innerHTML = items.map(p => `
+                <div class="flex-shrink-0 w-44 glass p-4 rounded-[32px] border border-zinc-900" onclick="openProductSheet('${p.id}')">
+                    <img src="${p.img}" class="w-full h-28 object-cover rounded-2xl mb-3">
+                    <h4 class="text-xs font-bold truncate">${p.name}</h4>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-green-500 font-black">₹${p.price}</span>
+                        <div class="flex items-center text-[9px] font-black">⭐ ${p.rating}</div>
+                    </div>
                 </div>
             `).join('');
 
-            // Grid sections
-            document.getElementById('homeSections').innerHTML = state.categories.slice(0, 4).map(cat => `
-                <div class="px-5 mt-10">
-                    <h3 class="text-xl font-black mb-4">${cat}</h3>
+            // Grid Sections
+            const sections = document.getElementById('homeSections');
+            sections.innerHTML = categories.slice(0, 3).map(cat => `
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-black">${cat}</h3>
+                        <button onclick="openCategory('${cat}')" class="text-xs font-bold text-green-500">View All</button>
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
-                        ${state.products.filter(p => p.category === cat).slice(0, 4).map(p => `
-                            <div onclick="openProduct('${p.id}')" class="glass p-4 rounded-[32px] border border-zinc-900">
-                                <img src="${p.img}" class="w-full h-32 object-cover rounded-2xl mb-3">
-                                <h4 class="text-xs font-bold truncate">${p.name}</h4>
-                                <p class="text-green-500 font-black">₹${p.price}</p>
-                            </div>
-                        `).join('')}
+                        ${state.allProducts.filter(p => p.cat === cat).slice(0, 4).map(p => renderProductCard(p)).join('')}
                     </div>
                 </div>
             `).join('');
         }
 
-        function openProduct(id) {
-            const p = state.products.find(x => x.id === id);
-            state.currentProduct = p;
-            document.getElementById('sheetName').innerText = p.name;
-            document.getElementById('sheetPrice').innerText = `₹${p.price}`;
-            document.getElementById('sheetType').innerText = p.type;
-            document.getElementById('subEngine').style.display = p.type === 'loop' ? 'block' : 'none';
+        function renderProductCard(p) {
+            const inCart = state.cart.find(c => c.id === p.id);
+            return `
+                <div class="glass p-4 rounded-[32px] relative" onclick="openProductSheet('${p.id}')">
+                    <img src="${p.img}" class="w-full h-32 object-cover rounded-2xl mb-4">
+                    <h4 class="text-xs font-bold leading-tight mb-2 h-8 overflow-hidden">${p.name}</h4>
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm font-black">₹${p.price}</p>
+                        <div id="step-${p.id}">
+                            ${inCart ? renderStepper(p.id, inCart.qty) : `<button onclick="addToCart(event, '${p.id}')" class="w-8 h-8 bg-[var(--primary)] text-white rounded-xl font-black">+</button>`}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStepper(id, qty) {
+            return `
+                <div class="flex items-center bg-[var(--primary)] rounded-xl overflow-hidden stepper-active">
+                    <button onclick="changeQty(event, '${id}', -1)" class="px-2 py-1 font-black text-white">−</button>
+                    <span class="px-2 text-xs font-black">${qty}</span>
+                    <button onclick="changeQty(event, '${id}', 1)" class="px-2 py-1 font-black text-white">+</button>
+                </div>
+            `;
+        }
+
+        // 5. NAVIGATION & ACTIONS
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen-' + id).classList.add('active');
             
-            document.getElementById('productSheet').classList.add('open');
-            document.getElementById('overlay').classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.replace('text-[var(--primary)]', 'text-[var(--text-dim)]'));
+            const activeNav = Array.from(document.querySelectorAll('.nav-item')).find(n => n.innerText.toLowerCase().includes(id));
+            if(activeNav) activeNav.classList.replace('text-[var(--text-dim)]', 'text-[var(--primary)]');
+
+            if(id === 'cart') renderCart();
         }
 
-        function selectSlot(idx, el) {
-            document.querySelectorAll('#slotPicker button').forEach(b => b.style.borderColor = '#1f2937');
-            el.style.borderColor = '#00b14f';
-            state.activeSlot = el.innerText;
+        function openCategory(cat) {
+            document.getElementById('catDetailTitle').innerText = cat;
+            const grid = document.getElementById('catDetailGrid');
+            grid.innerHTML = state.allProducts.filter(p => p.cat === cat).map(p => renderProductCard(p)).join('');
+            showScreen('category-detail');
         }
 
-        function confirmAddToCart() {
-            state.cart.push({
-                ...state.currentProduct,
-                qty: 1,
-                slot: state.activeSlot,
-                sub: document.getElementById('subSelect').value
-            });
-            closeSidebar(); // Helper to close sheets
-            updateCartCounter();
-        }
-
-        function updateCartCounter() {
-            const badge = document.getElementById('cartCount');
-            if(state.cart.length > 0) {
-                badge.innerText = state.cart.length;
-                badge.classList.remove('hidden');
-            }
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-            document.getElementById('screen-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-tab'));
-            event.currentTarget.classList.add('active-tab');
-            if(tab === 'cart') renderCart();
-            if(tab === 'categories') renderFullCategories();
-        }
-
-        function renderFullCategories() {
-            document.getElementById('fullCatGrid').innerHTML = state.categories.map(c => `
-                <div onclick="openCatView('${c}')" class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center">
-                    <div class="text-3xl mb-2">📦</div>
-                    <p class="text-[10px] font-black uppercase">${c}</p>
+        function renderExplore() {
+            document.getElementById('exploreGrid').innerHTML = categories.map(c => `
+                <div onclick="openCategory('${c}')" class="bg-[var(--surface-alt)] p-8 rounded-[40px] text-center border border-[var(--border)]">
+                    <div class="text-4xl mb-3">📦</div>
+                    <p class="text-xs font-black uppercase tracking-widest">${c}</p>
                 </div>
             `).join('');
+        }
+
+        function openProductSheet(id) {
+            const p = state.allProducts.find(x => x.id === id);
+            state.currentSheetProduct = p;
+            
+            document.getElementById('sheetName').innerText = p.name;
+            document.getElementById('sheetPrice').innerText = `₹${p.price}`;
+            document.getElementById('sheetRating').innerText = p.rating;
+            document.getElementById('sheetBadge').innerText = p.type;
+            
+            document.getElementById('subContainer').style.display = p.type === 'loop' ? 'block' : 'none';
+            
+            setTempSlot(0, document.querySelector('.slot-btn'));
+            document.getElementById('productSheet').classList.add('open');
+            document.getElementById('productOverlay').classList.remove('hidden');
+
+            document.getElementById('sheetAction').onclick = () => addToCart(null, p.id);
+        }
+
+        function closeProductSheet() {
+            document.getElementById('productSheet').classList.remove('open');
+            document.getElementById('productOverlay').classList.add('hidden');
+        }
+
+        function setTempSlot(idx, el) {
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('border-[var(--primary)]'));
+            el.classList.add('border-[var(--primary)]');
+            state.tempSlot = el.innerText;
+        }
+
+        function addToCart(e, id) {
+            if(e) e.stopPropagation();
+            const p = state.allProducts.find(x => x.id === id);
+            const inCart = state.cart.find(c => c.id === id);
+
+            if(inCart) {
+                inCart.qty++;
+            } else {
+                state.cart.push({
+                    ...p, 
+                    qty: 1, 
+                    slot: state.tempSlot, 
+                    sub: document.getElementById('sheetSub').value || 'once'
+                });
+            }
+            closeProductSheet();
+            updateCartUI();
+            renderHome();
+        }
+
+        function changeQty(e, id, delta) {
+            e.stopPropagation();
+            const item = state.cart.find(c => c.id === id);
+            item.qty += delta;
+            if(item.qty <= 0) state.cart = state.cart.filter(c => c.id !== id);
+            updateCartUI();
+            renderHome();
+            if(document.getElementById('screen-cart').classList.contains('active')) renderCart();
+        }
+
+        function updateCartUI() {
+            const badge = document.getElementById('cartBadge');
+            const total = state.cart.reduce((a, b) => a + b.qty, 0);
+            if(total > 0) {
+                badge.innerText = total;
+                badge.classList.remove('hidden');
+            } else badge.classList.add('hidden');
         }
 
         function renderCart() {
-            const list = document.getElementById('cartList');
+            const list = document.getElementById('cartItems');
             list.innerHTML = state.cart.map(p => `
-                <div class="glass p-4 rounded-3xl flex gap-4">
+                <div class="glass p-4 rounded-[32px] flex items-center gap-4">
                     <img src="${p.img}" class="w-16 h-16 rounded-2xl object-cover">
                     <div class="flex-grow">
-                        <p class="text-xs font-black">${p.name}</p>
+                        <h4 class="text-xs font-black">${p.name}</h4>
                         <p class="text-[9px] text-gray-500 uppercase">${p.slot} • ${p.sub}</p>
-                        <p class="font-bold text-green-500">₹${p.price}</p>
+                        <p class="text-sm font-black text-[var(--primary)]">₹${p.price}</p>
                     </div>
+                    ${renderStepper(p.id, p.qty)}
                 </div>
             `).join('');
+
+            const sub = state.cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            const gst = (sub * 0.18).toFixed(0);
+            const total = parseInt(sub) + parseInt(gst) + 25;
+            const loopy = sub > 500 ? 50 : 0;
+
+            document.getElementById('billItems').innerText = `₹${sub}`;
+            document.getElementById('billGST').innerText = `₹${gst}`;
+            document.getElementById('billSurprise').innerText = `-₹${loopy}`;
+            document.getElementById('billTotal').innerText = `₹${total - loopy}`;
+        }
+
+        // 6. WALLET & FINTECH
+        function updateWalletUI() {
+            document.getElementById('wallBal').innerText = state.wallet.toFixed(2);
+            localStorage.setItem('mv_wallet_v3', state.wallet);
+        }
+
+        function openAddCredits() {
+            document.getElementById('paySheet').classList.remove('hidden');
+        }
+
+        function closePaySheet() {
+            document.getElementById('paySheet').classList.add('hidden');
+        }
+
+        function quickAdd(amt) {
+            state.wallet += amt;
+            updateWalletUI();
+            alert(`₹${amt} added to Loopy Wallet!`);
+        }
+
+        function simulatePay() {
+            state.wallet += 1000;
+            updateWalletUI();
+            alert("UPI Intent Success! ₹1000 added.");
+            closePaySheet();
+        }
+
+        function initiateCheckout() {
+            if(state.cart.length === 0) return alert("Your cart is empty!");
+            const total = parseInt(document.getElementById('billTotal').innerText.replace('₹', ''));
             
-            const sub = state.cart.reduce((a, b) => a + b.price, 0);
-            document.getElementById('billSub').innerText = `₹${sub}`;
-            document.getElementById('billTotal').innerText = `₹${sub + 25}`;
+            if(state.wallet < total) {
+                alert("Insufficient balance in Loopy Wallet. Please add credits.");
+                showScreen('wallet');
+            } else {
+                state.wallet -= total;
+                updateWalletUI();
+                state.cart = [];
+                updateCartUI();
+                const now = new Date();
+                document.getElementById('confTime').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('packTime').innerText = "In 2 mins";
+                showScreen('tracking');
+            }
         }
 
-        function placeOrder() {
-            if(!state.cart.length) return alert("Cart empty");
-            state.cart = [];
-            updateCartCounter();
-            switchTab('tracking');
-        }
-
-        function openSidebar() {
-            document.getElementById('sidebar').style.left = '0';
-            document.getElementById('overlay').classList.remove('hidden');
-            document.getElementById('sideAvatar').src = state.user.avatar;
-            document.getElementById('sideNick').innerText = state.user.nickname;
-            if(state.user.isPremium) document.getElementById('sidePremium').classList.remove('hidden');
-        }
-
-        function closeSidebar() {
-            document.getElementById('sidebar').style.left = '-100%';
-            document.getElementById('productSheet').classList.remove('open');
-            document.getElementById('overlay').classList.add('hidden');
+        // 7. UTILS
+        function toggleSidebar(open) {
+            document.getElementById('sidebar').style.left = open ? '0' : '-100%';
+            document.getElementById('sidebarOverlay').style.display = open ? 'block' : 'none';
         }
 
         function toggleTheme() {
-            const body = document.body;
-            const current = body.getAttribute('data-theme');
-            body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+            state.theme = state.theme === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', state.theme);
+            localStorage.setItem('mv_theme', state.theme);
+        }
+
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let period = "Morning";
+            if(hour >= 12 && hour < 17) period = "Afternoon";
+            if(hour >= 17) period = "Evening";
+            document.getElementById('dynamicGreet').innerText = `Good ${period} • ${greets[Math.floor(Math.random()*greets.length)]}`;
+        }
+
+        function fetchGPS() {
+            navigator.geolocation.getCurrentPosition(p => {
+                document.getElementById('userAddress').value = `GPS: ${p.coords.latitude.toFixed(4)}, ${p.coords.longitude.toFixed(4)} (Precise)`;
+            });
+        }
+
+        function openPremium() {
+            toggleSidebar(false);
+            showScreen('premium');
+        }
+
+        function upgradeToPremium() {
+            if(state.wallet < 499) return alert("Add ₹499 to wallet to upgrade.");
+            state.wallet -= 499;
+            state.user.isPremium = true;
+            localStorage.setItem('mv_user_v3', JSON.stringify(state.user));
+            location.reload();
         }
 
         function logout() {
             localStorage.clear();
             auth.signOut().then(() => location.reload());
+        }
+
+        function showNotifications() {
+            alert("No new notifications for your ventures.");
         }
     </script>
 </body>
