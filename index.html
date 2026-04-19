@@ -7,322 +7,241 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --mesh-bg: radial-gradient(at 0% 0%, #222 0, transparent 50%), 
-                       radial-gradient(at 50% 0%, #444 0, transparent 50%), 
-                       radial-gradient(at 100% 0%, #111 0, transparent 50%);
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #000;
-            color: #fff;
-            -webkit-font-smoothing: antialiased;
-            overscroll-behavior: contain;
-        }
-        .mesh-gradient {
-            background: #000;
-            background-image: var(--mesh-bg);
-            animation: meshMove 10s ease infinite alternate;
-        }
-        @keyframes meshMove {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .venture-card { border: 1.5px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
-        .loop-card { border: 1.5px solid #00b14f; }
+        :root { --accent: #00b14f; }
+        [data-theme="light"] { --bg: #ffffff; --text: #000000; --card: #f3f4f6; --border: #e5e7eb; }
+        [data-theme="dark"] { --bg: #000000; --text: #ffffff; --card: #111111; --border: #1f2937; }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); transition: all 0.3s ease; overscroll-behavior: none; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .stepper-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
+        .active-tab { color: var(--accent) !important; font-weight: 800; border-bottom: 2px solid var(--accent); }
+        .mesh-bg { background: radial-gradient(circle at 50% 50%, #111 0%, #000 100%); }
+        .bottom-sheet { transform: translateY(100%); transition: transform 0.4s cubic-bezier(0, 0, 0.2, 1); }
         .bottom-sheet.open { transform: translateY(0); }
-        .avatar-selected { outline: 3px solid #00b14f; outline-offset: 4px; }
-        .tab-active { color: #00b14f; position: relative; }
-        .tab-active::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: #00b14f; border-radius: 50%; }
+        .category-selected { border: 2px solid var(--accent) !important; background: rgba(0, 177, 79, 0.1) !important; }
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
 </head>
-<body class="bg-black text-white selection:bg-green-500">
+<body data-theme="dark">
 
     <!-- Splash Screen -->
     <div id="splash" class="fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center">
-        <div class="text-4xl font-extrabold tracking-tighter animate-pulse">MULTILOOPS<span class="text-green-500">.</span></div>
-        <div class="mt-4 h-1 w-12 bg-green-500 rounded-full"></div>
+        <div class="text-4xl font-extrabold tracking-tighter animate-bounce">MULTILOOPS<span class="text-green-500">.</span></div>
     </div>
 
-    <!-- Login Screen (Mesh Gradient) -->
-    <div id="loginScreen" class="fixed inset-0 z-[8000] mesh-gradient hidden flex-col justify-center px-8">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 z-[8000] mesh-bg hidden flex flex-col justify-center px-8">
         <div class="mb-12">
-            <h1 class="text-5xl font-extrabold tracking-tight">Loop in<span class="text-gray-500">.</span></h1>
-            <p class="text-gray-400 mt-2 font-medium">Elevate your daily ventures.</p>
+            <h1 class="text-5xl font-black italic tracking-tighter">THE LOOP<span class="text-green-500">.</span></h1>
+            <p class="text-gray-400 mt-2">Premium Fintech & Essentials.</p>
         </div>
-        <div class="space-y-4">
-            <div id="phoneArea">
-                <input type="tel" id="phone" placeholder="+91 00000 00000" class="w-full bg-white/10 border border-white/20 p-4 rounded-2xl outline-none focus:border-white transition">
-                <button onclick="sendOTP()" class="w-full bg-white text-black font-bold p-4 rounded-2xl mt-4 hover:bg-gray-200 transition">Get Access Code</button>
+        <div class="space-y-4" id="authUI">
+            <div id="recaptcha-container"></div>
+            <input type="tel" id="phone" placeholder="+91 Phone Number" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl outline-none focus:border-green-500">
+            <button onclick="handleLogin('phone')" class="w-full bg-green-500 text-white font-black p-4 rounded-2xl">Send Access Code</button>
+            <div id="otpBox" class="hidden">
+                <input type="number" id="otp" placeholder="6-digit OTP" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl mt-4 outline-none">
+                <button onclick="handleVerify()" class="w-full bg-white text-black font-black p-4 rounded-2xl mt-2">Verify & Entry</button>
             </div>
-            <div id="otpArea" class="hidden">
-                <input type="number" id="otp" placeholder="Enter 6-digit Code" class="w-full bg-white/10 border border-white/20 p-4 rounded-2xl outline-none focus:border-white transition">
-                <button onclick="verifyOTP()" class="w-full bg-green-500 text-white font-bold p-4 rounded-2xl mt-4">Verify Identity</button>
-            </div>
-            <div class="relative py-4 flex items-center">
-                <div class="flex-grow border-t border-white/10"></div>
-                <span class="px-4 text-xs text-gray-500 uppercase tracking-widest">or secure link</span>
-                <div class="flex-grow border-t border-white/10"></div>
-            </div>
-            <button onclick="googleLogin()" class="w-full glass p-4 rounded-2xl flex items-center justify-center gap-3 font-semibold">
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" class="w-5 h-5" alt=""> Continue with Google
+            <button onclick="handleLogin('google')" class="w-full glass p-4 rounded-2xl flex items-center justify-center gap-2 font-bold mt-4">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5" alt=""> Google Account
             </button>
         </div>
     </div>
 
-    <!-- Onboarding / Profile Setup -->
-    <div id="onboardingScreen" class="fixed inset-0 z-[7000] bg-black hidden overflow-y-auto px-6 py-12">
-        <h2 class="text-3xl font-bold mb-2">Create Profile</h2>
-        <p class="text-gray-400 mb-8">Choose your persona and nickname.</p>
+    <!-- Onboarding -->
+    <div id="onboardingScreen" class="fixed inset-0 z-[7500] bg-black hidden overflow-y-auto px-6 py-10">
+        <h2 class="text-3xl font-black mb-6">Setup Profile</h2>
         
-        <div class="grid grid-cols-4 gap-4 mb-8" id="avatarPicker">
-            <!-- Avatars injected by JS -->
+        <p class="text-xs font-bold text-gray-500 uppercase mb-4">Choose Avatar</p>
+        <div class="flex gap-4 overflow-x-auto no-scrollbar pb-6" id="avatarList"></div>
+
+        <input type="text" id="nickInput" placeholder="Nickname (e.g. Mano)" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-2xl mb-4">
+        
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="addrInput" placeholder="Delivery Address" class="flex-grow bg-zinc-900 border border-zinc-800 p-4 rounded-2xl">
+            <button onclick="getGPSLocation()" class="bg-zinc-800 p-4 rounded-2xl">📍</button>
         </div>
 
-        <input type="text" id="nickname" placeholder="Nickname (e.g., Mano)" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl mb-4 outline-none focus:border-green-500">
-        <input type="text" id="fullAddress" placeholder="Full Delivery Address" class="w-full bg-zinc-900 border border-zinc-800 p-4 rounded-xl mb-8 outline-none focus:border-green-500">
+        <p class="text-xs font-bold text-gray-500 uppercase mb-4">Favorite Categories</p>
+        <div id="prefList" class="flex flex-wrap gap-2 mb-8"></div>
 
-        <h3 class="font-bold mb-4">Favorite Categories</h3>
-        <div id="prefTags" class="flex flex-wrap gap-2 mb-10">
-            <!-- Categories injected by JS -->
+        <div class="flex items-center gap-3 mb-10 bg-zinc-900/50 p-4 rounded-2xl border border-zinc-800">
+            <input type="checkbox" id="premiumCheck" class="w-6 h-6 accent-green-500">
+            <div class="text-xs font-bold uppercase">Upgrade to Premium (Get Verified Badge)</div>
         </div>
 
-        <button onclick="finalizeSetup()" class="w-full bg-white text-black font-extrabold p-5 rounded-2xl shadow-xl">Start Venturing</button>
+        <button onclick="completeOnboarding()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl shadow-xl">Launch App</button>
     </div>
 
-    <!-- Main App Container -->
-    <main id="appBody" class="hidden">
-        
+    <!-- Main App -->
+    <main id="mainApp" class="hidden">
         <!-- Header -->
-        <header class="p-5 flex justify-between items-center sticky top-0 bg-black/80 backdrop-blur-md z-50">
-            <div>
-                <p id="timeGreeting" class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">GOOD MORNING</p>
-                <h2 id="userNameDisplay" class="text-xl font-extrabold">Hey, Mano</h2>
+        <header class="sticky top-0 z-50 bg-black/80 backdrop-blur-xl p-5 flex justify-between items-center">
+            <div onclick="openSidebar()" class="w-10 h-10 rounded-full border border-zinc-800 overflow-hidden">
+                <img id="headerAvatar" src="" class="w-full h-full object-cover">
             </div>
-            <div class="flex items-center gap-3">
-                <div onclick="openSidebar()" class="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-800">
-                    <img id="userAvatarImg" src="" alt="avatar">
-                </div>
+            <div class="text-center">
+                <p id="timeGreet" class="text-[10px] font-bold text-green-500 uppercase tracking-widest"></p>
+                <h3 id="topNick" class="text-sm font-black flex items-center justify-center gap-1"></h3>
             </div>
+            <button class="w-10 h-10 glass rounded-full flex items-center justify-center">🔔</button>
         </header>
 
-        <!-- Home Content -->
-        <div id="homeScreen" class="pb-32">
-            <!-- Location Widget -->
-            <div class="px-5 mb-6" onclick="showLocationSheet()">
-                <div class="glass p-3 rounded-xl flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="text-green-500">📍</span>
-                        <div class="text-xs">
-                            <p class="text-gray-500 uppercase font-bold">Delivering to</p>
-                            <p id="currentAddr" class="truncate w-48 font-semibold">Set Location</p>
-                        </div>
-                    </div>
-                    <span class="text-gray-600 text-xs">▼</span>
-                </div>
-            </div>
-
-            <!-- Recommended Horizontal -->
+        <!-- Home -->
+        <div id="screen-home" class="screen pb-32">
+            <!-- Dynamic Categories Scroll -->
             <div class="px-5 mb-8">
-                <div class="flex justify-between items-end mb-4">
-                    <h3 class="text-lg font-bold">Recommended for you</h3>
-                    <span class="text-green-500 text-xs font-bold">See All</span>
-                </div>
-                <div id="recItems" class="flex gap-4 overflow-x-auto no-scrollbar">
-                    <!-- Recommended cards injected -->
-                </div>
+                <div class="flex gap-4 overflow-x-auto no-scrollbar py-2" id="homeCatScroll"></div>
             </div>
 
-            <!-- Categories Grid -->
+            <!-- Recommended -->
             <div class="px-5 mb-8">
-                <h3 class="text-lg font-bold mb-4">Explore Categories</h3>
-                <div id="categoryGrid" class="grid grid-cols-4 gap-4">
-                    <!-- Categories injected -->
-                </div>
+                <h3 class="text-lg font-black mb-4">Recommended for You</h3>
+                <div id="recoItems" class="flex gap-4 overflow-x-auto no-scrollbar"></div>
             </div>
 
-            <!-- Main Product Sections -->
-            <div id="productSections">
-                <!-- Products injected by Category -->
+            <!-- Main Listing -->
+            <div id="homeSections"></div>
+        </div>
+
+        <!-- Categories -->
+        <div id="screen-categories" class="screen hidden pb-32 px-5">
+            <h2 class="text-3xl font-black py-6">All Categories</h2>
+            <div id="fullCatGrid" class="grid grid-cols-2 gap-4"></div>
+        </div>
+
+        <!-- Wallet -->
+        <div id="screen-wallet" class="screen hidden pb-32 px-5">
+            <div class="bg-zinc-900 p-8 rounded-[40px] mt-6 border border-zinc-800">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-2">Loopy Wallet</p>
+                <h1 class="text-5xl font-black mb-6">₹1,500<span class="text-green-500">.00</span></h1>
+                <div class="flex gap-2">
+                    <button class="flex-grow bg-green-500 p-4 rounded-2xl font-black text-sm">Add Funds</button>
+                    <button class="flex-grow glass p-4 rounded-2xl font-black text-sm">History</button>
+                </div>
             </div>
         </div>
 
-        <!-- Categories Screen -->
-        <div id="categoriesScreen" class="hidden px-5 pb-32">
-            <h2 class="text-2xl font-black py-6">All Categories</h2>
-            <div id="fullCategoryList" class="space-y-4"></div>
+        <!-- Cart -->
+        <div id="screen-cart" class="screen hidden pb-32 px-5">
+            <h2 class="text-2xl font-black py-6">My Cart</h2>
+            <div id="cartList" class="space-y-4 mb-8"></div>
+            <div id="cartBill" class="glass p-6 rounded-3xl space-y-3">
+                <div class="flex justify-between text-sm"><span>Subtotal</span><span id="billSub">₹0</span></div>
+                <div class="flex justify-between text-sm"><span>Delivery (Slot)</span><span>₹25</span></div>
+                <div class="flex justify-between text-lg font-black pt-3 border-t border-zinc-800"><span>To Pay</span><span id="billTotal">₹0</span></div>
+            </div>
+            <button onclick="placeOrder()" class="w-full bg-green-500 p-5 rounded-2xl font-black text-white mt-6">Place Order</button>
         </div>
 
-        <!-- Wallet Screen -->
-        <div id="walletScreen" class="hidden px-5 pb-32">
-            <h2 class="text-2xl font-black py-6">Loopy Wallet</h2>
-            <div class="bg-gradient-to-br from-zinc-800 to-black p-8 rounded-3xl border border-zinc-700 mb-8 relative overflow-hidden">
-                <div class="relative z-10">
-                    <p class="text-gray-400 text-sm font-bold uppercase mb-2">Total Balance</p>
-                    <h1 class="text-5xl font-black mb-6">₹<span id="wallBal">0.00</span></h1>
-                    <div class="flex gap-4">
-                        <button class="bg-green-500 text-white px-6 py-2 rounded-full font-bold text-sm">Add Funds</button>
-                        <button class="bg-white/10 px-6 py-2 rounded-full font-bold text-sm">Transfer</button>
-                    </div>
-                </div>
-                <div class="absolute top-[-20%] right-[-10%] w-48 h-48 bg-green-500/10 rounded-full blur-3xl"></div>
-            </div>
-
-            <h3 class="font-bold mb-4">Wallet Benefits</h3>
-            <div class="space-y-3">
-                <div class="glass p-4 rounded-2xl flex items-center gap-4">
-                    <div class="text-2xl">🎁</div>
+        <!-- Order Tracking -->
+        <div id="screen-tracking" class="screen hidden pb-32 px-5">
+            <h2 class="text-2xl font-black py-6">Track Order</h2>
+            <div class="bg-zinc-900 p-6 rounded-3xl mb-6 border border-green-500/30">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-xl">🚚</div>
                     <div>
-                        <p class="font-bold text-sm">Loopy Surprise</p>
-                        <p class="text-xs text-gray-500">Get up to 20% cashback on Loop items.</p>
+                        <p class="text-xs font-bold text-gray-400">Order #MLV-8829</p>
+                        <h4 class="font-black text-green-500" id="orderStatus">Packaging Your Venture</h4>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Cart Screen -->
-        <div id="cartScreen" class="hidden px-5 pb-32">
-            <h2 class="text-2xl font-black py-6">Your Cart</h2>
-            <div id="cartItemsList" class="space-y-4 mb-8">
-                <!-- Cart items injected -->
-            </div>
-
-            <div id="cartEmpty" class="text-center py-20 hidden">
-                <div class="text-5xl mb-4">🛒</div>
-                <h3 class="text-xl font-bold">Your cart is empty</h3>
-                <p class="text-gray-500 text-sm">Start adding some loops to your venture!</p>
-            </div>
-
-            <!-- Cart Wide Subscription -->
-            <div id="cartSubToggle" class="glass p-4 rounded-2xl mb-8 flex items-center justify-between">
-                <div>
-                    <p class="font-bold text-sm text-green-500">Subscribe whole cart?</p>
-                    <p class="text-xs text-gray-500">Get 5% extra discount</p>
+                <!-- Mini Map Simulation -->
+                <div class="w-full h-40 bg-zinc-800 rounded-2xl relative overflow-hidden mb-6">
+                    <div class="absolute inset-0 opacity-30 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/0,0,1/400x200?access_token=none')] bg-cover"></div>
+                    <div class="absolute top-1/2 left-1/3 text-2xl animate-bounce">🛵</div>
                 </div>
-                <input type="checkbox" id="cartSubCheck" class="w-6 h-6 rounded-lg accent-green-500">
+                <!-- Stepper -->
+                <div class="space-y-6 relative ml-4">
+                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-green-500 rounded-full"></div> <p class="text-sm font-bold">Confirmed - 10:30 AM</p></div>
+                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-green-500 rounded-full animate-ping"></div> <p class="text-sm font-bold">Packaging - 10:45 AM</p></div>
+                    <div class="flex items-center gap-4"><div class="w-2 h-2 bg-zinc-700 rounded-full"></div> <p class="text-sm text-gray-500">Dispatched</p></div>
+                </div>
             </div>
-
-            <div id="billArea" class="space-y-2 border-t border-zinc-800 pt-6">
-                <div class="flex justify-between text-sm text-gray-400"><span>Item Total</span><span id="billTotal">₹0</span></div>
-                <div class="flex justify-between text-sm text-gray-400"><span>Delivery Fee</span><span>₹25</span></div>
-                <div class="flex justify-between text-sm text-gray-500 italic"><span>Loopy Discount</span><span id="billCashback">-₹0</span></div>
-                <div class="flex justify-between text-xl font-black mt-4"><span>To Pay</span><span id="billFinal">₹0</span></div>
-            </div>
-
-            <button onclick="processOrder()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl mt-8 shadow-lg shadow-green-500/20">Place Order</button>
+            <button onclick="switchTab('home')" class="w-full glass p-5 rounded-2xl font-bold">Back to Home</button>
         </div>
 
-        <!-- Bottom Navigation -->
-        <nav class="fixed bottom-0 w-full bg-black/90 backdrop-blur-xl border-t border-zinc-800 px-6 py-4 flex justify-between items-center z-50">
-            <button onclick="switchTab('home')" id="tab-home" class="nav-btn tab-active flex flex-col items-center gap-1">
-                <span class="text-xl text-inherit">🏠</span>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Home</span>
-            </button>
-            <button onclick="switchTab('categories')" id="tab-categories" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
-                <span class="text-xl text-inherit">📂</span>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Explore</span>
-            </button>
-            <button onclick="switchTab('wallet')" id="tab-wallet" class="nav-btn flex flex-col items-center gap-1 text-zinc-500">
-                <span class="text-xl text-inherit">💳</span>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Wallet</span>
-            </button>
-            <button onclick="switchTab('cart')" id="tab-cart" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 relative">
-                <span class="text-xl text-inherit">🛒</span>
-                <span class="text-[10px] font-bold uppercase tracking-widest">Cart</span>
-                <span id="cartBadge" class="absolute -top-1 -right-1 bg-green-500 text-[8px] text-white w-4 h-4 rounded-full flex items-center justify-center font-black hidden">0</span>
+        <!-- Bottom Nav -->
+        <nav class="fixed bottom-0 w-full bg-black/90 backdrop-blur-xl border-t border-zinc-900 flex justify-around p-4 z-50">
+            <button onclick="switchTab('home')" class="nav-item flex flex-col items-center gap-1 active-tab"><span>🏠</span><span class="text-[9px] uppercase font-bold">Home</span></button>
+            <button onclick="switchTab('categories')" class="nav-item flex flex-col items-center gap-1 text-gray-500"><span>📂</span><span class="text-[9px] uppercase font-bold">Categories</span></button>
+            <button onclick="switchTab('wallet')" class="nav-item flex flex-col items-center gap-1 text-gray-500"><span>💳</span><span class="text-[9px] uppercase font-bold">Wallet</span></button>
+            <button onclick="switchTab('cart')" class="nav-item flex flex-col items-center gap-1 text-gray-500 relative">
+                <span>🛒</span><span class="text-[9px] uppercase font-bold">Cart</span>
+                <span id="cartCount" class="absolute -top-1 -right-1 bg-green-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
             </button>
         </nav>
     </main>
 
-    <!-- Product Detail Bottom Sheet -->
-    <div id="overlay" class="fixed inset-0 bg-black/80 z-[100] hidden backdrop-blur-sm" onclick="closeSheet()"></div>
-    <div id="productSheet" class="fixed bottom-0 left-0 right-0 z-[101] bottom-sheet bg-zinc-900 rounded-t-[40px] p-8 pb-12">
-        <div class="w-12 h-1.5 bg-zinc-700 rounded-full mx-auto mb-8"></div>
-        <div class="flex justify-between items-start mb-6">
-            <div>
-                <span id="sheetTag" class="text-[10px] font-black px-2 py-1 rounded bg-green-500 text-white uppercase tracking-tighter mb-2 inline-block">LOOP ITEM</span>
-                <h2 id="sheetName" class="text-3xl font-black leading-tight">Product Name</h2>
-                <p id="sheetPrice" class="text-2xl font-medium text-gray-400 mt-1">₹0</p>
-            </div>
-            <div class="bg-black/50 p-2 rounded-2xl flex items-center gap-2">
-                <span class="text-yellow-400">★</span>
-                <span id="sheetRating" class="font-bold">4.8</span>
-            </div>
-        </div>
-
-        <div id="subOptionArea" class="mb-8">
-            <p class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-widest">Delivery Schedule</p>
-            <div class="grid grid-cols-3 gap-3 mb-6">
-                <button onclick="setSlot(0)" class="slot-btn glass p-3 rounded-xl text-center border-2 border-transparent">
-                    <p class="text-[10px] opacity-60">Morning</p>
-                    <p class="font-bold text-xs leading-none mt-1">6AM - 12PM</p>
-                </button>
-                <button onclick="setSlot(1)" class="slot-btn glass p-3 rounded-xl text-center border-2 border-transparent">
-                    <p class="text-[10px] opacity-60">Afternoon</p>
-                    <p class="font-bold text-xs leading-none mt-1">12PM - 6PM</p>
-                </button>
-                <button onclick="setSlot(2)" class="slot-btn glass p-3 rounded-xl text-center border-2 border-transparent">
-                    <p class="text-[10px] opacity-60">Evening</p>
-                    <p class="font-bold text-xs leading-none mt-1">6PM - 12AM</p>
-                </button>
-            </div>
-
-            <div id="loopOptions" class="space-y-3">
-                <p class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-widest">Subscription</p>
-                <select id="subFreq" class="w-full bg-black border border-zinc-800 p-4 rounded-xl outline-none text-sm font-bold">
-                    <option value="once">One-time Purchase</option>
-                    <option value="daily">Deliver Daily</option>
-                    <option value="alternate">Alternate Days</option>
-                    <option value="weekly">Once a Week</option>
-                    <option value="monthly">Monthly Loop</option>
-                </select>
-            </div>
-        </div>
-
-        <button id="sheetActionBtn" class="w-full bg-white text-black font-black p-5 rounded-2xl text-lg">Add to Cart</button>
-    </div>
-
-    <!-- Sidebar / Settings -->
-    <div id="sidebar" class="fixed top-0 left-[-100%] w-full max-w-xs h-full bg-zinc-950 z-[200] transition-all duration-300 p-8">
+    <!-- Sidebar -->
+    <div id="overlay" class="fixed inset-0 bg-black/80 z-[8500] hidden" onclick="closeSidebar()"></div>
+    <div id="sidebar" class="fixed top-0 left-[-100%] w-[80%] max-w-sm h-full bg-zinc-950 z-[9000] transition-all duration-300 p-8 overflow-y-auto">
         <div class="flex items-center gap-4 mb-10">
-            <img id="sideAvatar" src="" class="w-12 h-12 rounded-full border border-green-500" alt="">
+            <img id="sideAvatar" src="" class="w-14 h-14 rounded-full border-2 border-green-500">
             <div>
-                <h3 id="sideNick" class="font-bold text-lg leading-none">Mano</h3>
-                <span class="text-[10px] bg-green-500 text-white px-2 py-0.5 rounded-full font-black mt-1 inline-block">VERIFIED LOOPER</span>
+                <h3 id="sideNick" class="text-xl font-black"></h3>
+                <span id="sidePremium" class="hidden text-[8px] bg-green-500 text-white px-2 py-0.5 rounded-full font-black">PREMIUM VERIFIED</span>
             </div>
         </div>
 
         <div class="space-y-8">
             <div>
-                <p class="text-[10px] font-bold text-zinc-600 tracking-widest uppercase mb-4">Account Settings</p>
-                <ul class="space-y-4 font-semibold text-zinc-300">
-                    <li class="flex items-center gap-3"><span>👤</span> Profile Details</li>
-                    <li class="flex items-center gap-3"><span>📍</span> Manage Addresses</li>
-                    <li class="flex items-center gap-3"><span>💳</span> Payment Methods</li>
-                </ul>
+                <p class="text-[10px] font-black text-gray-600 tracking-widest uppercase mb-4">Account</p>
+                <div class="space-y-4 font-bold text-sm">
+                    <p class="flex justify-between" onclick="showOnboarding()">Edit Profile <span>➔</span></p>
+                    <p class="flex justify-between">Order History <span>➔</span></p>
+                    <div class="flex justify-between items-center">Theme: <button onclick="toggleTheme()" class="bg-zinc-800 px-3 py-1 rounded-full text-[10px]">Toggle Dark/Light</button></div>
+                </div>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-zinc-600 tracking-widest uppercase mb-4">Preferences</p>
-                <ul class="space-y-4 font-semibold text-zinc-300">
-                    <li class="flex justify-between items-center"><span>🔔 Push Notifications</span> <input type="checkbox" checked class="accent-green-500"></li>
-                    <li class="flex justify-between items-center"><span>📧 Email Alerts</span> <input type="checkbox" checked class="accent-green-500"></li>
-                    <li class="flex justify-between items-center"><span>🔇 Master Mute</span> <input type="checkbox" class="accent-green-500"></li>
-                </ul>
+                <p class="text-[10px] font-black text-gray-600 tracking-widest uppercase mb-4">Notifications</p>
+                <div class="space-y-4 font-bold text-sm">
+                    <div class="flex justify-between items-center"><span>Global Mute</span> <input type="checkbox" class="accent-green-500"></div>
+                    <div class="flex justify-between items-center"><span>Delivery Alerts</span> <input type="checkbox" checked class="accent-green-500"></div>
+                    <div class="flex justify-between items-center"><span>Special Offers</span> <input type="checkbox" checked class="accent-green-500"></div>
+                </div>
             </div>
-            <button onclick="logout()" class="text-red-500 font-bold mt-10">Sign Out</button>
+            <button onclick="logout()" class="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl font-black text-sm">Sign Out</button>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Product Sheet -->
+    <div id="productSheet" class="fixed bottom-0 left-0 right-0 z-[9500] bottom-sheet bg-zinc-900 rounded-t-[40px] p-8">
+        <div class="w-12 h-1 bg-zinc-800 rounded-full mx-auto mb-8"></div>
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <h2 id="sheetName" class="text-3xl font-black"></h2>
+                <p id="sheetPrice" class="text-2xl font-bold text-green-500"></p>
+            </div>
+            <div id="sheetType" class="bg-zinc-800 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">LOOP</div>
+        </div>
+
+        <p class="text-[10px] font-bold text-gray-500 uppercase mb-3">Delivery Slot</p>
+        <div class="grid grid-cols-3 gap-2 mb-8" id="slotPicker">
+            <button onclick="selectSlot(0, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">6AM - 12PM</button>
+            <button onclick="selectSlot(1, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">12PM - 6PM</button>
+            <button onclick="selectSlot(2, this)" class="bg-black p-3 rounded-xl border border-zinc-800 text-[10px] font-bold">6PM - 12AM</button>
+        </div>
+
+        <div id="subEngine" class="hidden mb-8">
+            <p class="text-[10px] font-bold text-gray-500 uppercase mb-3">Subscription Engine</p>
+            <select id="subSelect" class="w-full bg-black p-4 rounded-2xl border border-zinc-800 text-sm font-bold">
+                <option value="once">One-time Order</option>
+                <option value="daily">Daily Loop (7 days)</option>
+                <option value="weekly">Weekly Loop (4 weeks)</option>
+                <option value="alt">Alternate Days</option>
+            </select>
+        </div>
+
+        <button onclick="confirmAddToCart()" class="w-full bg-green-500 text-white font-black p-5 rounded-2xl text-lg">Add To Venture</button>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <script>
-        // --- 1. CONFIG & DATA ---
+        // Firebase (Note: Replace with your keys for production)
         const config = {
             apiKey: "AIzaSyCFqlecdRpLMc2KBJwgZoUIM7NDWGtZLug",
             authDomain: "multiloops-ventures-a1d41.firebaseapp.com",
@@ -334,340 +253,272 @@
         firebase.initializeApp(config);
         const auth = firebase.auth();
 
-        const categories = [
-            "Electronics", "Kitchen Appliances", "Fruits & Vegetables", "Pharmacy", 
-            "Pet Items", "Snacks", "Beverages", "School Items", "Toys", 
-            "Gift Items", "Beauty & Care", "Sports Items", "Clothing"
-        ];
-
-        const avatars = Array.from({length: 8}, (_, i) => `https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 20}`);
-        const greetings = [
-            "Ready to loop in?", "Let's fuel your ventures!", "Time for a refresh?", "Your essentials, looped.", 
-            "The grind never stops.", "Building the future?", "Stay sharp, Mano.", "The loop is waiting.",
-            "Ventures await.", "Premium picks for you.", "Good vibes only.", "Quality over everything.",
-            "Sourced for you.", "The premium standard.", "Looping in progress..."
-        ];
-
         let state = {
-            user: JSON.parse(localStorage.getItem('mlv_user')) || null,
+            user: JSON.parse(localStorage.getItem('mlv_v2_user')),
             cart: [],
-            wallet: 1500.00,
-            activeSlot: 0,
-            tempProduct: null
+            categories: ["Electronics", "Kitchen Appliances", "Fruits & Vegetables", "Pharmacy", "Pet Items", "Snacks", "Beverages", "School Items", "Toys", "Gift Items", "Beauty & Care", "Sports Items", "Clothing"],
+            products: [],
+            selectedAvatar: null,
+            selectedPrefs: [],
+            activeSlot: '6AM - 12PM',
+            currentProduct: null
         };
 
-        // Generate 130 Items
-        const allProducts = [];
-        categories.forEach((cat, cIdx) => {
-            for(let i=1; i<=10; i++) {
-                const isVenture = (cat === "Electronics" || cat === "Kitchen Appliances" || cat === "Clothing");
-                allProducts.push({
-                    id: `${cIdx}-${i}`,
-                    name: `${cat} Premium ${i}`,
-                    price: isVenture ? 2999 + (i*1000) : 49 + (i*20),
-                    rating: (4 + Math.random()).toFixed(1),
-                    category: cat,
-                    type: isVenture ? 'venture' : 'loop',
-                    img: `https://picsum.photos/seed/${cat}${i}/300/300`
-                });
-            }
-        });
+        const greetings = [
+            "Ready for a restock?", "Fueling your ventures.", "Morning Mano, loops await.", 
+            "Your essentials, sorted.", "Quality over everything.", "Stay ahead of the loop.",
+            "Ventures, at your door.", "The premium standard.", "Ready to loop in?", "Your daily grind, fueled."
+        ];
 
-        // --- 2. INITIALIZATION ---
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('splash').classList.add('hidden');
-                checkAuth();
-            }, 1500);
-            updateGreeting();
-        };
-
-        function checkAuth() {
-            auth.onAuthStateChanged(user => {
-                if(user) {
-                    if(state.user) {
-                        showApp();
-                    } else {
-                        showOnboarding();
-                    }
-                } else {
-                    document.getElementById('loginScreen').classList.remove('hidden');
+        // 1. DATA GENERATOR (13 cats x 20 items)
+        function initData() {
+            state.categories.forEach((cat, cIdx) => {
+                for(let i=1; i<=20; i++) {
+                    state.products.push({
+                        id: `${cIdx}-${i}`,
+                        name: `${cat} Premium ${i}`,
+                        price: (cat === 'Electronics' || cat === 'Clothing') ? 999 + (i*500) : 49 + (i*10),
+                        category: cat,
+                        type: (cat === 'Electronics' || cat === 'Kitchen Appliances') ? 'venture' : 'loop',
+                        img: `https://picsum.photos/seed/${cat}${i}/400/400`,
+                        rating: (4 + Math.random()).toFixed(1)
+                    });
                 }
             });
         }
 
-        // --- 3. UI RENDERING ---
+        // 2. AUTHENTICATION & PERSISTENCE
+        auth.onAuthStateChanged(user => {
+            document.getElementById('splash').style.display = 'none';
+            if(user) {
+                if(state.user) showApp();
+                else showOnboarding();
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        });
+
+        function handleLogin(type) {
+            if(type === 'google') auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+            else {
+                const phone = document.getElementById('phone').value;
+                if(!phone) return alert("Enter number");
+                window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size: 'invisible'});
+                auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(res => {
+                    window.confirmationResult = res;
+                    document.getElementById('otpBox').classList.remove('hidden');
+                });
+            }
+        }
+
+        function handleVerify() {
+            const code = document.getElementById('otp').value;
+            window.confirmationResult.confirm(code).then(() => showOnboarding());
+        }
+
         function showOnboarding() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('onboardingScreen').classList.remove('hidden');
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('onboardingScreen').style.display = 'block';
             
-            const avDiv = document.getElementById('avatarPicker');
-            avDiv.innerHTML = avatars.map((a, i) => `
-                <img src="${a}" onclick="selectAvatar(this, ${i})" class="w-full rounded-full cursor-pointer transition-all border-2 border-transparent">
+            // Avatars
+            const avs = Array.from({length: 12}, (_, i) => `https://api.dicebear.com/7.x/avataaars/svg?seed=${i+50}`);
+            document.getElementById('avatarList').innerHTML = avs.map((a, i) => `
+                <img src="${a}" onclick="selectAv(this, '${a}')" class="w-16 h-16 rounded-full border-2 border-transparent cursor-pointer">
             `).join('');
 
-            const tagDiv = document.getElementById('prefTags');
-            tagDiv.innerHTML = categories.map(c => `
-                <span onclick="this.classList.toggle('bg-green-500')" class="px-4 py-2 bg-zinc-800 rounded-full text-xs font-bold cursor-pointer">${c}</span>
+            // Prefs
+            document.getElementById('prefList').innerHTML = state.categories.map(c => `
+                <button onclick="togglePref(this, '${c}')" class="px-4 py-2 border border-zinc-800 rounded-full text-xs font-bold">${c}</button>
             `).join('');
         }
 
-        function finalizeSetup() {
-            const nick = document.getElementById('nickname').value;
-            const addr = document.getElementById('fullAddress').value;
-            if(!nick || !addr) return alert("Nickname and Address required");
+        function selectAv(el, url) {
+            document.querySelectorAll('#avatarList img').forEach(i => i.style.borderColor = 'transparent');
+            el.style.borderColor = '#00b14f';
+            state.selectedAvatar = url;
+        }
+
+        function togglePref(el, cat) {
+            el.classList.toggle('category-selected');
+            if(state.selectedPrefs.includes(cat)) state.selectedPrefs = state.selectedPrefs.filter(p => p !== cat);
+            else state.selectedPrefs.push(cat);
+        }
+
+        function getGPSLocation() {
+            navigator.geolocation.getCurrentPosition(pos => {
+                document.getElementById('addrInput').value = `GPS: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+            });
+        }
+
+        function completeOnboarding() {
+            const nick = document.getElementById('nickInput').value;
+            const addr = document.getElementById('addrInput').value;
+            if(!nick || !addr || !state.selectedAvatar) return alert("Complete all details");
             
             state.user = {
                 nickname: nick,
                 address: addr,
-                avatar: avatars[state.selectedAvatarIdx || 0]
+                avatar: state.selectedAvatar,
+                prefs: state.selectedPrefs,
+                isPremium: document.getElementById('premiumCheck').checked
             };
-            localStorage.setItem('mlv_user', JSON.stringify(state.user));
+            localStorage.setItem('mlv_v2_user', JSON.stringify(state.user));
             showApp();
         }
 
+        // 3. MAIN APP UI
         function showApp() {
-            document.getElementById('onboardingScreen').classList.add('hidden');
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appBody').classList.remove('hidden');
+            document.getElementById('onboardingScreen').style.display = 'none';
+            document.getElementById('mainApp').classList.remove('hidden');
             
-            document.getElementById('userNameDisplay').innerText = `Hey, ${state.user.nickname}`;
-            document.getElementById('userAvatarImg').src = state.user.avatar;
-            document.getElementById('currentAddr').innerText = state.user.address;
+            document.getElementById('headerAvatar').src = state.user.avatar;
+            document.getElementById('topNick').innerHTML = `${state.user.nickname} ${state.user.isPremium ? '<span class="text-blue-400">☑</span>' : ''}`;
+            document.getElementById('timeGreet').innerText = greetings[Math.floor(Math.random()*greetings.length)];
             
+            initData();
             renderHome();
         }
 
         function renderHome() {
-            // Render Recommended
-            const recs = allProducts.sort(() => 0.5 - Math.random()).slice(0, 5);
-            document.getElementById('recItems').innerHTML = recs.map(p => `
-                <div class="min-w-[160px] glass p-3 rounded-3xl ${p.type}-card" onclick="openProduct('${p.id}')">
-                    <img src="${p.img}" class="w-full h-24 object-cover rounded-2xl mb-3">
-                    <p class="text-xs font-bold truncate">${p.name}</p>
-                    <p class="text-green-500 font-black text-sm">₹${p.price}</p>
+            // Horizontal Cat Scroll
+            document.getElementById('homeCatScroll').innerHTML = state.categories.map(c => `
+                <div onclick="openCatView('${c}')" class="flex-shrink-0 flex flex-col items-center gap-2">
+                    <div class="w-16 h-16 glass rounded-full flex items-center justify-center text-xl">📦</div>
+                    <span class="text-[9px] font-black uppercase tracking-tighter">${c.split(' ')[0]}</span>
                 </div>
             `).join('');
 
-            // Render Small Category Circles
-            document.getElementById('categoryGrid').innerHTML = categories.slice(0, 8).map(c => `
-                <div class="flex flex-col items-center gap-1">
-                    <div class="w-14 h-14 glass rounded-full flex items-center justify-center text-xl">
-                        ${getCatEmoji(c)}
-                    </div>
-                    <span class="text-[9px] font-bold text-center uppercase tracking-tighter">${c.split(' ')[0]}</span>
+            // Recommended (Based on Prefs)
+            const reco = state.products.filter(p => state.user.prefs.includes(p.category)).slice(0, 10);
+            document.getElementById('recoItems').innerHTML = (reco.length ? reco : state.products.slice(0,10)).map(p => `
+                <div onclick="openProduct('${p.id}')" class="flex-shrink-0 w-40 glass p-3 rounded-3xl border border-zinc-800">
+                    <img src="${p.img}" class="w-full h-24 object-cover rounded-2xl mb-2">
+                    <p class="text-[10px] font-bold truncate">${p.name}</p>
+                    <p class="text-green-500 font-black">₹${p.price}</p>
                 </div>
             `).join('');
 
-            // Render Product Sections
-            const featuredCats = categories.slice(0, 3);
-            document.getElementById('productSections').innerHTML = featuredCats.map(cat => `
-                <div class="px-5 mb-10">
+            // Grid sections
+            document.getElementById('homeSections').innerHTML = state.categories.slice(0, 4).map(cat => `
+                <div class="px-5 mt-10">
                     <h3 class="text-xl font-black mb-4">${cat}</h3>
                     <div class="grid grid-cols-2 gap-4">
-                        ${allProducts.filter(p => p.category === cat).slice(0, 4).map(p => renderItemCard(p)).join('')}
+                        ${state.products.filter(p => p.category === cat).slice(0, 4).map(p => `
+                            <div onclick="openProduct('${p.id}')" class="glass p-4 rounded-[32px] border border-zinc-900">
+                                <img src="${p.img}" class="w-full h-32 object-cover rounded-2xl mb-3">
+                                <h4 class="text-xs font-bold truncate">${p.name}</h4>
+                                <p class="text-green-500 font-black">₹${p.price}</p>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `).join('');
-        }
-
-        function renderItemCard(p) {
-            const cartItem = state.cart.find(c => c.id === p.id);
-            return `
-                <div class="glass p-4 rounded-[32px] relative border border-white/5" onclick="openProduct('${p.id}')">
-                    <div class="absolute top-3 left-3 bg-black/60 px-2 py-1 rounded-lg text-[10px] font-black text-yellow-500">★ ${p.rating}</div>
-                    <img src="${p.img}" class="w-full h-32 object-cover rounded-2xl mb-4">
-                    <h4 class="text-xs font-bold leading-tight mb-1 h-8 overflow-hidden">${p.name}</h4>
-                    <div class="flex justify-between items-center">
-                        <p class="text-lg font-black">₹${p.price}</p>
-                        <div id="btn-${p.id}">
-                            ${cartItem ? renderStepper(p.id, cartItem.qty) : `<button onclick="addToCart(event, '${p.id}')" class="bg-white text-black w-8 h-8 rounded-xl font-black text-xl flex items-center justify-center shadow-lg shadow-white/10">+</button>`}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderStepper(id, qty) {
-            return `
-                <div class="flex items-center bg-green-500 rounded-xl overflow-hidden stepper-btn">
-                    <button onclick="changeQty(event, '${id}', -1)" class="px-2 py-1 font-bold text-white text-lg">−</button>
-                    <span class="px-2 font-black text-sm">${qty}</span>
-                    <button onclick="changeQty(event, '${id}', 1)" class="px-2 py-1 font-bold text-white text-lg">+</button>
-                </div>
-            `;
-        }
-
-        // --- 4. LOGIC & ACTIONS ---
-        function addToCart(e, id) {
-            if(e) e.stopPropagation();
-            const p = allProducts.find(x => x.id === id);
-            state.cart.push({...p, qty: 1, slot: 'Morning', sub: 'once'});
-            updateCartUI();
-            renderHome();
-        }
-
-        function changeQty(e, id, delta) {
-            e.stopPropagation();
-            const item = state.cart.find(c => c.id === id);
-            if(item) {
-                item.qty += delta;
-                if(item.qty <= 0) state.cart = state.cart.filter(c => c.id !== id);
-                updateCartUI();
-                renderHome();
-            }
-        }
-
-        function updateCartUI() {
-            const count = state.cart.reduce((a, b) => a + b.qty, 0);
-            const badge = document.getElementById('cartBadge');
-            if(count > 0) {
-                badge.innerText = count;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-            renderCart();
-        }
-
-        function renderCart() {
-            const list = document.getElementById('cartItemsList');
-            const empty = document.getElementById('cartEmpty');
-            if(state.cart.length === 0) {
-                list.innerHTML = "";
-                empty.classList.remove('hidden');
-            } else {
-                empty.classList.add('hidden');
-                list.innerHTML = state.cart.map(p => `
-                    <div class="glass p-4 rounded-3xl flex gap-4">
-                        <img src="${p.img}" class="w-20 h-20 rounded-2xl object-cover">
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-sm">${p.name}</h4>
-                            <p class="text-xs text-gray-500 mb-2">${p.sub !== 'once' ? `Loop: ${p.sub}` : `Delivery: ${p.slot}`}</p>
-                            <div class="flex justify-between items-center">
-                                <span class="font-black">₹${p.price * p.qty}</span>
-                                ${renderStepper(p.id, p.qty)}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            calculateBill();
-        }
-
-        function calculateBill() {
-            const total = state.cart.reduce((a, b) => a + (b.price * b.qty), 0);
-            // Cashback Guardrail: Max 20% of total can be paid by loopy coins if available
-            const maxAllowedCashback = total * 0.2;
-            const actualCashback = total > 0 ? Math.min(maxAllowedCashback, 50) : 0; // Simulated logic
-
-            document.getElementById('billTotal').innerText = `₹${total}`;
-            document.getElementById('billCashback').innerText = `-₹${actualCashback.toFixed(0)}`;
-            document.getElementById('billFinal').innerText = `₹${(total + 25 - actualCashback).toFixed(0)}`;
         }
 
         function openProduct(id) {
-            const p = allProducts.find(x => x.id === id);
-            state.tempProduct = p;
-            state.activeSlot = 0;
-            
+            const p = state.products.find(x => x.id === id);
+            state.currentProduct = p;
             document.getElementById('sheetName').innerText = p.name;
             document.getElementById('sheetPrice').innerText = `₹${p.price}`;
-            document.getElementById('sheetRating').innerText = p.rating;
-            document.getElementById('sheetTag').innerText = `${p.type} item`;
-            document.getElementById('sheetTag').className = `text-[10px] font-black px-2 py-1 rounded uppercase tracking-tighter mb-2 inline-block ${p.type === 'venture' ? 'bg-yellow-500 text-black' : 'bg-green-500 text-white'}`;
+            document.getElementById('sheetType').innerText = p.type;
+            document.getElementById('subEngine').style.display = p.type === 'loop' ? 'block' : 'none';
             
-            // Toggle Sub options for Electronics/Venture
-            document.getElementById('loopOptions').style.display = p.type === 'venture' ? 'none' : 'block';
-            
-            setSlot(0);
-            document.getElementById('overlay').classList.remove('hidden');
             document.getElementById('productSheet').classList.add('open');
-            
-            document.getElementById('sheetActionBtn').onclick = () => {
-                const sub = document.getElementById('subFreq').value;
-                const slotText = ["6AM-12PM", "12PM-6PM", "6PM-12AM"][state.activeSlot];
-                
-                const existing = state.cart.find(c => c.id === p.id);
-                if(existing) {
-                    existing.qty++;
-                    existing.sub = sub;
-                    existing.slot = slotText;
-                } else {
-                    state.cart.push({...p, qty: 1, sub: sub, slot: slotText});
-                }
-                
-                closeSheet();
-                updateCartUI();
-                renderHome();
-            };
-        }
-
-        function setSlot(idx) {
-            state.activeSlot = idx;
-            document.querySelectorAll('.slot-btn').forEach((btn, i) => {
-                if(i === idx) btn.classList.add('border-green-500', 'bg-green-500/10');
-                else btn.classList.remove('border-green-500', 'bg-green-500/10');
-            });
-        }
-
-        function closeSheet() {
-            document.getElementById('overlay').classList.add('hidden');
-            document.getElementById('productSheet').classList.remove('open');
-            document.getElementById('sidebar').style.left = '-100%';
-        }
-
-        function openSidebar() {
-            document.getElementById('sideAvatar').src = state.user.avatar;
-            document.getElementById('sideNick').innerText = state.user.nickname;
             document.getElementById('overlay').classList.remove('hidden');
-            document.getElementById('sidebar').style.left = '0';
+        }
+
+        function selectSlot(idx, el) {
+            document.querySelectorAll('#slotPicker button').forEach(b => b.style.borderColor = '#1f2937');
+            el.style.borderColor = '#00b14f';
+            state.activeSlot = el.innerText;
+        }
+
+        function confirmAddToCart() {
+            state.cart.push({
+                ...state.currentProduct,
+                qty: 1,
+                slot: state.activeSlot,
+                sub: document.getElementById('subSelect').value
+            });
+            closeSidebar(); // Helper to close sheets
+            updateCartCounter();
+        }
+
+        function updateCartCounter() {
+            const badge = document.getElementById('cartCount');
+            if(state.cart.length > 0) {
+                badge.innerText = state.cart.length;
+                badge.classList.remove('hidden');
+            }
         }
 
         function switchTab(tab) {
-            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
-            document.getElementById(tab + 'Screen').classList.remove('hidden');
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById('screen-' + tab).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-tab'));
+            event.currentTarget.classList.add('active-tab');
+            if(tab === 'cart') renderCart();
+            if(tab === 'categories') renderFullCategories();
+        }
+
+        function renderFullCategories() {
+            document.getElementById('fullCatGrid').innerHTML = state.categories.map(c => `
+                <div onclick="openCatView('${c}')" class="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center">
+                    <div class="text-3xl mb-2">📦</div>
+                    <p class="text-[10px] font-black uppercase">${c}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartList');
+            list.innerHTML = state.cart.map(p => `
+                <div class="glass p-4 rounded-3xl flex gap-4">
+                    <img src="${p.img}" class="w-16 h-16 rounded-2xl object-cover">
+                    <div class="flex-grow">
+                        <p class="text-xs font-black">${p.name}</p>
+                        <p class="text-[9px] text-gray-500 uppercase">${p.slot} • ${p.sub}</p>
+                        <p class="font-bold text-green-500">₹${p.price}</p>
+                    </div>
+                </div>
+            `).join('');
             
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.replace('text-green-500', 'text-zinc-500'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('tab-active'));
-            
-            const activeTab = document.getElementById('tab-' + tab);
-            activeTab.classList.replace('text-zinc-500', 'text-green-500');
-            activeTab.classList.add('tab-active');
+            const sub = state.cart.reduce((a, b) => a + b.price, 0);
+            document.getElementById('billSub').innerText = `₹${sub}`;
+            document.getElementById('billTotal').innerText = `₹${sub + 25}`;
         }
 
-        function getCatEmoji(c) {
-            const map = { "Electronics": "💻", "Snacks": "🍟", "Beverages": "🥤", "Pharmacy": "💊", "Toys": "🧸", "Kitchen": "🍳", "Clothing": "👕", "Fruits": "🍎" };
-            return map[c.split(' ')[0]] || "📦";
+        function placeOrder() {
+            if(!state.cart.length) return alert("Cart empty");
+            state.cart = [];
+            updateCartCounter();
+            switchTab('tracking');
         }
 
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let g = "Good Morning";
-            if(hour >= 12 && hour < 17) g = "Good Afternoon";
-            else if(hour >= 17) g = "Good Evening";
-            
-            document.getElementById('timeGreeting').innerText = `${g} • ${greetings[Math.floor(Math.random()*greetings.length)]}`;
+        function openSidebar() {
+            document.getElementById('sidebar').style.left = '0';
+            document.getElementById('overlay').classList.remove('hidden');
+            document.getElementById('sideAvatar').src = state.user.avatar;
+            document.getElementById('sideNick').innerText = state.user.nickname;
+            if(state.user.isPremium) document.getElementById('sidePremium').classList.remove('hidden');
         }
 
-        function selectAvatar(el, idx) {
-            document.querySelectorAll('#avatarPicker img').forEach(i => i.classList.remove('avatar-selected'));
-            el.classList.add('avatar-selected');
-            state.selectedAvatarIdx = idx;
+        function closeSidebar() {
+            document.getElementById('sidebar').style.left = '-100%';
+            document.getElementById('productSheet').classList.remove('open');
+            document.getElementById('overlay').classList.add('hidden');
         }
 
-        // --- 5. AUTH SIMULATION (Kept as requested) ---
-        function sendOTP() {
-            document.getElementById('phoneArea').classList.add('hidden');
-            document.getElementById('otpArea').classList.remove('hidden');
+        function toggleTheme() {
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
         }
-        function verifyOTP() {
-            // Simplified for github demo
-            showOnboarding();
-        }
-        function googleLogin() { showOnboarding(); }
-        function logout() { localStorage.clear(); location.reload(); }
 
+        function logout() {
+            localStorage.clear();
+            auth.signOut().then(() => location.reload());
+        }
     </script>
 </body>
 </html>
