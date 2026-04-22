@@ -33,8 +33,9 @@
    RESET & BASE
 ═══════════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:var(--font-b);background:var(--bg);color:var(--t1);font-size:14px}
-body{max-width:480px;margin:0 auto;position:relative}
+html,body{height:100%;overflow:hidden;font-family:var(--font-b);background:var(--bg);color:var(--t1);font-size:14px;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
+body{max-width:480px;margin:0 auto;position:relative;overscroll-behavior:none}
+.scrollable{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 input,button,select,textarea{font-family:var(--font-b);outline:none}
 button{cursor:pointer;border:none;background:none}
 a{text-decoration:none;color:inherit}
@@ -51,7 +52,7 @@ img{display:block;object-fit:cover}
 }
 .screen.active{display:flex}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.scrollable{flex:1;overflow-y:auto;padding-bottom:88px}
+.scrollable{flex:1;overflow-y:auto;padding-bottom:88px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 
 /* ═══════════════════════════════════════════
    SPLASH
@@ -764,13 +765,13 @@ img{display:block;object-fit:cover}
     <div class="form-section">
       <div class="form-sec-title">🕐 Delivery Slot</div>
       <div class="slot-grid">
-        <button class="slot-btn" onclick="pickSlot(this,'Morning (6am-12pm)')">
+        <button class="slot-btn" onclick="pickSlot(this,'Morning (6am - 12pm)')">
           <span class="slot-em">🌅</span><span class="slot-time">6AM–12PM</span><span class="slot-label">Morning</span>
         </button>
-        <button class="slot-btn" onclick="pickSlot(this,'Afternoon (12pm-6pm)')">
+        <button class="slot-btn" onclick="pickSlot(this,'Afternoon (12pm - 6pm)')">
           <span class="slot-em">☀️</span><span class="slot-time">12PM–6PM</span><span class="slot-label">Afternoon</span>
         </button>
-        <button class="slot-btn" onclick="pickSlot(this,'Night (6pm-12am)')">
+        <button class="slot-btn" onclick="pickSlot(this,'Night (6pm - 12am)')">
           <span class="slot-em">🌙</span><span class="slot-time">6PM–12AM</span><span class="slot-label">Night</span>
         </button>
       </div>
@@ -1344,6 +1345,7 @@ function saveApp() {
       prefs: APP.prefs,
       notifs: APP.notifs,
       theme: APP.theme,
+      cart: APP.cart,
     }));
   } catch(e) {}
 }
@@ -1361,6 +1363,7 @@ function loadApp() {
       APP.prefs = d.prefs || [];
       APP.notifs = d.notifs || APP.notifs;
       APP.theme = d.theme || 'dark';
+      APP.cart = d.cart || {};
     }
   } catch(e) {}
 }
@@ -1470,6 +1473,7 @@ function initApp() {
   renderProfilePage();
   renderWalletPage();
   buildProfPrefGrid();
+  updateCartBadge();
   showTab('homeScreen');
 }
 
@@ -1641,6 +1645,7 @@ function quickAdd(id, cat) {
   if(APP.cart[id].qty >= item.s) { toast('Max stock reached'); return; }
   APP.cart[id].qty++;
   updateCartBadge();
+  saveApp();
   renderProducts(APP.currentCat, document.getElementById('searchInp').value);
   toast(`${item.n} added ✓`);
 }
@@ -1650,6 +1655,7 @@ function changeQty(id, d) {
   APP.cart[id].qty += d;
   if(APP.cart[id].qty <= 0) delete APP.cart[id];
   updateCartBadge();
+  saveApp();
   renderProducts(APP.currentCat, document.getElementById('searchInp').value);
 }
 
@@ -1700,6 +1706,7 @@ function cartQty(id, d) {
   APP.cart[id].qty += d;
   if(APP.cart[id].qty <= 0) delete APP.cart[id];
   updateCartBadge();
+  saveApp();
   renderCart();
 }
 
@@ -1992,3 +1999,4 @@ function toast(msg) {
 </script>
 </body>
 </html>
+   
